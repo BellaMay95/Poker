@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Helpers;
 
 namespace PokerPrototype.Models
 {
@@ -57,7 +58,7 @@ namespace PokerPrototype.Models
                     MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Open();
-                    cmd.Connection = Conn;
+                    /*cmd.Connection = Conn;
                     cmd.CommandText = "INSERT INTO payment_info (user_id, name, card_number, cvc) VALUES (@id, @name, @card_number, @cvc)";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@id", id);
@@ -65,7 +66,28 @@ namespace PokerPrototype.Models
                     cmd.Parameters.AddWithValue("@card_number", cardNumber);
                     cmd.Parameters.AddWithValue("@cvc", cvc);
                     success = cmd.ExecuteNonQuery() > 0;
-                    amountError = cmd.LastInsertedId.ToString();
+                    amountError = cmd.LastInsertedId.ToString();*/
+
+                    cmd.Connection = Conn;
+                    cmd.CommandText = "SELECT password FROM users WHERE id=" + id;
+                    MySqlDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[0].ToString(), password))
+                    {
+                        cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                        Conn.Close();
+                        Conn.Open();
+                        cmd.Connection = Conn;
+                        cmd.CommandText = "UPDATE users SET currency = currency + @amount WHERE id = @id";
+                        cmd.Prepare();
+                        cmd.Parameters.AddWithValue("@amount", amount);
+                        cmd.Parameters.AddWithValue("@id", id);
+                        success = cmd.ExecuteNonQuery() > 0;
+                    }
+                    else
+                    {
+                        passwordError = "Your password is incorrect";
+                    }
+
                     Conn.Close();
                 }
                 catch (Exception ex)

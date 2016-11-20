@@ -149,14 +149,16 @@ $(document).ready(function () {
 
 
     function submitLogin() {
+        $(".modal-footer").append("<div class='spinner' style='float:left'></div>")
         $.post("/ajax/login", {
             username: $('#login-username').val(),
-            password: $('#login-password').val()
+            password: $('#login-password').val(),
         },
         loginHandler);
     }
 
     function submitRegister() {
+        $(".modal-footer").append("<div class='spinner'></div>")
         $.post("/ajax/register", {
             email: $('#register-email').val(),
             username: $('#register-username').val(),
@@ -167,6 +169,7 @@ $(document).ready(function () {
 
 
     function loginHandler(response) {
+        $(".spinner").remove();
         if (response.usernameError.length > 0) {
             $("#login-username-group").addClass("has-error");
             $("#login-username-msg").text(response.usernameError);
@@ -186,6 +189,7 @@ $(document).ready(function () {
         }
     }
     function registerHandler(response) {
+            $(".spinner").remove();
             if (response.usernameError.length > 0) {
                 $("#register-username-group").addClass("has-error");
                 $("#register-username-msg").text(response.usernameError);
