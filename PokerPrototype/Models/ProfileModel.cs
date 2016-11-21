@@ -80,10 +80,7 @@ namespace PokerPrototype.Models
                     MySqlDataReader rdr = cmd.ExecuteReader();
                     if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[0].ToString(), oldPassword))
                     {
-                        cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                        Conn.Close();
-                        Conn.Open();
-                        cmd.Connection = Conn;
+                        rdr.Close();
                         cmd.CommandText = "UPDATE users SET password=@myawesomepassword WHERE id=" + id;
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@myawesomepassword", Crypto.HashPassword(newPassword));
@@ -138,10 +135,7 @@ namespace PokerPrototype.Models
                     MySqlDataReader rdr = cmd.ExecuteReader();
                     if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[0].ToString(), password))
                     {
-                        cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                        Conn.Close();
-                        Conn.Open();
-                        cmd.Connection = Conn;
+                        rdr.Close();
                         cmd.CommandText = "UPDATE users SET email=@newemail WHERE id=" + id;
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@newemail", email);

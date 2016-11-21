@@ -71,6 +71,98 @@
 }
 
 <h2>RoomList</h2>
-
+<button class="btn-primary btn" data-toggle="modal" data-target="#room-modal">Create Room</button>
 <div style="overflow-y:auto;" id="myDiv">
+</div>
+
+
+<div class="modal fade" id="room-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="RegisterLabel">Create new room</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row" id="title-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="title-input">Room Title</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="title-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="title-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="max-player-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="max-player-input">Maximium Players (2 - 8)</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="max-player-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="max-player-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="big-blind-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="big-blind-input">Big Blind</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="big-blind-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="big-blind-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="time-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="time-input">Time per turn</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" id="time-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="time-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="buy-in-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="buy-in-input">Max Buy in</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="number" class="form-control" id="buy-in-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="buy-in-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="private-group">
+                    <div class="col-sm-3">
+                        <label class="control-label" for="private-input">Private</label>
+                    </div>
+                    <div class="col-sm-9">
+                        <input type="radio" class="form-control" id="private-input" />
+                    </div>
+                    <div class="col-sm-3"></div>
+                    <div class="col-sm-9">
+                        <span id="private-msg" class="help-block"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- Change These-->
+                <!--  <a class="btn btn-default" href="~/Register">Create Account</a>-->
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="fund-btn" class="btn btn-primary">Buy Currency</button>
+            </div>
+        </div>
+    </div>
 </div>

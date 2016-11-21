@@ -73,10 +73,7 @@ namespace PokerPrototype.Models
                     MySqlDataReader rdr = cmd.ExecuteReader();
                     if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[0].ToString(), password))
                     {
-                        cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                        Conn.Close();
-                        Conn.Open();
-                        cmd.Connection = Conn;
+                        rdr.Close();
                         cmd.CommandText = "UPDATE users SET currency = currency + @amount WHERE id = @id";
                         cmd.Prepare();
                         cmd.Parameters.AddWithValue("@amount", amount);

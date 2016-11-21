@@ -32,6 +32,7 @@
             <div class="col-sm-3"></div>
             <div class="col-sm-9">
                 <button id="file-btn" class="btn btn-primary" disabled>Save Changes</button>
+                <div id="file-div" style="display: inline-block"></div>
             </div>
         </div>
     </div>
@@ -78,11 +79,12 @@
     <div class="col-sm-3"></div>
     <div class="col-sm-9">
         <button id="password-btn" class="btn btn-primary">Submit</button>
+        <div id="password-div" style="display: inline-block"></div>
     </div>
 </div>
 
 
-<h1>Change Email</h1>
+<h2>Change Email</h2>
 <div class="row">
     <div class="col-sm-3">
         <label class="control-label">Current Email</label>
@@ -115,8 +117,9 @@
         <span id="email-password-msg" class="help-block"></span>
     </div>
     <div class="col-sm-3"></div>
-    <div class="col-sm-9">
+    <div class="col-sm-9" id="email-btn-div">
         <button id="email-btn" class="btn btn-primary">Submit</button>
+        <div id="email-div" style="display: inline-block"></div>
     </div>
 </div>
 
@@ -156,7 +159,23 @@
                         imageHandler(canvasFinal.toDataURL('image/jpeg'));
                     } else {
                         var offset = (image.width - image.height) / 2;
-                        canvas.getContext('2d').drawImage(this, offset, 0, image.height, image.height, 0, 0, canvas.width, canvas.height);
+
+                        canvas.width = image.height;
+                        canvas.height = image.height;
+                        canvas.getContext('2d').drawImage(this, offset, 0, image.height, image.height, 0, 0, image.height, image.height);
+
+                        while (canvas.width > 320) {
+                            var canvasTemp = document.createElement('canvas');
+                            canvasTemp.width = canvas.width / 2;
+                            canvasTemp.height = canvasTemp.width;
+                            canvasTemp.getContext('2d').drawImage(canvas, 0, 0, canvasTemp.width, canvasTemp.height);
+                            canvas = canvasTemp;
+                        }
+                        var canvasFinal = document.createElement('canvas');
+                        canvasFinal.width = 128;
+                        canvasFinal.height = 128;
+                        canvasFinal.getContext('2d').drawImage(canvas, 0, 0, canvasFinal.width, canvasFinal.height);
+                        imageHandler(canvasFinal.toDataURL('image/jpeg'));
                     }
                 };
                 image.src = event.target.result;
@@ -174,9 +193,10 @@
         }
         $('#file-btn').click(function () {
             $.post("/ajax/changeAvatar", { src: dataString }, avatarHandler);
+            $('#file-div').empty().addClass('spinner');
         });
         function avatarHandler(response) {
-            alert(response);
+            $("#file-div").removeClass('spinner').append('<p class="text-success">Avatar changed</p>');
         }
         $('#password-btn').click(function () {
             $.post("/ajax/changePassword", {
@@ -184,11 +204,15 @@
                 newPassword: $('#new-password-input').val(),
                 Confirm: $('#confirm-password-input').val()
             }, passwordHandler);
+            $('#password-div').empty().addClass('spinner');
         });
         function passwordHandler(response) {
+            $("#password-div").removeClass('spinner');
+            var success = true;
             if (response.passwordError.length > 0) {
                 $("#old-password-group").addClass("has-error");
                 $("#old-password-msg").text(response.passwordError);
+                success = false;
             } else {
                 $("#old-password-group").removeClass("has-error");
                 $("#old-password-msg").text("");
@@ -196,6 +220,7 @@
             if (response.newpasswordError.length > 0) {
                 $("#new-password-group").addClass("has-error");
                 $("#new-password-msg").text(response.newpasswordError);
+                success = false;
             } else {
                 $("#new-password-group").removeClass("has-error");
                 $("#new-password-msg").text("");
@@ -203,21 +228,29 @@
             if (response.confirmError.length > 0) {
                 $("#confirm-password-group").addClass("has-error");
                 $("#confirm-password-msg").text(response.confirmError);
+                success = false;
             } else {
                 $("#confirm-password-group").removeClass("has-error");
                 $("#confirm-password-msg").text("");
             }
+            if (success) {
+                $('#password-div').append('<p class="text-success">Password changed</p>');
+            }
         }
         $('#email-btn').click(function () {
+            $('#email-div').empty().addClass('spinner');
             $.post("/ajax/changeEmail", { 
                 email: $('#email-input').val(),
                 password: $('#email-password-input').val()
                 }, emailHandler);
         });
         function emailHandler(response) {
+            $("#email-div").removeClass('spinner');
+            var success = true;
             if (response.emailError.length > 0) {
                 $("#email-group").addClass("has-error");
                 $("#email-msg").text(response.emailError);
+                success = false;
             } else {
                 $("#email-group").removeClass("has-error");
                 $("#email-msg").text("");
@@ -225,9 +258,14 @@
             if (response.passwordError.length > 0) {
                 $("#email-password-group").addClass("has-error");
                 $("#email-password-msg").text(response.passwordError);
+                success = false;
             } else {
                 $("#email-password-group").removeClass("has-error");
                 $("#email-password-msg").text("");
+            }
+            if (success) {
+
+                $('#email-div').append('<p class="text-success">Email changed</p>');
             }
         }
     }); //end document ready
