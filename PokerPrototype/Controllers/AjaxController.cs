@@ -28,6 +28,16 @@ namespace PokerPrototype.Controllers
             return Json(register, JsonRequestBehavior.AllowGet);
         }
 
+        public ActionResult CreateRoom(string title, string max_players, string blind, string time, string buy_in, string private_room)
+        {
+            createRoomModel create = new createRoomModel(Convert.ToInt32(Session["id"]), title, max_players, blind, time, buy_in, private_room);
+            if (create.success)
+            {
+
+            }
+            return Json(create, JsonRequestBehavior.AllowGet);
+        }
+
         public ActionResult Payment(string amount, string name, string cardNumber, string cvc, string expires, string password)
         {
             PaymentModel payment = new PaymentModel(Convert.ToInt32(Session["id"]), amount, name, cardNumber, cvc, expires, password);

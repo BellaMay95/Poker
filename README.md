@@ -9,7 +9,7 @@ administrators review/resolve tickets
 message system between players/players & players/administrators
 clean up credit card input fields & encrypt
 delete accounts
-create rooms
+rooms: store player ID in the database and then count that number for the current number of players
 stipend of currency for logging in 3 days in a row
 stipend of currency for completing 10 games
 create leaderboard (sorted by currency EARNED/date created)

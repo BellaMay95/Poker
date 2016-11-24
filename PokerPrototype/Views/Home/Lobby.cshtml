@@ -68,6 +68,115 @@
             $table.appendTo(document.body);
         }
     </script>
+    <script>
+        //$.post("ajax/createroom", createHandler);
+        $(document).ready(function () {
+            //alert("Document ready");
+            //Script for Create Room, define createRoom Function below
+            $("#create-btn").click(createRoom);
+            $('#title-input').on("keyup", function (e) {
+                if (e.keyCode == 13 || e.keyCode == 40) {
+                    $("#max-player-input").focus();
+                }
+            });
+            $('#max-player-input').on("keyup", function (e) {
+                if (e.keyCode == 13 || e.keyCode == 40) {
+                    $("#big-blind-input").focus();
+                }
+            });
+            $('#big-blind-input').on("keyup", function (e) {
+                if (e.keyCode == 13 || e.keyCode == 40) {
+                    $("#time-input").focus();
+                }
+            });
+            $('#time-input').on("keyup", function (e) {
+                if (e.keyCode == 13 || e.keyCode == 40) {
+                    $("#buy-in-input").focus();
+                }
+            });
+            $('#buy-in-input').on("keyup", function (e) {
+                if (e.keyCode == 13 || e.keyCode == 40) {
+                    $("#private-input").focus();
+                }
+            });
+            $('#private-input').on("keyup", function (e) {
+                if (e.keyCode == 13) {
+                    createRoom();
+                }
+            });
+
+            function createRoom() {
+                alert("creating room...");
+                $(".modal-footer").append("<div class='spinner'></div>")
+                if ($('#private-input').is(':checked'))
+                    private_room = "1";
+                else
+                    private_room = "0";
+                //alert("set private variable");
+                $.post("/ajax/createroom", {
+                    title: $('#title-input').val(),
+                    max_players: $('#max-player-input').val(),
+                    blind: $('#big-blind-input').val(),
+                    time: $('#time-input').val(),
+                    buy_in: $('#buy-in-input').val(),
+                    private_room
+                }, createHandler);
+            }
+
+            function createHandler(response) {
+                alert("in handler");
+                $(".spinner").remove();
+                if (response.nameError.length > 0) {
+                    $("#title-group").addClass("has-error");
+                    $("#title-msg").text(response.nameError);
+                } else {
+                    $("#title-group").removeClass("has-error");
+                    $("#title-msg").text("");
+                }
+                if (response.maxError.length > 0) {
+                    $("#max-player-group").addClass("has-error");
+                    $("#max-player-msg").text(response.maxError);
+                } else {
+                    $("#max-player-group").removeClass("has-error");
+                    $("#max-player-msg").text("");
+                }
+                if (response.blindError.length > 0) {
+                    $("#big-blind-group").addClass("has-error");
+                    $("#big-blind-msg").text(response.blindError);
+                } else {
+                    $("#big-blind-group").removeClass("has-error");
+                    $("#big-blind-msg").text("");
+                }
+                if (response.secondsError.length > 0) {
+                    $("#time-group").addClass("has-error");
+                    $("#time-msg").text(response.secondsError);
+                } else {
+                    $("#time-group").removeClass("has-error");
+                    $("#time-msg").text("");
+                }
+                if (response.buyinError.length > 0) {
+                    $("#buy-in-group").addClass("has-error");
+                    $("#buy-in-msg").text(response.buyinError);
+                } else {
+                    $("#buy-in-group").removeClass("has-error");
+                    $("#buy-in-msg").text("");
+                }
+                if (response.privateError.length > 0) {
+                    $("#private-group").addClass("has-error");
+                    $("#private-msg").text(response.privateError);
+                } else {
+                    $("#private-group").removeClass("has-error");
+                    $("#private-msg").text("");
+                }
+                /*if (response.usernameError.length == 0 && response.passwordError.length == 0) {
+                    window.location.href = '/';
+                }*/
+                alert("Room Successfully Created!");
+                $('#room-modal').modal('toggle');
+                //refresh the lobby page!
+            }
+        });
+    </script>
 }
 
 <h2>RoomList</h2>
@@ -81,7 +190,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="RegisterLabel">Create new room</h4>
+                <h4 class="modal-title" id="CreateRoomLabel">Create new room</h4>
             </div>
             <div class="modal-body">
                 <div class="form-group row" id="title-group">
@@ -122,10 +231,10 @@
                 </div>
                 <div class="form-group row" id="time-group">
                     <div class="col-sm-3">
-                        <label class="control-label" for="time-input">Time per turn</label>
+                        <label class="control-label" for="time-input">Time per turn (in seconds)</label>
                     </div>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" id="time-input" />
+                        <input type="number" class="form-control" id="time-input" />
                     </div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-9">
@@ -149,7 +258,7 @@
                         <label class="control-label" for="private-input">Private</label>
                     </div>
                     <div class="col-sm-9">
-                        <input type="radio" class="form-control" id="private-input" />
+                        <input type="checkbox" class="form-control" id="private-input" />
                     </div>
                     <div class="col-sm-3"></div>
                     <div class="col-sm-9">
@@ -161,7 +270,7 @@
                 <!-- Change These-->
                 <!--  <a class="btn btn-default" href="~/Register">Create Account</a>-->
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" id="fund-btn" class="btn btn-primary">Buy Currency</button>
+                <button type="button" id="create-btn" class="btn btn-primary">Create Room</button>
             </div>
         </div>
     </div>
