@@ -28,9 +28,9 @@ namespace PokerPrototype.Controllers
             return Json(register, JsonRequestBehavior.AllowGet);
         }
 
-        public ActionResult CreateRoom(string title, string max_players, string blind, string time, string buy_in, string private_room)
+        public ActionResult CreateRoom(string title, string maxPlayers, string blind, string time, string buyIn, string isPrivate)
         {
-            createRoomModel create = new createRoomModel(Convert.ToInt32(Session["id"]), title, max_players, blind, time, buy_in, private_room);
+            createRoomModel create = new createRoomModel(Convert.ToInt32(Session["id"]), title, maxPlayers, blind, time, buyIn, isPrivate);
             if (create.success)
             {
 

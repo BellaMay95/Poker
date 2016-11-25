@@ -4,76 +4,262 @@
 }
 
 <style media="screen" type="text/css">
-    table {
-        background-color: #4CAF50;
-        color: white;
-        border-collapse: collapse;
+    .dropdown-toggle,.dropdown-menu{
         width: 100%;
     }
-
-    table, th, td {
-        border: 1px solid black;
+    tbody>tr{
+        cursor: pointer;
     }
+}
 
-    th, td {
-        padding: 15px;
-        text-align: left;
-    }
-
-    tr:hover {
-        background-color: #f5f5f5;
-    }
-
-    th{
-        background-color: ;
-    }
-
-    tr:nth-child(even) {
-        background-color: #f2f2f2;
-        color: black;
-    }
-
-    tr:nth-child(odd) {
-        background-color: #2f2f2f;
-    }
 </style>
 
 @section topright{
     @Html.Partial("_ProfileDropdown", Model)
 }
 @Html.Partial("_AddFund")
-<h2>Lobby</h2>
-<p>You can log out at the top right</p>
-<button id="sendmessage">Send Message</button>
+<h1>Join a Game!</h1>
+<div class="col-sm-3">
+    <button class="btn-primary btn" data-toggle="modal" data-target="#room-modal">Create Room</button>
+    <button class="btn-primary btn" id="refresh">Refresh</button>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3 class="panel-title">Filter Results</h3>
+        </div>
+        <div class="panel-body">
+            <div class="input-group">
+                <input type="text" id="filter-input"class="form-control" placeholder="filter...">
+                <span class="input-group-btn">
+                    <button id="filter-clear"class="btn btn-default" type="button">
+                        <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                    </button>
+                </span>
+            </div>
+            <div class="checkbox">
+                <label><input type="checkbox" id="show-full" value="">Show full rooms</label>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-sm-9">
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>Room Name</th>
+                <th>Players</th>
+                <th>Time per Turn</th>
+                <th>Big Blinds</th>
+                <th>Max Buy In</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+</div>
 
+
+<div class="modal fade" id="room-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="CreateRoomLabel">Create new room</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group row" id="title-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="title-input">Room Title</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" class="form-control" id="title-input" />
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="title-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="max-player-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="max-player-input">Maximium Players</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="dropdown">
+                            <a id="max-player-btn" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">8 Players<span class="caret"></span></a>
+                            <ul id="max-player-dropdown" class="dropdown-menu">
+                                <li><a href="#">8 Players</a></li>
+                                <li><a href="#">7 Players</a></li>
+                                <li><a href="#">6 Players</a></li>
+                                <li><a href="#">5 Players</a></li>
+                                <li><a href="#">4 Players</a></li>
+                                <li><a href="#">3 Players</a></li>
+                                <li><a href="#">2 Players</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="max-player-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="big-blind-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="big-blind-input">Big Blind</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" id="big-blind-input" />
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="big-blind-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="time-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="time-input">Seconds per turn</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="number" class="form-control" id="time-input" />
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="time-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="buy-in-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="buy-in-input">Max Buy in</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="dropdown">
+                            <a id="buy-in-btn" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">40 Big Blinds<span class="caret"></span></a>
+                            <ul class="dropdown-menu" id="buy-in-dropdown">
+                                <li><a href="#">20 Big Blinds</a></li>
+                                <li><a href="#">30 Big Blinds</a></li>
+                                <li><a href="#">40 Big Blinds</a></li>
+                                <li><a href="#">50 Big Blinds</a></li>
+                                <li><a href="#">80 Big Blinds</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="buy-in-msg" class="help-block"></span>
+                    </div>
+                </div>
+                <div class="form-group row" id="private-group">
+                    <div class="col-sm-4">
+                        <label class="control-label" for="private-input">Visibility</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="dropdown">
+                            <a id="private-btn" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">Public<span class="caret"></span></a>
+                            <ul id="private-dropdown" class="dropdown-menu">
+                                <li><a href="#">Public</a></li>
+                                <li><a href="#">Private (invite only)</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-sm-4"></div>
+                    <div class="col-sm-8">
+                        <span id="private-msg" class="help-block"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <!-- Change These-->
+                <!--  <a class="btn btn-default" href="~/Register">Create Account</a>-->
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="create-btn" class="btn btn-primary">Create Room</button>
+            </div>
+        </div>
+    </div>
+</div>
 @section scripts {
     @Html.Partial("_AddFundScript")
+<script type="text/javascript" src="@Url.Content("/Scripts/bootstrap-slider.js")"></script>
     <script>
-        $.post("ajax/lobby", ajaxHandler);
-        function ajaxHandler(response) {
-            //alert(JSON.stringify(response));
-            var $table = $("<table></table>");
-            $table.append("<tr><th>Room Name</th><th>Player Count</th><th>blinds</th><tr>")
-            for (var i = 0; i < response.length; i++) {
-                var rooms = response[i];
-                var $line = $("<tr></tr>");
-                //$line.append($("<td></td>").html(rooms.roomID));
-                $line.append("<td><a href='room/" + i + "'>" + rooms.roomName + "</a></td>");
-                $line.append($("<td></td>").html(rooms.currentNumberPlayers + " / " + rooms.maxPlayerCount));
-                //$line.append($("<td></td>").html(rooms.maxPlayerCount));
-                $line.append($("<td></td>").html(rooms.blinds));
-                $table.append($line);
-            }
-            $table.appendTo($("#myDiv"));
-            $table.appendTo(document.body);
+        refresh();
+        var roomList = [];
+        $("#refresh").click(refresh);
+        function refresh() {
+            $("tbody").empty().append("<div class='spinner'></div>")
+            $.post("ajax/lobby", roomListHandler);
+            $("#last-refresh").html("&nbsp;")
         }
+        function roomListHandler(response) {
+            roomList = response;
+            printRoomList();
+            //setTimeout(refresh, 60 * 1000);
+        }
+        function printRoomList() {
+            //alert(JSON.stringify(roomList))
+            roomList.sort(function (a, b) {
+                return b.currentNumberPlayers - a.currentNumberPlayers;
+            });
+            var $tbody = $("tbody").empty();
+            for (var i = 0; i < roomList.length; i++) {
+                var room = roomList[i];
+                if (!passesFilter(room)) {
+                    continue;
+                }
+                var $line = $("<tr data-id='" + room.roomID + "'></tr>");
+                $line.append("<td>" + room.roomName + "</td>");
+                $line.append($("<td></td>").text(room.currentNumberPlayers + " / " + room.maxPlayerCount));
+                $line.append($("<td></td>").text(room.seconds + " seconds"));
+                $line.append($("<td></td>").text(room.blinds));
+                $line.append($("<td></td>").text(room.max_buy_in + " big blinds"));
+                $tbody.append($line);
+            }
+        }
+        function passesFilter(room) {
+            var filters = $("#filter-input").val().toLowerCase().split(/[ ,\-]+/);
+            var tokens = room.roomName.toLowerCase().split(/[ ,\-]+/);
+            for (var i = 0; i < filters.length; i++) {
+                var match = false;
+                for (var j = 0; j < tokens.length; j++) {
+                    if (tokens[j].startsWith(filters[i])) {
+                        match = true;
+                        break;
+                    }
+                }
+                if (match == false) {
+                    return false;
+                }
+            }
+            if (room.currentNumberPlayers == room.maxPlayerCount && !($("#show-full").is(':checked'))) {
+                return false;
+            }
+            return true;
+        }
+        $("#filter-input").on("input", printRoomList);
+        $("#filter-clear").click(function () {
+            $("#filter-input").val("");
+            printRoomList();
+        })
+        $("#show-full").change(printRoomList);
+        $('tbody').on("click", 'tr', function () {
+            var id = $(this).data("id");
+            window.location.href = "/room/" + id;
+        })
     </script>
     <script>
         //$.post("ajax/createroom", createHandler);
         $(document).ready(function () {
+
             //alert("Document ready");
             //Script for Create Room, define createRoom Function below
             $("#create-btn").click(createRoom);
+            $("#buy-in-dropdown").on("click", "a", function () {
+                $("#buy-in-btn").html($(this).text() + '<span class="caret"></span>');
+            });
+            $("#max-player-dropdown").on("click", "a", function () {
+                $("#max-player-btn").html($(this).text() + '<span class="caret"></span>');
+            });
+            $("#private-dropdown").on("click", "a", function () {
+                $("#private-btn").html($(this).text() + '<span class="caret"></span>');
+            });
+
+
             $('#title-input').on("keyup", function (e) {
                 if (e.keyCode == 13 || e.keyCode == 40) {
                     $("#max-player-input").focus();
@@ -106,29 +292,28 @@
             });
 
             function createRoom() {
-                alert("creating room...");
                 $(".modal-footer").append("<div class='spinner'></div>")
-                if ($('#private-input').is(':checked'))
-                    private_room = "1";
-                else
-                    private_room = "0";
-                //alert("set private variable");
+                var buyin = $("#buy-in-btn").text().replace(/^(\d+).*/, '$1');
+                var maxPlayers = $("#max-player-btn").text().replace(/^(\d+).*/, '$1');
+                var isPrivate = ($("#private-btn").text() == "Public") ? "0" : "1";
                 $.post("/ajax/createroom", {
                     title: $('#title-input').val(),
-                    max_players: $('#max-player-input').val(),
+                    maxPlayers: maxPlayers,
                     blind: $('#big-blind-input').val(),
                     time: $('#time-input').val(),
-                    buy_in: $('#buy-in-input').val(),
-                    private_room
+                    buyIn: buyin,
+                    isPrivate: isPrivate
                 }, createHandler);
             }
 
             function createHandler(response) {
-                alert("in handler");
+                alert(JSON.stringify(response));
+                var success = true;
                 $(".spinner").remove();
                 if (response.nameError.length > 0) {
                     $("#title-group").addClass("has-error");
                     $("#title-msg").text(response.nameError);
+                    success = false;
                 } else {
                     $("#title-group").removeClass("has-error");
                     $("#title-msg").text("");
@@ -136,6 +321,7 @@
                 if (response.maxError.length > 0) {
                     $("#max-player-group").addClass("has-error");
                     $("#max-player-msg").text(response.maxError);
+                    success = false;
                 } else {
                     $("#max-player-group").removeClass("has-error");
                     $("#max-player-msg").text("");
@@ -143,6 +329,7 @@
                 if (response.blindError.length > 0) {
                     $("#big-blind-group").addClass("has-error");
                     $("#big-blind-msg").text(response.blindError);
+                    success = false;
                 } else {
                     $("#big-blind-group").removeClass("has-error");
                     $("#big-blind-msg").text("");
@@ -150,6 +337,7 @@
                 if (response.secondsError.length > 0) {
                     $("#time-group").addClass("has-error");
                     $("#time-msg").text(response.secondsError);
+                    success = false;
                 } else {
                     $("#time-group").removeClass("has-error");
                     $("#time-msg").text("");
@@ -157,6 +345,7 @@
                 if (response.buyinError.length > 0) {
                     $("#buy-in-group").addClass("has-error");
                     $("#buy-in-msg").text(response.buyinError);
+                    success = false;
                 } else {
                     $("#buy-in-group").removeClass("has-error");
                     $("#buy-in-msg").text("");
@@ -164,6 +353,7 @@
                 if (response.privateError.length > 0) {
                     $("#private-group").addClass("has-error");
                     $("#private-msg").text(response.privateError);
+                    success = false;
                 } else {
                     $("#private-group").removeClass("has-error");
                     $("#private-msg").text("");
@@ -171,107 +361,12 @@
                 /*if (response.usernameError.length == 0 && response.passwordError.length == 0) {
                     window.location.href = '/';
                 }*/
-                alert("Room Successfully Created!");
-                $('#room-modal').modal('toggle');
+                if (success) {
+                    alert("Room Successfully Created!");
+                    $('#room-modal').modal('toggle');
+                }
                 //refresh the lobby page!
             }
         });
     </script>
 }
-
-<h2>RoomList</h2>
-<button class="btn-primary btn" data-toggle="modal" data-target="#room-modal">Create Room</button>
-<div style="overflow-y:auto;" id="myDiv">
-</div>
-
-
-<div class="modal fade" id="room-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                <h4 class="modal-title" id="CreateRoomLabel">Create new room</h4>
-            </div>
-            <div class="modal-body">
-                <div class="form-group row" id="title-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="title-input">Room Title</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" id="title-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="title-msg" class="help-block"></span>
-                    </div>
-                </div>
-                <div class="form-group row" id="max-player-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="max-player-input">Maximium Players (2 - 8)</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="number" class="form-control" id="max-player-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="max-player-msg" class="help-block"></span>
-                    </div>
-                </div>
-                <div class="form-group row" id="big-blind-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="big-blind-input">Big Blind</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="number" class="form-control" id="big-blind-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="big-blind-msg" class="help-block"></span>
-                    </div>
-                </div>
-                <div class="form-group row" id="time-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="time-input">Time per turn (in seconds)</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="number" class="form-control" id="time-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="time-msg" class="help-block"></span>
-                    </div>
-                </div>
-                <div class="form-group row" id="buy-in-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="buy-in-input">Max Buy in</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="number" class="form-control" id="buy-in-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="buy-in-msg" class="help-block"></span>
-                    </div>
-                </div>
-                <div class="form-group row" id="private-group">
-                    <div class="col-sm-3">
-                        <label class="control-label" for="private-input">Private</label>
-                    </div>
-                    <div class="col-sm-9">
-                        <input type="checkbox" class="form-control" id="private-input" />
-                    </div>
-                    <div class="col-sm-3"></div>
-                    <div class="col-sm-9">
-                        <span id="private-msg" class="help-block"></span>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <!-- Change These-->
-                <!--  <a class="btn btn-default" href="~/Register">Create Account</a>-->
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" id="create-btn" class="btn btn-primary">Create Room</button>
-            </div>
-        </div>
-    </div>
-</div>
