@@ -10,6 +10,13 @@
     tbody>tr{
         cursor: pointer;
     }
+    thead>tr>th{
+        cursor: pointer;
+    }
+    .caret-up{
+        border-top: 0 dotted;
+        border-bottom: 4px solid #000;
+    }
 }
 
 </style>
@@ -46,7 +53,7 @@
         <thead>
             <tr>
                 <th>Room Name</th>
-                <th>Players</th>
+                <th>Players<span class="caret"></span></th>
                 <th>Time per Turn</th>
                 <th>Big Blinds</th>
                 <th>Max Buy In</th>
@@ -177,71 +184,121 @@
 @section scripts {
     @Html.Partial("_AddFundScript")
 <script type="text/javascript" src="@Url.Content("/Scripts/bootstrap-slider.js")"></script>
-    <script>
-        refresh();
-        var roomList = [];
-        $("#refresh").click(refresh);
-        function refresh() {
-            $("tbody").empty().append("<div class='spinner'></div>")
-            $.post("ajax/lobby", roomListHandler);
-            $("#last-refresh").html("&nbsp;")
-        }
-        function roomListHandler(response) {
-            roomList = response;
-            printRoomList();
-            //setTimeout(refresh, 60 * 1000);
-        }
-        function printRoomList() {
-            //alert(JSON.stringify(roomList))
-            roomList.sort(function (a, b) {
-                return b.currentNumberPlayers - a.currentNumberPlayers;
-            });
-            var $tbody = $("tbody").empty();
-            for (var i = 0; i < roomList.length; i++) {
-                var room = roomList[i];
-                if (!passesFilter(room)) {
-                    continue;
-                }
-                var $line = $("<tr data-id='" + room.roomID + "'></tr>");
-                $line.append("<td>" + room.roomName + "</td>");
-                $line.append($("<td></td>").text(room.currentNumberPlayers + " / " + room.maxPlayerCount));
-                $line.append($("<td></td>").text(room.seconds + " seconds"));
-                $line.append($("<td></td>").text(room.blinds));
-                $line.append($("<td></td>").text(room.max_buy_in + " big blinds"));
-                $tbody.append($line);
+<script>
+    refresh();
+    var roomList = [];
+    var sortType = "Players";
+    var reverse = false;
+    var sortType2 = "Room Name";
+    var reverse2 = false;
+    $("#refresh").click(refresh);
+    function refresh() {
+        $("tbody").empty().append("<div class='spinner'></div>")
+        $.post("ajax/lobby", roomListHandler);
+        $("#last-refresh").html("&nbsp;")
+    }
+    function roomListHandler(response) {
+        roomList = response;
+        printRoomList();
+        //setTimeout(refresh, 60 * 1000);
+    }
+    function printRoomList() {
+        //alert(JSON.stringify(roomList))
+        roomList.sort(function (a, b) {
+            var result = compare(a, b, sortType, reverse);
+            if (result == 0) {
+                return compare(a, b, sortType2, reverse2);
             }
+            return result;
+        });
+        var $tbody = $("tbody").empty();
+        for (var i = 0; i < roomList.length; i++) {
+            var room = roomList[i];
+            if (!passesFilter(room)) {
+                continue;
+            }
+            var $line = $("<tr data-id='" + room.roomID + "'></tr>");
+            $line.append("<td>" + room.roomName + "</td>");
+            $line.append($("<td></td>").text(room.currentNumberPlayers + " / " + room.maxPlayerCount));
+            $line.append($("<td></td>").text(room.seconds + " seconds"));
+            $line.append($("<td></td>").text(room.blinds));
+            $line.append($("<td></td>").text(room.max_buy_in + " big blinds"));
+            $tbody.append($line);
         }
-        function passesFilter(room) {
-            var filters = $("#filter-input").val().toLowerCase().split(/[ ,\-]+/);
-            var tokens = room.roomName.toLowerCase().split(/[ ,\-]+/);
-            for (var i = 0; i < filters.length; i++) {
-                var match = false;
-                for (var j = 0; j < tokens.length; j++) {
-                    if (tokens[j].startsWith(filters[i])) {
-                        match = true;
-                        break;
-                    }
-                }
-                if (match == false) {
-                    return false;
+    }
+    function passesFilter(room) {
+        var filters = $("#filter-input").val().toLowerCase().split(/[ ,\-]+/);
+        var tokens = room.roomName.toLowerCase().split(/[ ,\-]+/);
+        for (var i = 0; i < filters.length; i++) {
+            var match = false;
+            for (var j = 0; j < tokens.length; j++) {
+                if (tokens[j].startsWith(filters[i])) {
+                    match = true;
+                    break;
                 }
             }
-            if (room.currentNumberPlayers == room.maxPlayerCount && !($("#show-full").is(':checked'))) {
+            if (match == false) {
                 return false;
             }
-            return true;
         }
-        $("#filter-input").on("input", printRoomList);
-        $("#filter-clear").click(function () {
-            $("#filter-input").val("");
-            printRoomList();
-        })
-        $("#show-full").change(printRoomList);
-        $('tbody').on("click", 'tr', function () {
-            var id = $(this).data("id");
-            window.location.href = "/room/" + id;
-        })
-    </script>
+        if (room.currentNumberPlayers == room.maxPlayerCount && !($("#show-full").is(':checked'))) {
+            return false;
+        }
+        return true;
+    }
+    function compare(a, b, sortType, reverse) {
+        if (reverse) {
+            var temp = a
+            a = b;
+            b = temp;
+        }
+        if (sortType == "Room Name") {
+            return a.roomName.toLowerCase().localeCompare(b.roomName.toLowerCase());
+        }
+        else if (sortType == "Players") {
+            return b.currentNumberPlayers - a.currentNumberPlayers;
+        }
+        else if (sortType == "Time per Turn") {
+            return b.seconds - a.seconds;
+        }
+        else if (sortType == "Big Blinds") {
+            return b.blinds - a.blinds;
+        }
+        else if (sortType == "Max Buy In") {
+            return b.max_buy_in - a.max_buy_in;
+        }
+    }
+
+    $("#filter-input").on("input", printRoomList);
+    $("#filter-clear").click(function () {
+        $("#filter-input").val("");
+        printRoomList();
+    })
+    $("#show-full").change(printRoomList);
+    $('tbody').on("click", 'tr', function () {
+        var id = $(this).data("id");
+        window.location.href = "/room/" + id;
+    })
+    $('thead>tr').on("click", 'th', function () {
+        $('tr .caret').remove();
+        var text = $(this).text();
+        if (sortType == text) {
+            reverse = !reverse;
+        } else {
+            sortType2 = sortType;
+            reverse2 = reverse;
+            reverse = false;
+            sortType = text;
+        }
+        if (!reverse) {
+            $(this).html($(this).text() + "<span class='caret'></span>");
+        }
+        else {
+            $(this).html($(this).text() + "<span class='caret caret-up'></span>");
+        }
+        printRoomList();
+    });
+</script>
     <script>
         //$.post("ajax/createroom", createHandler);
         $(document).ready(function () {
