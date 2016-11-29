@@ -123,6 +123,25 @@
     </div>
 </div>
 
+<h2>Delete Account</h2>
+<div class="form-group row" id="delete-group">
+    <div class="col-sm-3">
+        <label class="control-label" for="delete-input">enter password</label>
+    </div>
+    <div class="col-sm-9">
+        <input type="password" class="form-control" id="delete-input" />
+    </div>
+    <div class="col-sm-3"></div>
+    <div class="col-sm-9">
+        <span id="delete-msg" class="help-block"></span>
+    </div>
+    <div class="col-sm-3"></div>
+    <div class="col-sm-9" id="delete-btn-div">
+        <button id="delete-btn" class="btn btn-danger">Delete Account</button>
+        <div id="delete-div" style="display: inline-block"></div>
+    </div>
+</div>
+
 @Html.Partial("_AddFund")
 @section scripts{
     @Html.Partial("_AddFundScript")
@@ -264,8 +283,38 @@
                 $("#email-password-msg").text("");
             }
             if (success) {
-
-                $('#email-div').append('<p class="text-success">Email changed</p>');
+                $('#-div').append('<p class="text-success">Email changed</p>');
+            }
+        }
+        $('#delete-btn').click(function () {
+            var password = $('#delete-input').val()
+            if (password.length == 0) {
+                $("#delete-group").addClass("has-error");
+                $("#delete-msg").text("Enter your password!");
+                return;
+            }
+            if (!confirm("ARE YOU ABSOLUTELY SURE YOU WANT TO DELETE YOUR ACCOUNT? NO REFUNDS!")) {
+                return;
+            }
+            $('#delete-div').empty().addClass('spinner');
+            $.post("/ajax/deleteAccount", {
+                password: password
+            }, deleteHandler);
+        });
+        function deleteHandler(response) {
+            $("#delete-div").removeClass('spinner');
+            var success = true;
+            if (response.passwordError.length > 0) {
+                $("#delete-group").addClass("has-error");
+                $("#delete-msg").text(response.passwordError);
+                success = false;
+            } else {
+                $("#delete-group").removeClass("has-error");
+                $("#delete-msg").text("");
+            }
+            if (success) {
+                alert("Account deleted");
+                window.location.href = '/';
             }
         }
     }); //end document ready

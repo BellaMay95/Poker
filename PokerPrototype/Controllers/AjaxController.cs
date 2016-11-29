@@ -67,6 +67,14 @@ namespace PokerPrototype.Controllers
 
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+
+        public ActionResult deleteAccount(string password)
+        {
+            DeleteModel model = new DeleteModel(Convert.ToInt32(Session["id"]), password);
+            if (model.success == true)
+                Session["id"] = 0;
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         // GET: Ajax
         public ActionResult Lobby()
         {

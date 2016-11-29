@@ -92,7 +92,7 @@ namespace PokerPrototype.Models
                         passwordError = "Your old password is incorrect";
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     confirmError = e.Message;
                 }
@@ -147,12 +147,63 @@ namespace PokerPrototype.Models
                         passwordError = "Your password is incorrect";
                     }
                 }
-                catch(Exception e)
+                catch (Exception e)
                 {
                     passwordError = e.Message;
                 }
             }
-        }   
+        }
+    }
+
+    public class DeleteModel
+    {
+        [System.Web.Script.Serialization.ScriptIgnore]
+        public bool success { get; set; }
+        //public string  { get; set; }
+        public string passwordError { get; set; }
+        public DeleteModel(int id, string password)
+        {
+            success = true;
+            passwordError = "";
+            if (password.Length == 0)
+            {
+                success = false;
+                passwordError = "You must enter your password!";
+            }
+            if (success == true)
+            {
+                try
+                {
+                    MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                    var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                    Conn.Close();
+                    Conn.Open();
+                    cmd.Connection = Conn;
+                    cmd.CommandText = "SELECT password FROM users WHERE id=" + id;
+                    //cmd.Prepare();
+                    //cmd.Parameters.AddWithValue("@src", src);
+                    MySqlDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[0].ToString(), password))
+                    {
+                        rdr.Close();
+                        cmd.CommandText = "DELETE FROM users WHERE id=" + id;
+                        //cmd.Prepare();
+                        //cmd.Parameters.AddWithValue("@newemail", email);
+                        cmd.ExecuteNonQuery();
+                        Conn.Close();
+                    }
+                    else
+                    {
+                        passwordError = "Your password is incorrect";
+                        success = false;
+                    }
+                }
+                catch (Exception e)
+                {
+                    passwordError = e.Message;
+                }
+            }
+        }
     }
 }
  

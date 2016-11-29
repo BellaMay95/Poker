@@ -16,7 +16,7 @@ namespace PokerPrototype.Models
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                 Conn.Open();
                 cmd.Connection = Conn;
-                cmd.CommandText = "SELECT * FROM rooms WHERE private = 0";
+                cmd.CommandText = "SELECT * FROM rooms WHERE private = 0 AND current_players != 0";
                 cmd.Prepare();
                 MySqlDataReader rdr = cmd.ExecuteReader();
 
