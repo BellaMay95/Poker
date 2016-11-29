@@ -189,38 +189,43 @@ $(document).ready(function () {
         }
     }
     function registerHandler(response) {
-            $(".spinner").remove();
-            if (response.usernameError.length > 0) {
-                $("#register-username-group").addClass("has-error");
-                $("#register-username-msg").text(response.usernameError);
-            } else {
-                $("#register-username-group").removeClass("has-error");
-                $("#register-username-msg").text("");
-            }
-            if (response.emailError.length > 0) {
-                $("#register-email-group").addClass("has-error");
-                $("#register-email-msg").text(response.emailError);
-            } else {
-                $("#register-email-group").removeClass("has-error");
-                $("#register-email-msg").text("");
-            }
-            if (response.passwordError.length > 0) {
-                $("#register-password-group").addClass("has-error");
-                $("#register-password-msg").text(response.passwordError);
-            } else {
-                $("#register-password-group").removeClass("has-error");
-                $("#register-password-msg").text("");
-            }
-            if (response.confirmError.length > 0) {
-                $("#register-confirm-group").addClass("has-error");
-                $("#register-confirm-msg").text(response.confirmError);
-            } else {
-                $("#register-confirm-group").removeClass("has-error");
-                $("#register-confirm-msg").text("");
-            }
-            if (response.usernameError.length == 0 && response.passwordError.length == 0) {
-                window.location.href = '/';
-            }
+        $(".spinner").remove();
+        var success = true;
+        if (response.usernameError.length > 0) {
+            $("#register-username-group").addClass("has-error");
+            $("#register-username-msg").text(response.usernameError);
+            success = false;
+        } else {
+            $("#register-username-group").removeClass("has-error");
+            $("#register-username-msg").text("");
+        }
+        if (response.emailError.length > 0) {
+            $("#register-email-group").addClass("has-error");
+            $("#register-email-msg").text(response.emailError);
+            success = false;
+        } else {
+            $("#register-email-group").removeClass("has-error");
+            $("#register-email-msg").text("");
+        }
+        if (response.passwordError.length > 0) {
+            $("#register-password-group").addClass("has-error");
+            $("#register-password-msg").text(response.passwordError);
+            success = false;
+        } else {
+            $("#register-password-group").removeClass("has-error");
+            $("#register-password-msg").text("");
+        }
+        if (response.confirmError.length > 0) {
+            $("#register-confirm-group").addClass("has-error");
+            $("#register-confirm-msg").text(response.confirmError);
+            success = false;
+        } else {
+            $("#register-confirm-group").removeClass("has-error");
+            $("#register-confirm-msg").text("");
+        }
+        if (success) {
+            window.location.href = '/';
+        }
     }
 });
 </script>

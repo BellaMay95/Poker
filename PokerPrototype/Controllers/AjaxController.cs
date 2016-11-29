@@ -21,9 +21,9 @@ namespace PokerPrototype.Controllers
         public ActionResult Register(string email, string username, string password, string confirm)
         {
             RegisterModel register = new RegisterModel(email, username, password, confirm);
-            if (register.success)
+            if (register.id > 0)
             {
-                Login(username, password);
+                Session["id"] = register.id;
             }
             return Json(register, JsonRequestBehavior.AllowGet);
         }

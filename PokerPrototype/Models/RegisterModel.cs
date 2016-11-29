@@ -8,48 +8,70 @@ using System.Data;
 using MySql.Data;
 using MySql.Data.MySqlClient;
 using System.Web.Helpers;
+using System.Text.RegularExpressions;
 
 namespace PokerPrototype.Controllers
 {
     public class RegisterModel
     {
         [System.Web.Script.Serialization.ScriptIgnore]
-        public bool success { get; set; }
+        public int id { get; set; }
         public string usernameError { get; set; }
         public string passwordError { get; set; }
         public string confirmError { get; set; }
         public string emailError { get; set; }
         public RegisterModel(string email, string username, string password, string confirm)
         {
-            success = true;
+            id = 0;
+            bool success = true;
             //NEED TO ADD ERRORS FOR OTHER FIELDS
             usernameError = emailError = passwordError = confirmError = "";
-            if (confirm.Length == 0)
-            {
-                success = false;
-                confirmError = "Confirm your password";
-            }
             if (username.Length == 0)
             {
                 success = false;
                 usernameError = "Enter a username";
             }
+            else if (username.Length < 2)
+            {
+                success = false;
+                usernameError = "Username too short";
+            }
+            else if (!Regex.IsMatch(username, @"^[A-Za-z0-9_.-~]+$"))
+            {
+                success = false;
+                usernameError = "Username contains invalid characters";
+            }
+            //***EMAIL***
             if (email.Length == 0)
             {
                 success = false;
                 emailError = "Enter an email";
+            }
+            else if (!Regex.IsMatch(email, @"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"))
+            {
+                success = false;
+                emailError = "Invalid email";
             }
             if (password.Length == 0)
             {
                 success = false;
                 passwordError = "Enter a password";
             }
-            if (password.Equals(confirm) == false)
+            else if (password.Length < 8)
+            {
+                success = false;
+                passwordError = "Password must be at least 8 characters long";
+            }
+            if (confirm.Length == 0)
+            {
+                success = false;
+                confirmError = "Confirm your password";
+            }
+            else if (password.Equals(confirm) == false)
             {
                 success = false;
                 confirmError = "Passwords do not match";
             }
-
             if (success)
             {
                 try
@@ -58,18 +80,26 @@ namespace PokerPrototype.Controllers
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Open();
                     cmd.Connection = Conn;
-                    //Below line WILL NOT work withot correct db information
-                    //I do not know how DB is organized, adjust INSERT command to fit
-                    //For now, I'm copying the login example
-                    //It goes without saying, but in the future we should avoid storing passwords
-                    //Also, since I assume there's no field for it, email info is currently
-                    //being tossed away
-                    cmd.CommandText = "INSERT into users(username, password, email) VALUES (@user,@pass,@email) ";
+                    cmd.CommandText = "SELECT id FROM users WHERE username = @user";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@user", username);
+                    MySqlDataReader rdr = cmd.ExecuteReader();
+                    if (rdr.Read())
+                    {
+                        success = false;
+                        usernameError = "Username already exists";
+                        return;
+                    };
+                    rdr.Close();
+                    cmd.CommandText = "INSERT into users(username, password, email, currency) VALUES (@user,@pass,@email, 10) ";
+                    cmd.Prepare();
                     cmd.Parameters.AddWithValue("@pass", Crypto.HashPassword(password));
                     cmd.Parameters.AddWithValue("@email", email);
                     success = cmd.ExecuteNonQuery() > 0;
+                    if (success)
+                    {
+                        id = Convert.ToInt32(cmd.LastInsertedId);//.ToString();
+                    }
                     Conn.Close();
 
 
