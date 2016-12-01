@@ -1,4 +1,32 @@
 ﻿<script>
+    $("#profile-dropdown").click(function () {
+        showProfileModal("");
+    })
+    function showProfileModal(username) {
+        alert("called showProfileModal with " + username);
+        $("#profile-avatar").empty().append($("<span class='spinner'></span>"));
+        $.post("/ajax/viewProfile", {
+            username: username
+        },
+        profileHandler);
+    }
+    function profileHandler(response) {
+        alert(JSON.stringify(response));
+        $("#profile-avatar").empty().append("<img src='" + response.avatar + "'>");
+        $("#profile-username").empty().append(response.username);
+        if (response.canEdit) {
+            $("#profile-top-right").empty().append("<button>Edit Profile</button>");
+        }
+        else {
+            if (response.isFriend) {
+                $("#profile-top-right").empty().append("<button>Send Message</button>");
+            }
+            else {
+                $("#profile-top-right").empty().append("<button>Add Friend</button>");
+            }
+        }
+    }
+
     $("#fund-btn").click(submitPayment);
     function submitPayment() {
         $(".modal-footer").append("<div class='spinner' style='float:left'></div>")

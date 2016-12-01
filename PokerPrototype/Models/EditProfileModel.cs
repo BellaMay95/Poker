@@ -7,11 +7,11 @@ using System.Web.Helpers;
 
 namespace PokerPrototype.Models
 {
-    public class ProfileModel
+    public class EditProfileModel
     {
         public UserModel User;
         public string email;
-        public ProfileModel(int id)
+        public EditProfileModel(int id)
         {
             User = new UserModel(id);
             email = User.getEmail();

@@ -214,12 +214,13 @@
     </Compile>
     <Compile Include="Hubs\MyHub.cs" />
     <Compile Include="Models\PaymentModel.cs" />
-    <Compile Include="Models\ProfileModel.cs" />
+    <Compile Include="Models\EditProfileModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\RegisterModel.cs" />
     <Compile Include="Models\RoomList.cs" />
     <Compile Include="Models\RoomModel.cs" />
     <Compile Include="Models\UserModel.cs" />
+    <Compile Include="Models\ViewProfileModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
   </ItemGroup>
@@ -267,9 +268,10 @@
     <Content Include="Views\Home\Lobby.cshtml" />
     <Content Include="Views\Room\Index.cshtml" />
     <Content Include="Views\Shared\_ProfileDropdown.cshtml" />
-    <Content Include="Views\Home\Profile.cshtml" />
+    <Content Include="Views\Home\EditProfile.cshtml" />
     <Content Include="Views\Shared\_AddFund.cshtml" />
     <Content Include="Views\Shared\_AddFundScript.cshtml" />
+    <Content Include="Views\Home\ViewProfile.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>

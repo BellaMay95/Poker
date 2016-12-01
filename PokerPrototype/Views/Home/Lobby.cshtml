@@ -25,10 +25,11 @@
     @Html.Partial("_ProfileDropdown", Model)
 }
 @Html.Partial("_AddFund")
+<input type="text" id="profile-input" placeholder="enter username"/><button id="profile-btn" data-toggle="modal" data-target="#profile-modal" >View Profile</button>
 <h1>Join a Game!</h1>
 <div class="col-sm-3">
-    <button class="btn-primary btn" data-toggle="modal" data-target="#room-modal">Create Room</button>
-    <button class="btn-primary btn" id="refresh">Refresh</button>
+    <button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#room-modal">Create Room</button>
+    <button class="btn-primary btn" style="margin-bottom: 10px" id="refresh">Refresh</button>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h3 class="panel-title">Filter Results</h3>
@@ -185,6 +186,10 @@
     @Html.Partial("_AddFundScript")
 <script type="text/javascript" src="@Url.Content("/Scripts/bootstrap-slider.js")"></script>
 <script>
+    $("#profile-btn").click(function () {
+        alert("testing");
+        showProfileModal($("#profile-input").val())
+    })
     refresh();
     var roomList = [];
     var sortType = "Players";
@@ -364,7 +369,7 @@
             }
 
             function createHandler(response) {
-                alert(JSON.stringify(response));
+                //alert(JSON.stringify(response));
                 var success = true;
                 $(".spinner").remove();
                 if (response.nameError.length > 0) {

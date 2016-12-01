@@ -28,6 +28,12 @@ namespace PokerPrototype.Controllers
             ViewBag.Message = "you have logged out";
             return View("Landing");
         }
+        public ActionResult NotLoggedIn()
+        {
+            ViewBag.MessageType = "info";
+            ViewBag.Message = "You must be logged in to view that page";
+            return View("Landing");
+        }
         public ActionResult PageNotFound()
         {
             ViewBag.MessageType = "warning";
@@ -40,16 +46,25 @@ namespace PokerPrototype.Controllers
             return View();
         }
 
-        public ActionResult Profile(string username)
+        public ActionResult ViewProfile(string username)
         {
             int id = Convert.ToInt32(Session["id"]);
             if (id > 0)
             {
-                ProfileModel model = new ProfileModel(id);
-                return View("Profile", model);
+                ViewProfileModel model = new ViewProfileModel(id, username);
+                return View(model);
             }
-            ViewBag.username = username;
-            return View("Landing");
+            return NotLoggedIn();
+        }
+        public ActionResult EditProfile(string username)
+        {
+            int id = Convert.ToInt32(Session["id"]);
+            if (id > 0)
+            {
+                EditProfileModel model = new EditProfileModel(id);
+                return View(model);
+            }
+            return NotLoggedIn();
         }
     }
 }

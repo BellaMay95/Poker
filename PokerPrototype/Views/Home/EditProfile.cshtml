@@ -1,4 +1,4 @@
-﻿@model PokerPrototype.Models.ProfileModel
+﻿@model PokerPrototype.Models.EditProfileModel
 
 @section topright{
     @Html.Partial("_ProfileDropdown",Model.User)
@@ -8,7 +8,7 @@
     ViewBag.Title = "Profile";
 }
 
-<h1>@Model.User.username > Edit Profile</h1 >
+<h1><a href="">@Model.User.username</a> > Edit Profile</h1 >
 
 
 <h2>Change Avatar</h2>

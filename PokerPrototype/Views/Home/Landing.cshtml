@@ -113,6 +113,9 @@
 
 <script>
 $(document).ready(function () {
+    $('#login-modal').on('shown.bs.modal', function () {
+        $('#login-username').focus();
+    });
     $("#login-btn").click(submitLogin);
     $('#login-username').on("keyup", function (e) {
         if (e.keyCode == 13 || e.keyCode == 40) {

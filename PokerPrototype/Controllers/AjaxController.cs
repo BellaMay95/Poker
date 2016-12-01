@@ -75,7 +75,11 @@ namespace PokerPrototype.Controllers
                 Session["id"] = 0;
             return Json(model, JsonRequestBehavior.AllowGet);
         }
-        // GET: Ajax
+        public ActionResult ViewProfile(string username)
+        {
+            ViewProfileModel model = new ViewProfileModel(Convert.ToInt32(Session["id"]), username);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult Lobby()
         {
             

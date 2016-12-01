@@ -1,0 +1,36 @@
+﻿@model PokerPrototype.Models.ViewProfileModel
+
+@{
+    ViewBag.Title = "ViewProfile";
+}
+
+@section topright{
+    @Html.Partial("_ProfileDropdown", Model.User)
+}
+@Html.Partial("_AddFund")
+
+<h1>@Model.username</h1> 
+<h2>Currency: @Model.currency</h2>
+<div id="main-button">
+    @if (Model.canEdit)
+    {
+        <a href="/profile/@Model.username/edit"><button class="btn btn-primary">Edit Profile</button></a>
+    }
+    else if (Model.isFriend)
+    {
+        <p>Added as Friend</p>
+    }
+    else
+    {
+        <button class="btn btn-primary">Add Friend</button>
+    }
+    @if (Model.canAdmin)
+    {
+        <button class="btn btn-primary">Make user an Admin</button>
+    }
+</div>
+
+@section scripts {
+    @Html.Partial("_AddFundScript")
+}
+
