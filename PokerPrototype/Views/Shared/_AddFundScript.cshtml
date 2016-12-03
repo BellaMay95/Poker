@@ -1,7 +1,7 @@
 ﻿<script>
     $("#profile-dropdown").click(function () {
         showProfileModal("");
-    })
+    });
 
     function showProfileModal(username) {
         //alert("called showProfileModal with " + username);
@@ -33,7 +33,6 @@
             $("#profile-top-right").empty().append("<a href='/editprofile'><button>Edit Profile</button></a>");
         }
        //alert(response.username);
-       //alert(@Model.username);
         else {
             if (response.isFriend) {
                 $("#profile-top-right").empty().append("<button id='remove'>Remove Friend</button>");
@@ -52,7 +51,6 @@
                     $("#profile-top-right").append("<button id='message'>Send Message</button>");
                 }
                 //alert(response.username);
-                //alert(@Model.username);
                 $("#add").click(function () {
                     addFriend(response.username);
                 })
@@ -91,6 +89,86 @@
         var success = true;
         $("#profile-top-right").empty().append("<button>Add Friend</button>");
     }
+
+
+    $("#messages-dropdown").click(function () {
+        showMessageModal("inbox");
+    })
+    $("#message-menu").on('click', 'li', function () {
+        $(".active").removeClass("active");
+        $(this).addClass("active");
+        showMessageModal($(this).first().text());
+    })
+    function showMessageModal(str) {
+        if (str == "inbox"){
+            $.post("/ajax/inbox", inboxHandler);
+        }
+        else if (str == "compose") {
+            composeHandler();
+        }
+        else {
+            sentHandler();
+        }
+    }
+    function inboxHandler(response) {
+        alert(JSON.stringify(response));
+    }
+    function composeHandler() {
+        var $row = $("<div class='form-group row' id='to-group'></div>");
+        var $col3 = $('<div class="col-sm-3"></div>');
+        $col3.append('<label class="control-label" for="to-input">recipient</label>');
+        var $col9 = $('<div class="col-sm-9">');
+        $col9.append('<input type="text" class="form-control" id="to-input" />');
+        var msg = ('<div class="col-sm-3"></div>' + '<div class="col-sm-9"><span id="to-msg" class="help-block"></span></div>');
+        $row.append($col3).append($col9).append(msg);
+
+        var $row2 = $("<div class='form-group row' id='send-group'></div>");
+        var $col12 = $('<div class="col-sm-12"></div>');
+        $col12.append('<label class="control-label" for="send-input">message</label>');
+        $col12.append('<textarea class="form-control" rows="5" id="send-input"></textarea>');
+        msg = ('<div class="col-sm-12"><span id="send-msg" class="help-block"></span></div>');
+        $row2.append($col12).append(msg);
+
+        var button = "<button id='send-btn' class='btn btn-primary' style='float: right;'>Send Message</button>";
+        $("#message-content").empty().append($row).append($row2).append(button);
+        $('#send-btn').click(function(){
+            $.post("/ajax/sendmessage", {
+                to: $("#to-input").val(),
+                message: $("#send-input").val()
+            },
+            sendMessageHandler);
+        });
+    }
+    function sendMessageHandler(response) {
+        var success = true;
+        if (response.toError.length > 0) {
+            success = false;
+            $("#to-group").addClass("has-error");
+            $("#to-msg").text(response.toError);
+        } else {
+            $("#to-group").removeClass("has-error");
+            $("#to-msg").text("");
+        }
+        if (response.messageError.length > 0) {
+            success = false;
+            $("#send-group").addClass("has-error");
+            $("#send-msg").text(response.messageError);
+        } else {
+            $("#send-group").removeClass("has-error");
+            $("#send-msg").text("");
+        }
+        if (success) {
+            sentHandler();
+        }
+    }
+
+    function sentHandler(response) {
+        $("#message-content").empty().append("sent messages - too lazy to add html");
+    }
+
+
+
+
 
     $("#fund-btn").click(submitPayment);
     function submitPayment() {

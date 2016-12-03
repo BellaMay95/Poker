@@ -92,6 +92,11 @@ namespace PokerPrototype.Controllers
             RemoveFriendModel model = new RemoveFriendModel(Convert.ToInt32(Session["id"]), newuser);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult SendMessage(string to, string message)
+        {
+            SendMessageModel model = new SendMessageModel(Convert.ToInt32(Session["id"]), to, message);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult Lobby()
         {
             
