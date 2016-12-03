@@ -17,23 +17,23 @@
         $("#profile-avatar").empty().append("<img src='" + response.avatar + "'>");
         $("#profile-username").empty().append(response.username);
         $("#profile-currency").empty().append("Currency: " + response.currency);
-        var $friendBody = $("friendBody").empty();
+        var $friendBody = $("#friendBody").empty();
         //alert(response.friendUser.size);
-        /*if (response.friendUser.length != null) {
-            for (var i = 0; i < response.friendUser.length; i++) {
-                var friend = response.friendUser[i];
-                var avatar = response.friendAvatar[i];
-                //var $line = $("");
-                var $line = $("<td img src='" + avatar + "'></td>");
-                $line.append($("<td></td>").text(friend));
-                $friendBody.append($line);
-            }
-        }*/
+        
+        for (var i = 0; i < response.friendUser.length; i++) {
+            var friend = response.friendUser[i];
+            var avatar = response.friendAvatar[i];
+            //var $line = $("");
+            $div = $("<div class='col=sm-6'></div>");
+            $div.append("<img style='width: 64px; height: 64px;' src='" + avatar + "'>");
+            $div.append($("<span></span>").text(friend));
+            $friendBody.append($div);
+        }
         if (response.canEdit) {
             $("#profile-top-right").empty().append("<a href='/editprofile'><button>Edit Profile</button></a>");
         }
-       // alert(response.username);
-       // alert(@Model.username);
+       //alert(response.username);
+       //alert(@Model.username);
         else {
             if (response.isFriend) {
                 $("#profile-top-right").empty().append("<button id='remove'>Remove Friend</button>");
