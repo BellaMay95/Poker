@@ -4,7 +4,7 @@
     })
 
     function showProfileModal(username) {
-        alert("called showProfileModal with " + username);
+        //alert("called showProfileModal with " + username);
         $("#profile-avatar").empty().append($("<span class='spinner'></span>"));
         $.post("/ajax/viewProfile", {
             username: username
@@ -12,7 +12,7 @@
         profileHandler);
     }
     function profileHandler(response) {
-        alert(JSON.stringify(response));
+        //alert(JSON.stringify(response));
         $(".spinner").remove();
         $("#profile-avatar").empty().append("<img src='" + response.avatar + "'>");
         $("#profile-username").empty().append(response.username);
@@ -26,7 +26,7 @@
             //var $line = $("");
             $div = $("<div class='col=sm-6'></div>");
             $div.append("<img style='width: 64px; height: 64px;' src='" + avatar + "'>");
-            $div.append($("<span></span>").text(friend));
+            $div.append($("<span></span>").text(" " + friend));
             $friendBody.append($div);
         }
         if (response.canEdit) {
@@ -38,6 +38,13 @@
             if (response.isFriend) {
                 $("#profile-top-right").empty().append("<button id='remove'>Remove Friend</button>");
                 $("#profile-top-right").append("<button id='message'>Send Message</button>");
+
+                $("#remove").click(function () {
+                    removeFriend(response.username);
+                })
+                $("#message").click(function () {
+                    message(response.username);
+                })
             }
             else {
                 $("#profile-top-right").empty().append("<button id='add'>Add Friend</button>");
@@ -46,26 +53,44 @@
                 }
                 //alert(response.username);
                 //alert(@Model.username);
-                /*$("#add").click(function () {
+                $("#add").click(function () {
                     addFriend(response.username);
-                })*/
+                })
+                $("#message").click(function () {
+                    message(response.username);
+                })
             }
         }
     }
 
-    /*function addFriend(newuser)
+    function addFriend(newuser)
     {
         $(".modal-footer").append("<div class='spinner' style='float:left'</div>")
-        $.post("/ajax/friend", {
+        $.post("/ajax/addfriend", {
             newuser
             }, addFriendHandler);
     }
 
     function addFriendHandler(response) {
+        //alert(JSON.stringify(response.connectError));
         $(".spinner").remove();
         var success = true;
         $("#profile-top-right").empty().append("<button>Remove Friend</button>");
-    }*/
+    }
+
+    function removeFriend(newuser) {
+        $(".modal-footer").append("<div class='spinner' style='float:left'</div>")
+        $.post("/ajax/removefriend", {
+            newuser
+        }, removeFriendHandler);
+    }
+
+    function removeFriendHandler(response) {
+        //alert(JSON.stringify(response.connectError));
+        $(".spinner").remove();
+        var success = true;
+        $("#profile-top-right").empty().append("<button>Add Friend</button>");
+    }
 
     $("#fund-btn").click(submitPayment);
     function submitPayment() {

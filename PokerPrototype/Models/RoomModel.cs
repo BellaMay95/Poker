@@ -10,15 +10,17 @@ namespace PokerPrototype.Models
     {
         public int roomID { get; set; }
         public string roomName { get; set; }
+        public string roomCreator { get; set; }
         public int currentNumberPlayers { get; set; }
         public int maxPlayerCount { get; set; }
         public int blinds { get; set; }
         public int seconds { get; set; }
         public int max_buy_in { get; set; }
-        public RoomModel(int roomID, string roomName, int currentNumberPlayers, int maxPlayerCount, int blinds, int seconds, int max_buy_in)
+        public RoomModel(int roomID, string roomName, int currentNumberPlayers, int maxPlayerCount, int blinds, int seconds, int max_buy_in, string roomCreator)
         {
             this.roomID = roomID;
             this.roomName = roomName;
+            this.roomCreator = roomCreator;
             this.currentNumberPlayers = currentNumberPlayers;
             this.maxPlayerCount = maxPlayerCount;
             this.blinds = blinds;
@@ -41,21 +43,15 @@ namespace PokerPrototype.Models
         {
             success = true;
             nameError = maxError = blindError = secondsError = buyinError = privateError = "";
-            /*nameError = "hello";
-            maxError = "world";
-            blindError = "my";
-            secondsError = "name";
-            buyinError = "is";
-            privateError = "gabrielle";*/
             if (roomName.Length == 0)
             {
                 success = false;
                 nameError = "Enter the name of the room";
             }
-            if (maxPlayerCount.Length == 0 || Convert.ToInt32(maxPlayerCount) < 2 || Convert.ToInt32(maxPlayerCount) > 8)
+            if (maxPlayerCount.Length == 0 || Convert.ToInt32(maxPlayerCount) < 2 || Convert.ToInt32(maxPlayerCount) > 6)
             {
                 success = false;
-                maxError = "Enter a number between 2 and 8";
+                maxError = "Enter a number between 2 and 6";
             }
             if (blinds.Length == 0 || Convert.ToInt32(blinds) < 1)
             {

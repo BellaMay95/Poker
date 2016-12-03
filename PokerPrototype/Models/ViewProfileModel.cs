@@ -63,11 +63,19 @@ namespace PokerPrototype.Models
                         }
                     }
                     rdr.Close();
-                    cmd.CommandText = "SELECT avatar, username FROM users JOIN friends ON id = friend_id WHERE user_id = " + user_id;
+                    cmd.CommandText = "SELECT avatar, username, friend_id, user_id FROM users JOIN friends ON id = friend_id WHERE user_id = " + user_id + " OR friend_id = " + user_id;
                     //MySqlDataReader 
                     rdr = cmd.ExecuteReader();
                     while (rdr.Read())
                     {
+                        if (Convert.ToInt32(rdr[2]) == user_id)
+                        {
+                            if (Convert.ToInt32(rdr[3]) == sessionid)
+                            {
+                                isFriend = true;
+                            }
+                            continue;
+                        }
                         friendAvatar.Add(rdr[0].ToString());
                         friendUser.Add(rdr[1].ToString());
                     }
@@ -92,10 +100,79 @@ namespace PokerPrototype.Models
     {
         [System.Web.Script.Serialization.ScriptIgnore]
         public bool success { get; set; }
+        public string connectError { get; set; }
 
         public AddFriendModel(int id, string newUser)
         {
+            connectError = "";
 
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "SELECT id FROM users WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", newUser);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                if (!rdr.Read())
+                {
+                    success = false;
+                    connectError = "failed to return id of friend";
+                    return;
+                }
+                int friend_id = Convert.ToInt32(rdr[0]);
+                rdr.Close();
+                cmd.CommandText = "INSERT into friends(user_id, friend_id) VALUES (" + id + ", " + friend_id + ") ";
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+                Conn.Close();
+            }
+            catch(Exception ex)
+            {
+                connectError = ex.Message;
+            }
+        }
+    }
+
+    public class RemoveFriendModel
+    {
+        [System.Web.Script.Serialization.ScriptIgnore]
+        public bool success { get; set; }
+        public string connectError { get; set; }
+
+        public RemoveFriendModel(int id, string newUser)
+        {
+            connectError = "";
+
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "SELECT id FROM users WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", newUser);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                if (!rdr.Read())
+                {
+                    success = false;
+                    connectError = "failed to return id of friend";
+                    return;
+                }
+                int friend_id = Convert.ToInt32(rdr[0]);
+                rdr.Close();
+                cmd.CommandText = "DELETE FROM friends WHERE user_id=" + id + " AND friend_id=" + friend_id;
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+                Conn.Close();
+            }
+            catch (Exception ex)
+            {
+                connectError = ex.Message;
+            }
         }
     }
 }

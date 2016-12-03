@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Web;
 using System.Web.Helpers;
 
@@ -35,6 +36,10 @@ namespace PokerPrototype.Models
             {
                 success = false;
                 cardNumberError = "Enter Card Number";
+            }
+            else if (!Regex.IsMatch(cardNumber, @"^[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}$"))
+            {
+                cardNumberError = "Invalid Credit Card";
             }
             if (cvc.Length == 0)
             {

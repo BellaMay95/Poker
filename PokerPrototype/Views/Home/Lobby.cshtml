@@ -54,6 +54,7 @@
         <thead>
             <tr>
                 <th>Room Name</th>
+                <th>Room Creator</th>
                 <th>Players<span class="caret"></span></th>
                 <th>Time per Turn</th>
                 <th>Big Blinds</th>
@@ -222,6 +223,7 @@
             }
             var $line = $("<tr data-id='" + room.roomID + "'></tr>");
             $line.append("<td>" + room.roomName + "</td>");
+            $line.append("<td>" + room.roomCreator + "</td>");
             $line.append($("<td></td>").text(room.currentNumberPlayers + " / " + room.maxPlayerCount));
             $line.append($("<td></td>").text(room.seconds + " seconds"));
             $line.append($("<td></td>").text(room.blinds));
@@ -230,8 +232,9 @@
         }
     }
     function passesFilter(room) {
-        var filters = $("#filter-input").val().toLowerCase().split(/[ ,\-]+/);
+        var filters = $("#filter-input").val().toLowerCase().split(/[ ,_\-]+/);
         var tokens = room.roomName.toLowerCase().split(/[ ,\-]+/);
+        tokens = tokens.concat(room.roomCreator.split(/[ ,_\-]+/));
         for (var i = 0; i < filters.length; i++) {
             var match = false;
             for (var j = 0; j < tokens.length; j++) {
@@ -257,6 +260,9 @@
         }
         if (sortType == "Room Name") {
             return a.roomName.toLowerCase().localeCompare(b.roomName.toLowerCase());
+        }
+        else if (sortType == "Room Creator") {
+            return a.roomCreator.toLowerCase().localeCompare(b.roomCreator.toLowerCase());
         }
         else if (sortType == "Players") {
             return b.currentNumberPlayers - a.currentNumberPlayers;
