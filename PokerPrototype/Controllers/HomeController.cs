@@ -56,7 +56,7 @@ namespace PokerPrototype.Controllers
             }
             return NotLoggedIn();
         }
-        public ActionResult EditProfile(string username)
+        public ActionResult EditProfile()
         {
             int id = Convert.ToInt32(Session["id"]);
             if (id > 0)

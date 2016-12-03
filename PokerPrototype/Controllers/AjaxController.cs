@@ -80,6 +80,11 @@ namespace PokerPrototype.Controllers
             ViewProfileModel model = new ViewProfileModel(Convert.ToInt32(Session["id"]), username);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+        /*public ActionResult AddFriend(string newuser)
+        {
+            AddFriendModel model = new AddFriendModel(Convert.ToInt32(Session["id"]), newuser);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }*/
         public ActionResult Lobby()
         {
             

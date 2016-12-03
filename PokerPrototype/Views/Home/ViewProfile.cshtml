@@ -11,6 +11,7 @@
 
 <h1>@Model.username</h1> 
 <h2>Currency: @Model.currency</h2>
+<h3>Friends: </h3>
 <div id="main-button">
     @if (Model.canEdit)
     {
@@ -28,6 +29,15 @@
     {
         <button class="btn btn-primary">Make user an Admin</button>
     }
+
+    <li class="friends">
+        <h3>Friends:</h3>
+        <ul class="friendsList">
+            <li><img src="@Model.avatar" /> @Model.username</li>
+            <li>Currency: @Model.currency</li>
+            <!--<li><a id="profile-dropdown" data-toggle="modal" data-target="#profile-modal" href="#">View Profile</a></li>-->
+        </ul>
+    </li>
 </div>
 
 @section scripts {

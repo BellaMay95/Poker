@@ -17,6 +17,8 @@ namespace PokerPrototype.Models
         public bool canEdit;
         public bool isFriend;
         public bool canAdmin;
+        public List <string> friendAvatar;
+        public List <string> friendUser;
 
         public ViewProfileModel(int sessionid, string username)
         {
@@ -57,6 +59,17 @@ namespace PokerPrototype.Models
                             canAdmin = true;
                         }
                     }
+                    friendAvatar.Add("hello");
+                    friendUser.Add("person");
+                    /*rdr.Close();
+                    cmd.CommandText = "SELECT avatar, username FROM users JOIN friends ON id = friend_id WHERE user_id = " + sessionid;
+                    //MySqlDataReader 
+                    rdr = cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        friendAvatar.Add(rdr[0].ToString());
+                        friendUser.Add(rdr[1].ToString());
+                    }*/
                 }
                 else
                 {
@@ -73,4 +86,15 @@ namespace PokerPrototype.Models
  
         }
     }
+
+    /*public class AddFriendModel
+    {
+        [System.Web.Script.Serialization.ScriptIgnore]
+        public bool success { get; set; }
+
+        public AddFriendModel(int id, string newUser)
+        {
+
+        }
+    }*/
 }

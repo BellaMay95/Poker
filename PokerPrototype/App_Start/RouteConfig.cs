@@ -29,7 +29,7 @@ namespace PokerPrototype
             );
             routes.MapRoute(
                 name: "editprofile",
-                url: "profile/{username}/edit",
+                url: "editprofile",
                 defaults: new { controller = "Home", action = "EditProfile" }
             );
             routes.MapRoute(
