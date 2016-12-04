@@ -17,21 +17,23 @@
     <script src="~/signalr/hubs"></script>
     <script>
     var chat = $.connection.myHub;
+    var roomID = @ViewBag.RoomID;
 
     chat.client.alertMessage = function (msg) {
         alert(msg);
     }
 
     chat.client.alertJson = function (model) {
-        alert(JSON.stringify(model))
+       console.log(JSON.stringify(model))
     };
     $.connection.hub.start().done(initConnect).fail(function (reason) {
             console.log("SignalR connection failed: " + reason);
     });
     function initConnect() {
         alert("connection established")
+        chat.server.getRoomInfo(roomID);
         $('#message-btn').prop("disabled", false).click(function () {
-            chat.server.send($("#message").val());
+            chat.server.send(roomID, $("#message").val());
         });
     }
     </script>

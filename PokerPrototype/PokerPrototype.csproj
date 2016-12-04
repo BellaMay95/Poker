@@ -213,6 +213,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\MyHub.cs" />
+    <Compile Include="Models\Connection.cs" />
     <Compile Include="Models\MessageModel.cs" />
     <Compile Include="Models\PaymentModel.cs" />
     <Compile Include="Models\EditProfileModel.cs" />

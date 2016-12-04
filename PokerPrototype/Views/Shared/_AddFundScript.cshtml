@@ -90,9 +90,9 @@
         $("#profile-top-right").empty().append("<button>Add Friend</button>");
     }
 
-
+    var messageList = [];
     $("#messages-dropdown").click(function () {
-        showMessageModal("inbox");
+        showMessageModal($(".active").first().text());
     })
     $("#message-menu").on('click', 'li', function () {
         $(".active").removeClass("active");
@@ -100,18 +100,48 @@
         showMessageModal($(this).first().text());
     })
     function showMessageModal(str) {
-        if (str == "inbox"){
+        $("#message-content").empty().append("<span class='spinner'></span>");
+        if (str == "inbox") {
+            $("#message-content").removeClass("well");
             $.post("/ajax/inbox", inboxHandler);
         }
         else if (str == "compose") {
+            $("#message-content").addClass("well");
             composeHandler();
         }
-        else {
-            sentHandler();
+        else{
+            $("#message-content").removeClass("well");
+            $.post("/ajax/sentmessages", sentHandler);
         }
     }
+    function printMessageList(heading) {
+        if (messageList.length == 0) {
+            $("#message-content").empty().append("<h2>empty</h2>");
+            return;
+        }
+        var $thead = $("<thead><tr><th>" + heading + "</th><th>Date</th></tr></thead>")
+        var $tbody = $("<tbody id='message-tbody'></tbody>")
+        for (var i = 0; i < messageList.length; i++) {
+            var $row = $("<tr data-ind='" + i + "'></tr>");
+            $row.append("<td>" + messageList[i].username + "</td>");
+            $row.append("<td>" + messageList[i].date + "</td>");
+            $tbody.append($row);
+        }
+
+        $table = $("<table class='table table-hover'></table>").append($thead).append($tbody);
+        $("#message-content").empty().append($table);
+        $("tbody").on("click", "tr", function () {
+            var i = $(this).data('ind');
+            alert(messageList[i].message);
+        });
+    }
     function inboxHandler(response) {
-        alert(JSON.stringify(response));
+        messageList = response;
+        printMessageList("sender");
+    }
+    function sentHandler(response) {
+        messageList = response;
+        printMessageList("Sent to");
     }
     function composeHandler() {
         var $row = $("<div class='form-group row' id='to-group'></div>");
@@ -160,10 +190,6 @@
         if (success) {
             sentHandler();
         }
-    }
-
-    function sentHandler(response) {
-        $("#message-content").empty().append("sent messages - too lazy to add html");
     }
 
 

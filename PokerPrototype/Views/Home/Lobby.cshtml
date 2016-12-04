@@ -61,7 +61,7 @@
                 <th>Max Buy In</th>
             </tr>
         </thead>
-        <tbody>
+        <tbody id="room-tbody">
         </tbody>
     </table>
 </div>
@@ -284,7 +284,7 @@
         printRoomList();
     })
     $("#show-full").change(printRoomList);
-    $('tbody').on("click", 'tr', function () {
+    $('#room-tbody').on("click", 'tr', function () {
         var id = $(this).data("id");
         window.location.href = "/room/" + id;
     })

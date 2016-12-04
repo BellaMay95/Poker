@@ -14,7 +14,10 @@ namespace PokerPrototype.Controllers
         {
             LoginModel model = new LoginModel(username, password);
             if (model.id > 0)
+            {
+                Response.Cookies["MYCOOKIE"].Value = "THIS IS A COOKIE!!!";
                 Session["id"] = model.id;
+            }
 
             return Json(model, JsonRequestBehavior.AllowGet);
         }
@@ -91,6 +94,16 @@ namespace PokerPrototype.Controllers
         {
             RemoveFriendModel model = new RemoveFriendModel(Convert.ToInt32(Session["id"]), newuser);
             return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult inbox()
+        {
+            InboxList list = new InboxList(Convert.ToInt32(Session["id"]));
+            return Json(list, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult SentMessages()
+        {
+            SentList list = new SentList(Convert.ToInt32(Session["id"]));
+            return Json(list, JsonRequestBehavior.AllowGet);
         }
         public ActionResult SendMessage(string to, string message)
         {

@@ -22,7 +22,7 @@ namespace PokerPrototype.Models
     {
         public AvatarModel(int id, string src)
         {
-            MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
             var cmd = new MySql.Data.MySqlClient.MySqlCommand();
             Conn.Open();
             cmd.Connection = Conn;
@@ -70,7 +70,7 @@ namespace PokerPrototype.Models
             {
                 try
                 {
-                    MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                    MySqlConnection Conn = new MySqlConnection(Connection.Str);
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Open();
                     cmd.Connection = Conn;
@@ -124,7 +124,7 @@ namespace PokerPrototype.Models
             {
                 try
                 {
-                    MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                    MySqlConnection Conn = new MySqlConnection(Connection.Str);
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Close();
                     Conn.Open();
@@ -174,7 +174,7 @@ namespace PokerPrototype.Models
             {
                 try
                 {
-                    MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+                    MySqlConnection Conn = new MySqlConnection(Connection.Str);
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Close();
                     Conn.Open();
