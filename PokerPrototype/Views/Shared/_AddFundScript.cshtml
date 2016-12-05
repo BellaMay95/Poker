@@ -1,95 +1,108 @@
 ﻿<script>
     $("#profile-dropdown").click(function () {
-        showProfileModal("");
+        showProfileModal($("#username").text());
     });
-
+    var profiles = {};
+    var currentUser = "";
     function showProfileModal(username) {
-        //alert("called showProfileModal with " + username);
-        $("#profile-avatar").empty().append($("<span class='spinner'></span>"));
-        $.post("/ajax/viewProfile", {
-            username: username
-        },
-        profileHandler);
+        if (profiles[username]) {
+            currentUser = username;
+            printProfile();
+        }
+        else {
+            $("#profile-avatar").empty().append($("<span class='spinner'></span>"));
+            $.post("/ajax/viewProfile", {
+                username: username
+            },
+            profileHandler);
+        }
     }
     function profileHandler(response) {
-        //alert(JSON.stringify(response));
+        currentUser = response.username;
+        profiles[currentUser] = response;
+        printProfile();
         $(".spinner").remove();
-        $("#profile-avatar").empty().append("<img src='" + response.avatar + "'>");
-        $("#profile-username").empty().append(response.username);
-        $("#profile-currency").empty().append("Currency: " + response.currency);
+    }
+    function printProfile() {
+        profile = profiles[currentUser];
+        $("#profile-avatar").empty().append("<img src='" + profile.avatar + "'>");
+        $("#profile-username").empty().append(profile.username);
+        $("#profile-currency").empty().append("Currency: " + profile.currency);
         var $friendBody = $("#friendBody").empty();
         //alert(response.friendUser.size);
-        
-        for (var i = 0; i < response.friendUser.length; i++) {
-            var friend = response.friendUser[i];
-            var avatar = response.friendAvatar[i];
+
+        for (var i = 0; i < profile.friendUser.length; i++) {
+            var friend = profile.friendUser[i];
+            var avatar = profile.friendAvatar[i];
             //var $line = $("");
             $div = $("<div class='col=sm-6'></div>");
             $div.append("<img style='width: 64px; height: 64px;' src='" + avatar + "'>");
             $div.append($("<span></span>").text(" " + friend));
             $friendBody.append($div);
         }
-        if (response.canEdit) {
-            $("#profile-top-right").empty().append("<a href='/editprofile'><button>Edit Profile</button></a>");
-        }
-       //alert(response.username);
-        else {
-            if (response.isFriend) {
-                $("#profile-top-right").empty().append("<button id='remove'>Remove Friend</button>");
-                $("#profile-top-right").append("<button id='message'>Send Message</button>");
+        printTopRight();
+    }
 
+    function printTopRight() {
+        profile = profiles[currentUser];
+        var $topright = $("#profile-top-right").empty();
+        if (profile.canEdit) {
+            $topright.append("<a href='/editprofile'><button>Edit Profile</button></a>");
+        }
+        else {
+            if (profile.isFriend) {
+                $topright.append("<button id='remove'>Remove Friend</button>");
+                $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
                 $("#remove").click(function () {
-                    removeFriend(response.username);
-                })
-                $("#message").click(function () {
-                    message(response.username);
+                    removeFriend(profile.username);
                 })
             }
             else {
-                $("#profile-top-right").empty().append("<button id='add'>Add Friend</button>");
-                if (response.isAdmin) {
-                    $("#profile-top-right").append("<button id='message'>Send Message</button>");
+                $topright.append("<button id='add'>Add Friend</button>");
+                if (profile.isAdmin) {
+                    $topright.append("<button id='message'>Send Message</button>");
                 }
-                //alert(response.username);
                 $("#add").click(function () {
-                    addFriend(response.username);
-                })
-                $("#message").click(function () {
-                    message(response.username);
+                    addFriend(profile.username);
                 })
             }
+            $("#message").click(function () {
+                $(".active").removeClass("active");
+                $("#compose-message").parent().addClass("active");
+                showMessageModal("compose", profile.username);
+            })
         }
-    }
+    }//printtopright
 
-    function addFriend(newuser)
+    function addFriend()
     {
         $(".modal-footer").append("<div class='spinner' style='float:left'</div>")
         $.post("/ajax/addfriend", {
-            newuser
-            }, addFriendHandler);
+            newuser: currentUser
+        }, addFriendHandler);
     }
 
     function addFriendHandler(response) {
-        //alert(JSON.stringify(response.connectError));
+        profiles[response.username].isFriend = true;
         $(".spinner").remove();
-        var success = true;
-        $("#profile-top-right").empty().append("<button>Remove Friend</button>");
+        printTopRight();
     }
 
     function removeFriend(newuser) {
         $(".modal-footer").append("<div class='spinner' style='float:left'</div>")
         $.post("/ajax/removefriend", {
-            newuser
+            newuser: currentUser
         }, removeFriendHandler);
     }
 
     function removeFriendHandler(response) {
-        //alert(JSON.stringify(response.connectError));
+        profiles[response.username].isFriend = false;
         $(".spinner").remove();
-        var success = true;
-        $("#profile-top-right").empty().append("<button>Add Friend</button>");
+        printTopRight();
     }
 
+
+    //**********MESSAGE MODAL
     var messageList = [];
     $("#messages-dropdown").click(function () {
         showMessageModal($(".active").first().text());
@@ -99,7 +112,7 @@
         $(this).addClass("active");
         showMessageModal($(this).first().text());
     })
-    function showMessageModal(str) {
+    function showMessageModal(str, recipient) {
         $("#message-content").empty().append("<span class='spinner'></span>");
         if (str == "inbox") {
             $("#message-content").removeClass("well");
@@ -107,7 +120,7 @@
         }
         else if (str == "compose") {
             $("#message-content").addClass("well");
-            composeHandler();
+            composeHandler(recipient);
         }
         else{
             $("#message-content").removeClass("well");
@@ -143,12 +156,12 @@
         messageList = response;
         printMessageList("Sent to");
     }
-    function composeHandler() {
+    function composeHandler(recipient) {
         var $row = $("<div class='form-group row' id='to-group'></div>");
         var $col3 = $('<div class="col-sm-3"></div>');
         $col3.append('<label class="control-label" for="to-input">recipient</label>');
         var $col9 = $('<div class="col-sm-9">');
-        $col9.append('<input type="text" class="form-control" id="to-input" />');
+        $col9.append('<input type="text" class="form-control" id="to-input" value="' + recipient + '"/>');
         var msg = ('<div class="col-sm-3"></div>' + '<div class="col-sm-9"><span id="to-msg" class="help-block"></span></div>');
         $row.append($col3).append($col9).append(msg);
 

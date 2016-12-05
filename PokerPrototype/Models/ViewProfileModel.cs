@@ -100,12 +100,13 @@ namespace PokerPrototype.Models
     {
         [System.Web.Script.Serialization.ScriptIgnore]
         public bool success { get; set; }
+        public string username { get; set; }
         public string connectError { get; set; }
 
         public AddFriendModel(int id, string newUser)
         {
             connectError = "";
-
+            username = newUser;
             try
             {
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
@@ -140,12 +141,13 @@ namespace PokerPrototype.Models
     {
         [System.Web.Script.Serialization.ScriptIgnore]
         public bool success { get; set; }
+        public string username { get; set; }
         public string connectError { get; set; }
 
         public RemoveFriendModel(int id, string newUser)
         {
             connectError = "";
-
+            username = newUser;
             try
             {
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
