@@ -6,13 +6,515 @@
     <li class="dropdown">
     </li>
 }
-<h2>Room #@ViewBag.roomid</h2>
+
+@section styles{
+    <style media="screen" type="text/css">
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        /* to remove the top and left whitespace */
+
+        html, body {
+            width: 100%;
+            height: 100%;
+        }
+        /* just to be sure these are full screen*/
+
+        body {
+            margin: 0;
+            padding: 0;
+            position: absolute;
+            background-image: url(http://www.walldevil.com/wallpapers/a52/wallpaper-textur-background-patterns-backgrounds-wallpapers.jpg);
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+        }
+
+        #bottomFunctions {
+            position: fixed;
+            bottom: 0%;
+            left: 0%;
+            background-color: black;
+            border: 1px solid white;
+            width: 100%;
+            height: 15%;
+        }
+
+        #chatroom {
+            position: absolute;
+            float: left;
+            top: 3%;
+            left: 85%;
+            width: 10%;
+        }
+
+        #metaActions {
+            float: left;
+            position: absolute;
+            left: 1.5%;
+            top: 10%;
+            height: 60%;
+            width: 10%;
+        }
+
+        #rangeSlider {
+            position: absolute;
+            top: 70%;
+            height: 30%;
+            width: 100%;
+        }
+
+        #raiseSlider {
+            width: 75%;
+            height: 100%;
+            position: relative;
+            float: left;
+            left: 5%;
+        }
+
+        #raiseInput {
+            position: relative;
+            width: 10%;
+            height: 50%;
+            float: left;
+            top: 25%;
+            left: 10%;
+        }
+
+        #actionButtons {
+            position: relative;
+            top: 5%;
+            left: .25%;
+            height: 60%;
+            width: 100%;
+        }
+
+        #gameActions {
+            float: left;
+            top: 5%;
+            left: 35%;
+            height: 90%;
+            width: 30%;
+            position: absolute;
+            border: 2px solid white;
+        }
+
+        .actionButton {
+            position: relative;
+            width: 24%;
+            height: 100%;
+            margin: .5%;
+            font-size: 100%;
+            font-family: Arial,Arial, Helvetica, sans-serif;
+            float: left;
+        }
+
+        .metaButton {
+            position: relative;
+            width: 90%;
+            height: 31%;
+            font-size: 100%;
+            font-family: Arial,Arial, Helvetica, sans-serif;
+            margin-left: 5%;
+            margin-right: 5%;
+            margin-bottom: 1%;
+            margin-top: 1%;
+        }
+
+        button {
+            background: -webkit-gradient(linear, left top, left bottom, color-stop(0.05, #1433cc), color-stop(1, #0b1f00));
+            background: -moz-linear-gradient(top, #1433cc 5%, #0b1f00 100%);
+            background: -webkit-linear-gradient(top, #1433cc 5%, #0b1f00 100%);
+            background: -o-linear-gradient(top, #1433cc 5%, #0b1f00 100%);
+            background: -ms-linear-gradient(top, #1433cc 5%, #0b1f00 100%);
+            background: linear-gradient(to bottom, #1433cc 5%, #0b1f00 100%);
+            filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1433cc', endColorstr='#0b1f00',GradientType=0);
+            background-color: #1433cc;
+            border: 1px solid yellow;
+            display: inline-block;
+            cursor: pointer;
+            color: #ffffff;
+            font-family: Arial;
+            text-decoration: none;
+            -moz-border-radius: 11px;
+            -webkit-border-radius: 11px;
+            border-radius: 11px;
+            outline: none;
+        }
+
+            button:hover {
+                border: 2px solid green;
+            }
+
+            button:active {
+                position: relative;
+                top: 1px;
+            }
+
+        input {
+            font: 12px arial;
+        }
+
+        #chatarea {
+            position: absolute;
+            left: 75%;
+            width: 25%;
+            height: 100%;
+        }
+
+
+        #chatbox {
+            position: absolute;
+            text-align: left;
+            background: #fff;
+            border: 1px solid #000;
+            left: 0%;
+            top: 0%;
+            width: 100%;
+            height: 80%;
+            overflow: auto;
+        }
+
+        #message {
+            border: 1px solid #000;
+            position: absolute;
+            left: 0%;
+            top: 80%;
+            height: 20%;
+            width: 100%;
+        }
+
+        #usermsg {
+            position: absolute;
+            left: 0%;
+            width: 80%;
+            height: 100%;
+            top: 0%;
+        }
+
+        #submitmsg {
+            border: 1px solid #000;
+            position: absolute;
+            left: 80%;
+            width: 20%;
+            height: 100%;
+            top: 0%;
+        }
+
+        /* HUD Styling*/
+
+        #community {
+            position: fixed;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            top: 45%;
+            left: 50%;
+            height: 85px;
+            width: 500px;
+            /*background-color: blue;*/
+            transform: translate(-50%, -50%);
+        }
+
+        .communityCard {
+            height: 100%;
+            width: 90px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            background-color: green;
+        }
+
+            .communityCard img {
+                height: 100%;
+                width: 100%;
+            }
+
+        #pot {
+            background-color: white;
+            width: 45%;
+            height: 20px;
+            text-align: center;
+        }
+
+        .playerHud {
+            position: fixed;
+            height: 55px;
+            width: 250px;
+        }
+
+        #hud1 {
+            bottom: 27%;
+            left: 50%;
+            transform: translate(-50%, 0%);
+        }
+
+        #hud2 {
+            top: 9%;
+            left: 50%;
+            transform: translate(-50%, 0%);
+        }
+
+        #hud3 {
+            top: 15%;
+            left: 2%;
+        }
+
+        #hud4 {
+            top: 50%;
+            left: 2%;
+        }
+
+        #hud5 {
+            top: 15%;
+            right: 2%;
+        }
+
+        #hud6 {
+            top: 50%;
+            right: 2%;
+        }
+
+        .playerCards {
+            display: flex;
+            justify-content: center;
+        }
+
+        .playerCard {
+            height: 75px;
+            width: 30%;
+            border-radius: 2px;
+        }
+
+            .playerCard img {
+                height: 100%;
+                width: 100%;
+                /*visibility:  ;*/
+            }
+
+        .playerBar {
+            display: flex;
+            justify-content: center;
+        }
+
+            .playerBar > div {
+                background-color: #585749;
+            }
+
+        .avatar {
+            height: 50px;
+            width: 20%;
+            border-radius: 2px;
+            border: 1px inset;
+        }
+
+            .avatar img {
+                height: 100%;
+                width: 100%;
+            }
+
+        .nameAndCurrency {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            height: 50px;
+            width: 60%;
+            border: 1px inset;
+            border-radius: 2px;
+        }
+
+        .name {
+            display: block;
+            width: 60%;
+            margin-top: 5px;
+            margin-bottom: 5px;
+            text-align: center;
+            background-color: #E59866;
+        }
+
+        .currency {
+            display: block;
+            width: 60%;
+            margin-bottom: 5px;
+            text-align: center;
+            background-color: #97ddff;
+        }
+
+        .timer {
+            height: 50px;
+            width: 20%;
+            border: 1px inset;
+            border-radius: 2px;
+            color: white;
+            font-size: 30px;
+            text-align: center;
+        }
+    </style>
+}
+
+<!---<h2>Room #@ViewBag.roomid</h2>
 
 <input id="message"></input>
-<button id="message-btn" disabled>Send Message</button>
+<button id="message-btn" disabled>Send Message</button> -->
+
+    <!-- COMMUNITY CARDS -->
+<div id="community">
+    <div id="flop1" class="communityCard"><img v-bind:src="flop1Url" /></div>
+    <div id="flop2" class="communityCard"><img v-bind:src="flop2Url" /></div>
+    <div id="flop3" class="communityCard"><img v-bind:src="flop3Url" /></div>
+    <div id="turn" class="communityCard"><img v-bind:src="turnUrl" /></div>
+    <div id="river" class="communityCard"><img v-bind:src="riverUrl" /></div>
+    <div id="pot">Pot Size: ${{potSize}}</div>
+</div>
+
+<!-- HUD 1 -->
+<div id="hud1" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+<!-- HUD 2 -->
+<div id="hud2" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+<!-- HUD 3 -->
+<div id="hud3" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+<!-- HUD 4 -->
+<div id="hud4" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+<!-- HUD 5 -->
+<div id="hud5" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+<!-- HUD 6 -->
+<div id="hud6" class="playerHud">
+
+    <div class="playerCards">
+        <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
+        <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
+    </div>
+
+    <div class="playerBar">
+        <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
+        <div class="nameAndCurrency">
+            <div class="name">{{username}}</div>
+            <div class="currency">currency:${{currency}}</div>
+        </div>
+        <div class="timer">{{timer}}</div>
+    </div>
+</div>
+
+
+
+<div id="bottomFunctions">
+    <div id="metaActions">
+        <button class="metaButton" id="BuyMore">Buy More</button>
+        <br>
+        <button class="metaButton" id="HandHistory">Hand History</button>
+        <br>
+        <button class="metaButton" id="LeaveGame">Leave game</button>
+    </div>
+    <div id="gameActions">
+        <div id="actionButtons">
+            <button class="actionButton" id="Fold">Fold</button>
+            <button class="actionButton" id="Call">Call</button>
+            <button class="actionButton" id="AllIn">All In</button>
+            <button class="actionButton" id="Raise">Raise</button>
+        </div>
+        <br>
+        <div id="rangeSlider">
+            <input id="raiseSlider" type="range" min="0" max="100" value="0" oninput="updateTextInput(this.value);">
+            <input id="raiseInput" type="text" value="0" oninput="updateSlider(this.value);">
+        </div>
+    </div>
+    <div id="chatarea">
+        <div id="chatbox"></div>
+        <div id="message" action="">
+            <input name="usermsg" type="text" id="usermsg" size="63" />
+            <input name="submitmsg" type="submit" id="submitmsg" value="Send" />
+        </div>
+    </div>
+</div>
+
+
 
 
 @section scripts{
+
+    <script src="https://unpkg.com/vue@2.1.3/dist/vue.js"></script>
+    <script src="~/Scripts/app.js"></script>
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.1.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
     <script>
