@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+	<head>
+    	<link rel="stylesheet" href="styles.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+	</head>
+	<body>
+		<div id="player">
+			<div class="playerCards">
+				<div class="card1"></div>
+				<div class="card2"></div>
+			</div>
+			<div class="Player Info">
+				<div class="avatar">
+					<img src=""/>
+				</div>
+				<div class="displays">
+					<div class="username"></div>
+					<div class="currency"></div>
+				</div>
+				<div class="timer"></div>
+			</div>
+		</div>
+		<div id="bottomFunctions">
+			<div id="metaActions">
+				<button class="metaButton">Buy More</button>
+					<br>
+				<button class="metaButton">Hand History</button>
+					<br>
+				<button class="metaButton">Leave game</button>
+			</div>
+			<div id="gameActions">
+				<div id="actionButtons">
+					<button class="actionButton">Fold</button>
+					<button class="actionButton">Call</button>
+					<button class="actionButton">All In</button>
+					<button class="actionButton">Raise</button>
+				</div>
+				<br>
+				<div id="rangeSlider">
+					<input id="raiseSlider" type="range"  min="0" max="100" value="0" event= "updateTextInput(this.value);">
+					<input id="raiseInput" type="text"  value= "0" event="updateSlider(this.value);">
+				</div>
+			</div>
+			<div id="chatroom">
+				<div class="messages"></div>
+				<input type="text" name="typeMessge">
+			</div>
+		</div>
+		<script src="https://unpkg.com/vue/dist/vue.js"></script>
+		<script>
+			$('body').css('min-height', '100%');
+		</script>
+		<script>
+			function updateTextInput(val) {
+         		document.getElementById('raiseInput').value=val; 
+        	}
+        	function updateSlider(val){
+        		document.getElementById('raiseSlider').value=val;
+        	}
+		</script>
+	</body>
+</html>
