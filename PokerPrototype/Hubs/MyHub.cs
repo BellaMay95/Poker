@@ -33,6 +33,7 @@ namespace PokerPrototype.Hubs
         {
             return Groups.Add(Context.ConnectionId, roomName);
         }
+
         //Joining room
         public void GetRoomInfo(string roomID)
         {
@@ -43,9 +44,24 @@ namespace PokerPrototype.Hubs
             //if room is empty
             if (manager.getPlayerCount() == 0)
             {
+                
                 /*Need to grab player's username at the very least, can SQL pull the currency
- * 
- * */
+                 * 
+                 * */
+                //change below to match up with grabbed information
+                manager.joinStart(Context.ConnectionId, 0, "Bob");
+                manager.updateState(Convert.ToInt32(roomID));
+                Groups.Add(Context.ConnectionId, roomID);
+                UserModel user = new UserModel(3);
+                Clients.All.alertJson(user);
+
+            }
+            //else if room is not yet filled
+            else if (manager.getPlayerCount() < manager.getRoomCap())
+            {
+                /*Need to grab player's username at the very least, can SQL pull the currency
+* 
+* */
                 //change below to match up with grabbed information
                 //if all active players have readied, then this player joins in the middle of the game
                 if (manager.allReady() == true)
@@ -57,19 +73,6 @@ namespace PokerPrototype.Hubs
                 {
                     manager.joinStart(Context.ConnectionId, 0, "Bob");
                 }
-                manager.updateState(Convert.ToInt32(roomID));
-                Groups.Add(Context.ConnectionId, roomID);
-                UserModel user = new UserModel(3);
-                Clients.All.alertJson(user);
-            }
-            //else if room is not yet filled
-            else if (manager.getPlayerCount() < manager.getRoomCap())
-            {
-                /*Need to grab player's username at the very least, can SQL pull the currency
-                 * 
-                 * */
-                //change below to match up with grabbed information
-                manager.joinStart(Context.ConnectionId, 0, "Bob");
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
                 UserModel user = new UserModel(3);
@@ -102,6 +105,14 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             string board = manager.getBoard();
             //Clients.Group(roomID).updateBoard(string board);
+        }
+        public bool broadcastRaise(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            //Clients.Group(roomID).updateRaise(manager.getHasRaised()
+            return false;// just to get function working
+            //return manager.getHasRaised()
         }
         public void broadcastPot(string roomID)
         {
