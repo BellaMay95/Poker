@@ -697,6 +697,7 @@ namespace PokerGame
             return data.pot;
 
         }
+        //also fix to INSERT only if entry doesn't actually exist
         public void updateState(int roomID)
         {
             string output = JsonConvert.SerializeObject(data);
@@ -706,7 +707,23 @@ namespace PokerGame
             cmd.Connection = Conn;
             cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES @roomID @output ";
             cmd.Prepare();
+            cmd.Parameters.AddWithValue("@roomID", roomID);
+            cmd.Parameters.AddWithValue("@output", output);
             MySqlDataReader rdr = cmd.ExecuteReader();
+
+            /*                    cmd.CommandText = "INSERT into users(username, password, email, currency) VALUES (@user,@pass,@email, 10) ";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@pass", Crypto.HashPassword(password));
+                    cmd.Parameters.AddWithValue("@email", email);
+                    success = cmd.ExecuteNonQuery() > 0;
+                    if (success)
+                    {
+                        id = Convert.ToInt32(cmd.LastInsertedId);//.ToString();
+                    }
+                    Conn.Close();
+             * 
+             * 
+             * */
             Conn.Close();
         }
         public string getState(int roomID)
@@ -718,7 +735,8 @@ namespace PokerGame
             cmd.CommandText = "SELECT jsondata FROM games WHERE roomID = " + roomID;
             cmd.Prepare();
             MySqlDataReader rdr = cmd.ExecuteReader();
-            string json = (string)rdr["jsondata"];
+            rdr.Read();
+            string json = (string)rdr[1];
             //change to point to data class held by this
             data = JsonConvert.DeserializeObject<GameData>(json);
 

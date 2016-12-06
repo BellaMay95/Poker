@@ -7,8 +7,8 @@ var community = new Vue({
 	el: '#community',
 
 	data: {
-	   	potSize: 0,
-		flop1Url: 'http://i.imgur.com/uCi6EeO.png',
+	    potSize: 0,
+        flop1Url: 'http://i.imgur.com/uCi6EeO.png',
 		flop2Url: 'http://i.imgur.com/otFrf7M.png',
 		flop3Url: 'http://i.imgur.com/fuF6DXz.png',
 		turnUrl: 'http://i.imgur.com/llR3t2n.png',

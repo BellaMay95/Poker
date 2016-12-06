@@ -231,6 +231,14 @@
                 width: 100%;
             }
 
+        #inGameUpdates {
+            background-color: white;
+            width: 100%;
+            height: 20px;
+            text-align: center;
+            margin-bottom: 5px;
+        }
+
         #pot {
             background-color: white;
             width: 45%;
@@ -360,6 +368,7 @@
 
     <!-- COMMUNITY CARDS -->
 <div id="community">
+    <div id="inGameUpdates">{{message}}</div>
     <div id="flop1" class="communityCard"><img v-bind:src="flop1Url" /></div>
     <div id="flop2" class="communityCard"><img v-bind:src="flop2Url" /></div>
     <div id="flop3" class="communityCard"><img v-bind:src="flop3Url" /></div>
@@ -369,7 +378,7 @@
 </div>
 
 <!-- HUD 1 -->
-<div id="hud1" class="playerHud">
+<div id="hud1" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -387,7 +396,7 @@
 </div>
 
 <!-- HUD 2 -->
-<div id="hud2" class="playerHud">
+<div id="hud2" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -405,7 +414,7 @@
 </div>
 
 <!-- HUD 3 -->
-<div id="hud3" class="playerHud">
+<div id="hud3" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -423,7 +432,7 @@
 </div>
 
 <!-- HUD 4 -->
-<div id="hud4" class="playerHud">
+<div id="hud4" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -441,7 +450,7 @@
 </div>
 
 <!-- HUD 5 -->
-<div id="hud5" class="playerHud">
+<div id="hud5" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -459,7 +468,7 @@
 </div>
 
 <!-- HUD 6 -->
-<div id="hud6" class="playerHud">
+<div id="hud6" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
         <div id="card1" class="playerCard"><img v-bind:src="card1Url" /></div>
@@ -538,6 +547,61 @@
             chat.server.send(roomID, $("#message").val());
         });
     }
+
+        //document.ready??
+
+      
+      function newPlayer(id, username, currency, avatar){
+          this.userId = id;
+          this.username = username;
+          this.currency = currency;
+          this.avatar = avatar;
+      }
+
+      function board(flop1, flop2, flop3, turn, river, pot, message){
+          this.flop1 = flop1;
+          this.flop2 = flop2;
+          this.flop3 = flop3;
+          this.turn = turn;
+          this.river = river;
+      } 
+
+      function card(value, img){
+          this.value = value;
+          this.img = img;
+      }
+
+      var deck = [];
+
+      var player = new newPlayer(...);  //should get parameter values from json returned by signalr?
+                                        //add this after get room info?
+
+    var hudArray = [hud1, hud2, hud3, hud4, hud5, hud6];
+    
+    //hudArray.push(hud1);
+    //hudArray.push(hud2);
+    //hudArray.push(hud3);
+    //hudArray.push(hud4);
+    //hudArray.push(hud5);
+    //hudArray.push(hud6);
+
+    chat.server.GetRoomInfo(...);        //call GetRoomInfo
+    
+    //if room is full, user will be alerted. else set hud values from json returned 
+        //containing user model
+
+
+    for(var hud in hudArray){
+        if(hud.username == ''){
+            hud.username = player.username;
+            hub.currency = player.currency;
+            hub.avatar = player.avatar;
+            break;
+        }
+        
+        
+    }
+    
     </script>
 
 }
