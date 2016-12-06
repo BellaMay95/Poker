@@ -18,16 +18,23 @@ namespace PokerPrototype.Models
         public string cvcError { get; set; }
         public string expiresError { get; set; }
         public string passwordError { get; set; }
+        public string amount { get; set; }
         public PaymentModel(int id, string amount, string name, string cardNumber, string cvc, string expires, string password)
         {
-            success = true;
+            this.amount = amount;
             amountError = nameError = cardNumberError = cvcError = expiresError = passwordError = "";
+            success = true;
             if (amount.Length == 0)
             {
                 success = false;
                 amountError = "Enter an Amount";
             }
-            if (name.Length == 0)
+            else if (!Regex.IsMatch(amount, @"^\d+$"))
+            {
+                success = false;
+                amountError = "Amount must be a number";
+            }
+                if (name.Length == 0)
             {
                 success = false;
                 nameError = "Enter the Name on the Card";
@@ -37,8 +44,9 @@ namespace PokerPrototype.Models
                 success = false;
                 cardNumberError = "Enter Card Number";
             }
-            else if (!Regex.IsMatch(cardNumber, @"^[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}[- ]?[0-9]{4}$"))
+            else if (!Regex.IsMatch(cardNumber, @"^\d{4}[- ]?\d{4}[- ]?\d{4}[- ]?\d{4}$"))
             {
+                success = false;
                 cardNumberError = "Invalid Credit Card";
             }
             if (cvc.Length == 0)
@@ -46,12 +54,22 @@ namespace PokerPrototype.Models
                 success = false;
                 cvcError = "Enter the Card's CVC";
             }
+            else if (!Regex.IsMatch(cvc, @"^\d{3}$"))
+            {
+                success = false;
+                cvcError = "Invalid CVC";
+            }
             if (expires.Length == 0)
             {
                 success = false;
                 expiresError = "Enter the Card's expiration date";
             }
-            if (expires.Length == 0)
+            else if (!Regex.IsMatch(expires, @"^(0?[1-9]|1[0-2])[-/][1-9][0-9]$"))
+            {
+                success = false;
+                expiresError = "Invalid expiration date";
+            }
+            if (password.Length == 0)
             {
                 success = false;
                 passwordError = "Enter your password";

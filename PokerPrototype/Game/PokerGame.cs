@@ -19,6 +19,7 @@ using Newtonsoft.Json;
 using HoldemHand;
 using System.Web.Mvc;
 using PokerGame;
+using PokerPrototype.Models;
 //using System.Security.Cryptography;
 //using System.Linq;
 //using System.Text;
@@ -699,7 +700,7 @@ namespace PokerGame
         public void updateState(int roomID)
         {
             string output = JsonConvert.SerializeObject(data);
-            MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
             var cmd = new MySql.Data.MySqlClient.MySqlCommand();
             Conn.Open();
             cmd.Connection = Conn;
@@ -710,7 +711,7 @@ namespace PokerGame
         }
         public string getState(int roomID)
         {
-            MySqlConnection Conn = new MySqlConnection("server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;");
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
             var cmd = new MySql.Data.MySqlClient.MySqlCommand();
             Conn.Open();
             cmd.Connection = Conn;

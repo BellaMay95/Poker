@@ -35,7 +35,7 @@
             var friend = profile.friendUser[i];
             var avatar = profile.friendAvatar[i];
             //var $line = $("");
-            $div = $("<div class='col=sm-6'></div>");
+            $div = $("<div class='clickable-profile col-sm-6' data-name='" + friend + "'></div>");
             $div.append("<img style='width: 64px; height: 64px;' src='" + avatar + "'>");
             $div.append($("<span></span>").text(" " + friend));
             $friendBody.append($div);
@@ -73,7 +73,9 @@
             })
         }
     }//printtopright
-
+    $("#friendBody").on("click", ".clickable-profile", function () {
+        showProfileModal($(this).data("name"));
+    })
     function addFriend()
     {
         $(".modal-footer").append("<div class='spinner' style='float:left'</div>")
@@ -211,7 +213,7 @@
 
     $("#fund-btn").click(submitPayment);
     function submitPayment() {
-        $(".modal-footer").append("<div class='spinner' style='float:left'></div>")
+        $("#fund-footer-left").addClass("spinner");
         $.post("/ajax/payment", {
             amount: $('#amount-input').val(),
             name: $('#name-input').val(),
@@ -224,7 +226,7 @@
     }
 
     function paymentHandler(response) {
-        $(".spinner").remove();
+        $("#fund-footer-left").removeClass("spinner");
         var success = true;
         if (response.amountError.length > 0) {
             success = false;
@@ -275,9 +277,14 @@
             $("#password-msg").text("");
         }
         if (success) {
-            alert("funds successfully added!");
-            $('#fund-modal').modal('toggle');
-            //refresh the page to update value?
+            $("#fund-footer-left").append('<p class="text-success">Added $' + response.amount + ' to your account</p>');
+            $("#currency").text(Number($("#currency").text()) + Number(response.amount));
+            $('#amount-input').val("");
+            $('#name-input').val("");
+            $('#card-number-input').val("");
+            $('#cvc-input').val(""),
+            $('#expires-input').val(""),
+            $('#password-input').val("");
         }
     }
 </script>

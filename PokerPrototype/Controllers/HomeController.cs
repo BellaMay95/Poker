@@ -11,7 +11,7 @@ namespace PokerPrototype.Controllers
     {
         public ActionResult Index()
         {
-            //Session["id"] = 1; //comment out to see landing page
+            Session["id"] = 1; //comment out to see landing page
             int id = Convert.ToInt32(Session["id"]);
             if (id > 0)
             {

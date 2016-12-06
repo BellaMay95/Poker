@@ -61,7 +61,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <!-- Create Account links to ~/signup, put signup script there?-->
+                <div id="login-footer-left" style="float: left";></div>
                 <a class="btn btn-default" data-toggle="modal" data-target="#register-modal" data-dismiss="modal" href="#">Create Account</a>
                 <button type="button" id="login-btn" class="btn btn-primary">Log in</button>
             </div>
@@ -100,8 +100,7 @@
                 </div>
             </div>
             <div class="modal-footer">
-                <!-- Change These-->
-                <!--  <a class="btn btn-default" href="~/Register">Create Account</a>-->
+                <div id="register-footer-left" style="float: left";></div>
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" id="register-btn" class="btn btn-primary">Register</button>
             </div>
@@ -152,7 +151,7 @@ $(document).ready(function () {
 
 
     function submitLogin() {
-        $(".modal-footer").append("<div class='spinner' style='float:left'></div>")
+        $("#login-footer-left").addClass("spinner");
         $.post("/ajax/login", {
             username: $('#login-username').val(),
             password: $('#login-password').val(),
@@ -161,7 +160,7 @@ $(document).ready(function () {
     }
 
     function submitRegister() {
-        $(".modal-footer").append("<div class='spinner'></div>")
+        $("#register-footer-left").addClass("spinner");
         $.post("/ajax/register", {
             email: $('#register-email').val(),
             username: $('#register-username').val(),
@@ -172,7 +171,7 @@ $(document).ready(function () {
 
 
     function loginHandler(response) {
-        $(".spinner").remove();
+        $("#login-footer-left").removeClass("spinner");
         if (response.usernameError.length > 0) {
             $("#login-username-group").addClass("has-error");
             $("#login-username-msg").text(response.usernameError);
@@ -188,11 +187,12 @@ $(document).ready(function () {
             $("#login-password-msg").text("");
         }
         if (response.usernameError.length == 0 && response.passwordError.length == 0) {
+            $("#login-footer-left").append('<p class="text-success">Login Successful!</p>');
             window.location.href = '/';
         }
     }
     function registerHandler(response) {
-        $(".spinner").remove();
+        $("#register-footer-left").removeClass("spinner");
         var success = true;
         if (response.usernameError.length > 0) {
             $("#register-username-group").addClass("has-error");
@@ -227,6 +227,7 @@ $(document).ready(function () {
             $("#register-confirm-msg").text("");
         }
         if (success) {
+            $("#register-footer-left").append('<p class="text-success">Account Created!</p>');
             window.location.href = '/';
         }
     }
