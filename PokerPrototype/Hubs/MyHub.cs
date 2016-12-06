@@ -5,7 +5,9 @@ This way can send targeted alerts to the player whose turn it is
 TODO:
 -Figure out how to retrieve player username from view
 -Edit usermodel call so it is the ID of the player, not Josh
--Broadcast correct, appropriate data to players
+-Triple check broadcasts working functionally (integrate with Tim and Jamie, not just my janky console)
+-Raise currently bugged. Need to set Raise to trigger 'another' betting round (up to a predefined limit)
+-Need to allow View to see data on which players have folded or not
 
 
 Tenative game loop plan:
@@ -126,6 +128,9 @@ namespace PokerPrototype.Hubs
                 }
                 manager.cycle();
                 manager.updateState(Convert.ToInt32(roomID));
+                //need to take place after updating state, in order to grab up to date information
+                adjustBoard(roomID);
+                broadcastPot(roomID);
                 alertPlayerTurn(manager.getCurrentPlayer().ID);
             }
             //broadcast to allclients
@@ -139,7 +144,9 @@ namespace PokerPrototype.Hubs
                 manager.call(userID);
                 manager.cycle();
                 manager.updateState(Convert.ToInt32(roomID));
-                alertPlayerTurn(manager.getCurrentPlayer().ID);
+                //need to take place after updating state, in order to grab up to date information
+                adjustBoard(roomID);
+                broadcastPot(roomID);
                 return manager.getCallAmt();
             }
             else
@@ -159,6 +166,9 @@ namespace PokerPrototype.Hubs
                 //a check effectively passes the turn, move on to the next player
                 manager.cycle();
                 manager.updateState(Convert.ToInt32(roomID));
+                //need to take place after updating state, in order to grab up to date information
+                adjustBoard(roomID);
+                broadcastPot(roomID);
                 alertPlayerTurn(manager.getCurrentPlayer().ID);
                 return 0;
             }
@@ -176,6 +186,7 @@ namespace PokerPrototype.Hubs
                 return -1;
             }
         }
+        //NOTE: need to implement Raise causing another round of betting "resetting the cycle" so to speak
         public int Raise(string roomID, string userID, int amount)
         {
             GameManager manager = new GameManager();
@@ -183,8 +194,12 @@ namespace PokerPrototype.Hubs
             //verify user can raise by that amount/call at tsame time
             if (manager.raise(userID, amount) >= 0)//check for nonnegative number
             {
+              
                 manager.cycle();
                 manager.updateState(Convert.ToInt32(roomID));
+                //need to take place after updating state, in order to grab up to date information
+                adjustBoard(roomID);
+                broadcastPot(roomID);
                 alertPlayerTurn(manager.getCurrentPlayer().ID);
                 return amount;
             }
@@ -256,11 +271,15 @@ namespace PokerPrototype.Hubs
                     manager.addBoard();
                     manager.addBoard();
                     manager.addBoard();
+                    broadcastBoard(roomID);
+                    manager.nextRound();
                     manager.updateState(Convert.ToInt32(roomID));
                 }
                 else if (manager.getRoundNumber()<4)//1, 2, 3 completed
                 {
                     manager.addBoard();
+                    broadcastBoard(roomID);
+                    manager.nextRound();
                     manager.updateState(Convert.ToInt32(roomID));
                 }
                 else
