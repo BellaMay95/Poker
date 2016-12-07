@@ -114,6 +114,13 @@ namespace PokerPrototype.Hubs
             return false;// just to get function working
             //return manager.getHasRaised()
         }
+        public int broadcastCallAmt(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            //Clients.Group(roomID).updateCallAmt(manager.getHasRaised();
+            return manager.getCallAmt();
+        }
         public void broadcastPot(string roomID)
         {
             GameManager manager = new GameManager();
