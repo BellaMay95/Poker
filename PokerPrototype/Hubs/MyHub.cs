@@ -38,6 +38,7 @@ namespace PokerPrototype.Hubs
         {
             //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
             //On join, getState of game
+            Clients.Caller.alertMessage("Joining room...");
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //if brandn new room

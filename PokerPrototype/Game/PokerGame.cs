@@ -693,6 +693,7 @@ namespace PokerGame
                 //if entry already exists update, if not, insert
                 if (rdr.Read())
                 {
+                    rdr.Close();
                     cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @room";
                     cmd.Parameters.AddWithValue("@output", output);
                     cmd.Parameters.AddWithValue("@room", room);
@@ -700,7 +701,8 @@ namespace PokerGame
                 }
                 else
                 {
-                    cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES @roomID @output ";
+                    rdr.Close();
+                    cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@roomID", room);
                     cmd.Parameters.AddWithValue("@output", output);
@@ -725,6 +727,7 @@ namespace PokerGame
         {
             MySqlConnection Conn = new MySqlConnection(Connection.Str);
             var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Close();
             Conn.Open();
             cmd.Connection = Conn;
             cmd.CommandText = "SELECT jsondata FROM games WHERE roomID = " + roomID;
