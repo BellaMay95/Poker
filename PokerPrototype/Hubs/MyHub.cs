@@ -3,18 +3,16 @@ Use connectionIDs for playerIDs.
 This way can send targeted alerts to the player whose turn it is 
 
 TODO:
--Figure out how to retrieve player username from view
--Edit usermodel call so it is the ID of the player, not Josh
--Triple check broadcasts working functionally (integrate with Tim and Jamie, not just my janky console)
+-Figure out how to retrieve player username from view for data 
+    @Model.username similar to ViewProfile?
+-Ensure the difference between "userID" (username) and "connID" (what most of these functions actually need
+    Mostly done, need one last final check. All instances of userID replaced with more accurate connID 
 -Raise currently bugged. Need to set Raise to trigger 'another' betting round (up to a predefined limit)
+    Potential work around implemented. Will need to test because potentially really buggy
 -Need to allow View to see data on which players have folded or not
 
 
-Tenative game loop plan:
--When player joins empty room, have room be in permanent wait status
--On second player join, call init, have both players press a "ready" button"
--Players may continually join (at which point init is recalled) until either cap or all current players have marked ready
--The MOMENT all players have sent a "ready", init into the game loop.
+
 */
 using System;
 using System.Collections.Generic;
@@ -33,7 +31,8 @@ namespace PokerPrototype.Hubs
         {
             return Groups.Add(Context.ConnectionId, roomName);
         }
-
+//CONNECTION FUNCTIONS
+//block dedicated to functions handling connection/disconnection
         //Joining room
         public void GetRoomInfo(string roomID)
         {
@@ -41,17 +40,20 @@ namespace PokerPrototype.Hubs
             //On join, getState of game
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            //if room is empty
-            if (manager.getPlayerCount() == 0)
+            //if brandn new room
+            if (manager.getRoomID() == -1)
             {
-                
+
                 /*Need to grab player's username at the very least, can SQL pull the currency
                  * 
                  * */
                 //change below to match up with grabbed information
-                manager.joinStart(Context.ConnectionId, 0, "Bob");
+                //set roomID
+                manager.setRoomID(Convert.ToInt32(roomID));
+                manager.joinStart(Context.ConnectionId, 0, "Default Player Name");
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
+                //Do we need the below?
                 UserModel user = new UserModel(3);
                 Clients.All.alertJson(user);
 
@@ -84,6 +86,25 @@ namespace PokerPrototype.Hubs
                 Clients.Caller.alertMessage("Error: Room is full");
             }
         }
+        public override Task OnDisconnected(bool stopCalled)
+        {
+            GameManager manager = new GameManager();
+            //manager.getState(Context.);
+            if (stopCalled)
+            {
+                //client exited gracefully
+            }
+            else
+            {
+                //server hasn't heard from client ~35 seconds
+            }
+            //either way, call leave 
+
+            return base.OnDisconnected(stopCalled);
+        }
+        //END CONNECTION FUNCTIONS
+        //CHAT FUNCTIONS
+        //functions to handle chatting portion of game
         public void Send(string roomID, string message)
         {
 
@@ -92,12 +113,25 @@ namespace PokerPrototype.Hubs
             //Clients.All.alertJson(message + " from " + connid);
             //hello
         }
-        public void broadcastHand(string roomID, string userID)
+        //BROADCAST FUNCTIONS
+        //Do not call, these will be used to call Javascript functions to update view periodically
+        //If view needs these, please uncomment the "broadcasting" line in each function
+        //replace .updateX function with whatever the appropriate function is
+
+        //if view needs to check whether buttons should be enabled or not (is game running?)
+        //have a "updateStatus" javascript function.
+        public void broadcastStatus(bool check)
         {
+            //returns true if game is running, false if not
+            //Clients.Group(roomID).updateStatus(check);
+        }
+        public void broadcastHand(string roomID)
+        {
+            
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            string hand = manager.getPlayerHand(userID);
-            //Clients.Client(userID).updateHand(string hand);
+            string hand = manager.getPlayerHand(Context.ConnectionId);
+            //Clients.Client(Context.ConnectionId).updateHand(string hand);
         }
         public void broadcastBoard(string roomID)
         {
@@ -128,15 +162,26 @@ namespace PokerPrototype.Hubs
             int pot = manager.getPot();
             //Clients.Group(roomID).updatePot(int pot);
         }
-        public void Fold(string roomID, string userID)
+//END BROADCAST FUNCTIONS
+//POKER FUNCTIONS
+//Bind to buttons and pass relevant input.
+
+        public void Leave(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            manager.leave(Context.ConnectionId);
+            manager.updateState(Convert.ToInt32(roomID));
+        }
+        public void Fold(string roomID)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //if user is allowed to move
-            if (userID.Equals(manager.getCurrentPlayer().ID))
+            if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
             {
                 //fold
-                manager.fold(userID);
+                manager.fold(Context.ConnectionId);
                 //if the game is over
                 if (manager.gameOver())
                 {
@@ -153,13 +198,13 @@ namespace PokerPrototype.Hubs
             }
             //broadcast to allclients
         }
-        public int Call(string roomID, string userID)
+        public int Call(string roomID)
         {
             GameManager manager= new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            if ( userID.Equals(manager.getCurrentPlayer().ID))
+            if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
             {
-                manager.call(userID);
+                manager.call(Context.ConnectionId);
                 manager.cycle();
                 manager.updateState(Convert.ToInt32(roomID));
                 //need to take place after updating state, in order to grab up to date information
@@ -173,13 +218,13 @@ namespace PokerPrototype.Hubs
                 return -1;
             }
         }     
-        public int Check(string roomID, string userID)
+        public int Check(string roomID)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //It must be their turn, and no pets should have been made in order to check
             //verify with group later on exact check rulings
-            if((userID.Equals(manager.getCurrentPlayer().ID))&&(manager.getPot()==0))
+            if((Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))&&(manager.getPot()==0))
             {
                 //a check effectively passes the turn, move on to the next player
                 manager.cycle();
@@ -205,21 +250,39 @@ namespace PokerPrototype.Hubs
             }
         }
         //NOTE: need to implement Raise causing another round of betting "resetting the cycle" so to speak
-        public int Raise(string roomID, string userID, int amount)
+        public int Raise(string roomID, int amount)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            //verify user can raise by that amount/call at tsame time
-            if (manager.raise(userID, amount) >= 0)//check for nonnegative number
+            //verify it is user's turn
+            if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
             {
-              
-                manager.cycle();
-                manager.updateState(Convert.ToInt32(roomID));
-                //need to take place after updating state, in order to grab up to date information
-                adjustBoard(roomID);
-                broadcastPot(roomID);
-                alertPlayerTurn(manager.getCurrentPlayer().ID);
-                return amount;
+                //verify raises are legal under the current state
+                if (manager.getRaiseCount() < 3)
+                {
+                    //verify user can raise by that amount/call at tsame time
+                    if (manager.raise(Context.ConnectionId, amount) >= 0)//check for nonnegative number
+                    {
+
+                        manager.cycle();
+                        manager.updateState(Convert.ToInt32(roomID));
+                        //need to take place after updating state, in order to grab up to date information
+                        adjustBoard(roomID);
+                        broadcastPot(roomID);
+                        alertPlayerTurn(manager.getCurrentPlayer().ID);
+                        return amount;
+                    }
+                    else
+                    {
+                        Clients.Caller.alertMessage("Error: Not enough currency");
+                        return -1;
+                    }
+                }
+                else
+                {
+                    Clients.Caller.alertMessage("Error: Not your turn");
+                    return -1;
+                }
             }
             else
             {
@@ -230,7 +293,7 @@ namespace PokerPrototype.Hubs
         //call this function when player confirms they are ready
         //should disallow use of button after function returns true, to prevent spam 
         //This function is what starts the game, when the last player confirms ready
-        public bool confirmReady(string roomID, string userID)
+        public bool confirmReady(string roomID)
         {
             GameManager manager = new PokerGame.GameManager();
             manager.getState(Convert.ToInt32(roomID));
@@ -239,14 +302,17 @@ namespace PokerPrototype.Hubs
             //check anyways
             if (manager.allReady() == false)
             {
-                manager.readyPlayer(userID);
+                manager.readyPlayer(Context.ConnectionId);
                 //start the game if all ready
                 if (manager.allReady())
                 {
                     //assign all players their cards
                     manager.init();
+                    //broadcast fact that game is now running
+                    broadcastStatus(true);
                     //grab activePlayer[0].ID and notify them it is there turn
                     alertPlayerTurn(manager.getCurrentPlayer().ID);
+                    
                     return true;
                     //wooooooo start the game
                 }
@@ -273,6 +339,8 @@ namespace PokerPrototype.Hubs
             manager.award(winners);
             manager.reset();
             manager.updateState(Convert.ToInt32(roomID));
+            //broadcast fact that game is now over
+            broadcastStatus(false);
         }
         //adds cards to board at end of every betting cycle
         //may need adjustments if asyncs occur
@@ -309,10 +377,13 @@ namespace PokerPrototype.Hubs
 
         }
         //function to alert given conn ID that it is its turn
-        public void alertPlayerTurn(string userID)
+        public void alertPlayerTurn(string connID)
         {
-            Clients.Client(userID).alertMessage("Your turn");
+            Clients.Client(connID).alertMessage("Your turn");
         }
+//END POKER FUNCTIONS
+//CONNECTION FUNCTIONS
+//handle disconnects
 
     }
 }

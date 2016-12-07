@@ -27,10 +27,9 @@ using PokerPrototype.Models;
 
 namespace PokerGame
 {
-    //http://stackoverflow.com/questions/273313/randomize-a-listt
-    //So I honestly how this works
+    //CITEE http://stackoverflow.com/questions/273313/randomize-a-listt
     //Copied from link above, should improve Random so that our shuffle can handle 
-    //threads, and reduce shuffling in predictable ways
+    //threads, and reduce possibility of shuffling in predictable ways
     public static class ThreadSafeRandom
     {
         [ThreadStatic]
@@ -256,18 +255,13 @@ namespace PokerGame
         public bool folded { get; set; }
         //is player ready to start match
         public bool ready { get; set; }
+        //mark if player has left the game
+        //public bool leave { get; set; }
     }
 
     //Holds all data necessary for GameManager
     //Will be serialized to JSON for storage/retrieval of game state
     //MODEL
- //    * -GameData needs to include turn order and who's turn it is, so controller can reference that and 
- //* act accordingly on each async method
- //* getCurrentPlayer()
-// * cycle()
-// * addPlayerTurn()//add player in the cycle of turns
-
-
     public class GameData
     {
         //Attributes-------------------------------------------------------------------
@@ -279,6 +273,8 @@ namespace PokerGame
         public int playerCount { get; set; }
         //last bet number. calls must meet this, raises must beat it
         public int callAmt { get; set; }
+        //track number of raises (limit 3)
+        public int raiseCount { get; set; }
         //total amount in pot, init to zero
         public int pot { get; set; }
         //what number betting round game is on. 0 for pre flop, 1 for post flop (three cards added to board), 
@@ -297,8 +293,6 @@ namespace PokerGame
         //two ways to track which player is currently going
         public Player currentPlayer { get; set; }
         public int currentIndex { get; set; }
-        //checks if game is over
-        public bool gameOver { get; set; }
         //checks if players have accomplished one cycle (marked by passing the "end" of list and returning to beginning
         public bool cycleComplete { get; set; }
         public Deck deck;
@@ -311,6 +305,7 @@ namespace PokerGame
             roomCap = 6;
             playerCount = 0;
             callAmt = 0;
+            raiseCount = 0;
             pot = 0;
             bettingRound = 0;
             boardCount = 0;
@@ -319,7 +314,6 @@ namespace PokerGame
             activePlayers = new List<Player> { };
             inactivePlayers = new List<Player> { };
             currentIndex = 0;
-            gameOver = false;
             cycleComplete = false;
             deck = new Deck();
         }
@@ -415,13 +409,19 @@ namespace PokerGame
         {
             int i = data.currentIndex;
             //if we have reached the last player in the list
-            if(i==data.activePlayers.Count-1)
+            if (i == data.activePlayers.Count - 1)
             {
                 //restart
                 i = 0;
                 //we have also completed one betting cycle
                 data.cycleComplete = true;
-                data.bettingRound++;
+                //this particular betting round has been reset 3 times or not at all
+                if ((data.raiseCount > 3)||(data.raiseCount==0))
+                {
+                    //progress betting round
+                    data.raiseCount = 0;//reset the raise counter
+                    data.bettingRound++;
+                }
             }
             for(int x=i; x< data.activePlayers.Count;x++)
             {
@@ -461,11 +461,12 @@ namespace PokerGame
             {
                 return true;
             }
+            /*Controller should catch natural game end
             //if five cards on the board
             if(data.boardCount==5)
             {
                 return true;
-            }
+            }*/
             return false;
         }
         //marks player as folded.
@@ -492,6 +493,7 @@ namespace PokerGame
                         data.activePlayers[i].currency -= amount;
                         data.pot += amount;
                         data.callAmt = amount;
+                        data.raiseCount++;
                         return amount;
                     }
                 }
@@ -595,55 +597,177 @@ namespace PokerGame
             temp.ID = IDtag;
             temp.currency = money;
             temp.name = username;
-            temp.ready = true;
+            temp.ready = false;
             //add to inactive players, to become active next round
             data.inactivePlayers.Add(temp);
             data.playerCount++;
         }
-        //call to mark player with string ID as ready
-        public void readyPlayer(string ID)
+        //What to do if player leaves (OnDisconnect)
+        //potential error if two simultaneous leaves result in an overflow?
+        //may want to try marking for deletion, then having a set clear() at somepoint
+        //would interfere with other players joining however.
+        public void leave(string IDtag)
         {
-            for(int i=0; i<data.activePlayers.Count; i++)
+            //check if player is leaving as an active Player
+            for (int i = 0; i < data.activePlayers.Count; i++)
             {
-                if(data.activePlayers[i].ID.Equals(ID))
+
+                if (data.activePlayers[i].ID.Equals(IDtag))
                 {
-                    data.activePlayers[i].ready = true;
+                    //if we want to preserve his hand for some reason, we can play around it
+                    /*
+                        data.activePlayers[i].folded = true;
+                        data.activePlayers[i].leave = true;
+                        */
+                    //for now just remove them from the list and decrement Playercount
+                    data.activePlayers.RemoveAt(i);
                 }
             }
-        }
+                //if player is inactivePlayer, we can go ahead and just remove them
+                for (int i = 0; i < data.inactivePlayers.Count; i++)
+                {
+                    //mark for deletion
+                    if (data.inactivePlayers[i].ID.Equals(IDtag))
+                    {
+                        data.inactivePlayers.RemoveAt(i);
+
+                    }
+                }
+            }
+        //call to mark player with string ID as ready
+        public void readyPlayer(string ID)
+            {
+                for(int i=0; i<data.activePlayers.Count; i++)
+                {
+                    if(data.activePlayers[i].ID.Equals(ID))
+                    {
+                        data.activePlayers[i].ready = true;
+                    }
+                }
+            }
         //after game is over, reset ready status of all players, and move inactive players to active.
         public void reset()
-        {
-            for(int i=0; i<data.activePlayers.Count;i++)
             {
-                data.activePlayers[i].ready = false;
+                for (int i = 0; i < data.inactivePlayers.Count; i++)
+                {
+                    data.inactivePlayers[i].ready = false;
+                    data.inactivePlayers[i].folded = false;
+                    data.activePlayers.Add(data.inactivePlayers[i]);
+                }
+                data.inactivePlayers.Clear();
             }
-            for (int i = 0; i < data.inactivePlayers.Count; i++)
-            {
-                data.inactivePlayers[i].ready = false;
-                data.inactivePlayers[i].folded = false;
-                data.activePlayers.Add(data.inactivePlayers[i]);
-            }
-            data.inactivePlayers.Clear();
-        }
+        //marks player as having "left", keeping them 
         //returns true if all active players have signaled they are ready to start the game
         public bool allReady()
-        {
-            for(int i=0; i< data.activePlayers.Count; i++)
             {
-                //return false if one player isn't ready
-                if(data.activePlayers[i].ready==false)
+                //can't play poker with just yourself
+                if(data.activePlayers.Count<2)
                 {
                     return false;
                 }
+                for(int i=0; i< data.activePlayers.Count; i++)
+                {
+                    //return false if one player isn't ready
+                    if(data.activePlayers[i].ready==false)
+                    {
+                        return false;
+                    }
+                }
+                //otherwise return true
+                return true;            
             }
-            //otherwise return true
-            return true;            
+        //Database functions
+        //also fix to INSERT only if entry doesn't actually exist
+        public void updateState(int roomID)
+            {
+                int room = roomID;
+                string output = JsonConvert.SerializeObject(data);
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "SELECT * FROM games WHERE roomID = @room";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@room", room);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                //if entry already exists update, if not, insert
+                if (rdr.Read())
+                {
+                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @room";
+                    cmd.Parameters.AddWithValue("@output", output);
+                    cmd.Parameters.AddWithValue("@room", room);
+                    cmd.ExecuteNonQuery();
+                }
+                else
+                {
+                    cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES @roomID @output ";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@roomID", room);
+                    cmd.Parameters.AddWithValue("@output", output);
+                    cmd.ExecuteNonQuery();
+                    /*                    cmd.CommandText = "INSERT into users(username, password, email, currency) VALUES (@user,@pass,@email, 10) ";
+                            cmd.Prepare();
+                            cmd.Parameters.AddWithValue("@pass", Crypto.HashPassword(password));
+                            cmd.Parameters.AddWithValue("@email", email);
+                            success = cmd.ExecuteNonQuery() > 0;
+                            if (success)
+                            {
+                                id = Convert.ToInt32(cmd.LastInsertedId);//.ToString();
+                            }
+                            Conn.Close();
+                     * 
+                     * 
+                     * */
+                }
+                Conn.Close();
+        }
+        public string getState(int roomID)
+        {
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            cmd.CommandText = "SELECT jsondata FROM games WHERE roomID = " + roomID;
+            cmd.Prepare();
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //if the entry exists
+            if (rdr.Read())
+            {
+                string json = (string)rdr[1];
+                //change to point to data class held by this
+                data = JsonConvert.DeserializeObject<GameData>(json);
+                Conn.Close();
+                return json;
+            }
+            else
+            {
+                Conn.Close();
+                //on creation, GameManager creates a default Gamedata with a roomID of -1
+                //check for this, then update roomID and store in db
+                //return empty string, state doesn't exist as room hasn't been created
+                return "";
+            }
+            
+            
+        }
+        //Need to be able to set roomID value
+        public void setRoomID(int num)
+        {
+            data.roomID = num;
         }
         //GET functions for integration with web interface
+        //Unless otherwise stated, returns the specified variable with no modifications
+        public int getRoomID()
+        {
+            return data.roomID;
+        }
         public int getCallAmt()
         {
             return data.callAmt;
+        }
+        public int getRaiseCount()
+        {
+            return data.raiseCount;
         }
         public string getBoard()
         {
@@ -696,52 +820,6 @@ namespace PokerGame
         {
             return data.pot;
 
-        }
-        //also fix to INSERT only if entry doesn't actually exist
-        public void updateState(int roomID)
-        {
-            string output = JsonConvert.SerializeObject(data);
-            MySqlConnection Conn = new MySqlConnection(Connection.Str);
-            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-            Conn.Open();
-            cmd.Connection = Conn;
-            cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES @roomID @output ";
-            cmd.Prepare();
-            cmd.Parameters.AddWithValue("@roomID", roomID);
-            cmd.Parameters.AddWithValue("@output", output);
-            MySqlDataReader rdr = cmd.ExecuteReader();
-
-            /*                    cmd.CommandText = "INSERT into users(username, password, email, currency) VALUES (@user,@pass,@email, 10) ";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@pass", Crypto.HashPassword(password));
-                    cmd.Parameters.AddWithValue("@email", email);
-                    success = cmd.ExecuteNonQuery() > 0;
-                    if (success)
-                    {
-                        id = Convert.ToInt32(cmd.LastInsertedId);//.ToString();
-                    }
-                    Conn.Close();
-             * 
-             * 
-             * */
-            Conn.Close();
-        }
-        public string getState(int roomID)
-        {
-            MySqlConnection Conn = new MySqlConnection(Connection.Str);
-            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-            Conn.Open();
-            cmd.Connection = Conn;
-            cmd.CommandText = "SELECT jsondata FROM games WHERE roomID = " + roomID;
-            cmd.Prepare();
-            MySqlDataReader rdr = cmd.ExecuteReader();
-            rdr.Read();
-            string json = (string)rdr[1];
-            //change to point to data class held by this
-            data = JsonConvert.DeserializeObject<GameData>(json);
-
-            Conn.Close();
-            return json;
         }
         public Player getCurrentPlayer()
         {
