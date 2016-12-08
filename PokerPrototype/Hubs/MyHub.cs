@@ -232,6 +232,7 @@ namespace PokerPrototype.Hubs
             {
                 boardString += board[i].img;
             }
+            Clients.Group(roomID).alertMessage(boardString);
             //Passes space delinated img files ("img1 img 2 img3 ")
             Clients.Group(roomID).updateBoard(boardString);
         }
