@@ -51,7 +51,7 @@ namespace PokerPrototype.Hubs
                 //change below to match up with grabbed information
                 //set roomID
                 manager.setRoomID(Convert.ToInt32(roomID));
-                manager.joinStart(Context.ConnectionId, 0, "Default Player Name");
+                manager.joinStart(Context.ConnectionId, 100, "Default Player Name");
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
                 //Do we need the below?
@@ -69,12 +69,12 @@ namespace PokerPrototype.Hubs
                 //if all active players have readied, then this player joins in the middle of the game
                 if (manager.allReady() == true)
                 {
-                    manager.joinMid(Context.ConnectionId, 0, "Bob");
+                    manager.joinMid(Context.ConnectionId, 100, "Bob");
                 }
                 //otherwise they join at prestart of game
                 else
                 {
-                    manager.joinStart(Context.ConnectionId, 0, "Bob");
+                    manager.joinStart(Context.ConnectionId, 100, "Bob");
                 }
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
@@ -90,6 +90,10 @@ namespace PokerPrototype.Hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(Context.ConnectionId));
+            Groups.Remove(Context.ConnectionId, Convert.ToString(manager.getRoomID()));
+            manager.leave(Context.ConnectionId);
+            manager.updateState(manager.getRoomID());
             //manager.getState(Context.);
             if (stopCalled)
             {
@@ -173,6 +177,7 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             manager.leave(Context.ConnectionId);
             manager.updateState(Convert.ToInt32(roomID));
+            Clients.Caller.alertMessage("You have successfully left the game");
         }
         public void Fold(string roomID)
         {
@@ -203,19 +208,29 @@ namespace PokerPrototype.Hubs
         {
             GameManager manager= new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
+            Player temp = manager.getCurrentPlayer();
+            if (temp != null)
             {
-                manager.call(Context.ConnectionId);
-                manager.cycle();
-                manager.updateState(Convert.ToInt32(roomID));
-                //need to take place after updating state, in order to grab up to date information
-                adjustBoard(roomID);
-                broadcastPot(roomID);
-                return manager.getCallAmt();
+                if (Context.ConnectionId.Equals(temp.ID))
+                {
+                    manager.call(Context.ConnectionId);
+                    manager.cycle();
+                    manager.updateState(Convert.ToInt32(roomID));
+                    //need to take place after updating state, in order to grab up to date information
+                    adjustBoard(roomID);
+                    broadcastPot(roomID);
+                    alertPlayerTurn(manager.getCurrentPlayer().ID);
+                    return manager.getCallAmt();
+                }
+                else
+                {
+                    Clients.Caller.alertMessage("Error: Not your turn");
+                    return -1;
+                }
             }
             else
             {
-                Clients.Caller.alertMessage("Error: Not your turn");
+                Clients.Caller.alertMessage("Error: Game has not started");
                 return -1;
             }
         }     
@@ -311,7 +326,9 @@ namespace PokerPrototype.Hubs
                     manager.init();
                     //broadcast fact that game is now running
                     broadcastStatus(true);
+                    manager.updateState(Convert.ToInt32(roomID));
                     //grab activePlayer[0].ID and notify them it is there turn
+                    Clients.Group(roomID).alertMessage("Game has started!");
                     alertPlayerTurn(manager.getCurrentPlayer().ID);
                     
                     return true;
@@ -319,6 +336,7 @@ namespace PokerPrototype.Hubs
                 }
                 else
                 {
+                    manager.readyPlayer(Context.ConnectionId);
                     Clients.Caller.alertMessage("Ready Confirmed");
                     manager.updateState(Convert.ToInt32(roomID));
                     return true;

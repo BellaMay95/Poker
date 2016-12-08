@@ -416,14 +416,41 @@ namespace PokerGame
                 //we have also completed one betting cycle
                 data.cycleComplete = true;
                 //this particular betting round has been reset 3 times or not at all
-                if ((data.raiseCount > 3)||(data.raiseCount==0))
+                if ((data.raiseCount > 3) || (data.raiseCount == 0))
                 {
                     //progress betting round
                     data.raiseCount = 0;//reset the raise counter
                     data.bettingRound++;
                 }
+                else
+                {
+                    //need to cycle again, set cycleComplete to false
+                    data.cycleComplete = false;
+                }
+                //if player at index 0 has folded, search to find next valid player
+                if (data.activePlayers[i].folded==true)
+                {
+                    for(int x=0;x<data.activePlayers.Count;x++)
+                    {
+                        if (data.activePlayers[x].folded == false)
+                        {
+                            data.currentIndex = x;
+                            data.currentPlayer = data.activePlayers[x];
+                            //return betting round
+                            return data.bettingRound;
+                        }
+                    }
+                }
+                else
+                {
+                    //go ahead and set player at index 0 as current player
+                    data.currentIndex =0;
+                    data.currentPlayer = data.activePlayers[0];
+                    return data.bettingRound;
+                }
+
             }
-            for(int x=i; x< data.activePlayers.Count;x++)
+            for(int x=i+1; x< data.activePlayers.Count;x++)
             {
                 if(data.activePlayers[x].folded==false)
                 {
@@ -694,9 +721,9 @@ namespace PokerGame
                 if (rdr.Read())
                 {
                     rdr.Close();
-                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @room";
+                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @roomID";
                     cmd.Parameters.AddWithValue("@output", output);
-                    cmd.Parameters.AddWithValue("@room", room);
+                    cmd.Parameters.AddWithValue("@roomID", room);
                     cmd.ExecuteNonQuery();
                 }
                 else
@@ -736,7 +763,7 @@ namespace PokerGame
             //if the entry exists
             if (rdr.Read())
             {
-                string json = (string)rdr[1];
+                string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
                 data = JsonConvert.DeserializeObject<GameData>(json);
                 Conn.Close();
