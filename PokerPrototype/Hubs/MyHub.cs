@@ -35,11 +35,11 @@ namespace PokerPrototype.Hubs
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
         //Joining room
-        public void GetRoomInfo(string roomID)
+        public void GetRoomInfo(string roomID /*,string username*/)
         {
             //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
             //On join, getState of game
-            Clients.Caller.alertMessage("Joining room...");
+            Clients.Caller.alertMessage(getNumPlayers(roomID) + " Players currently in the room");
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //if brandn new room
@@ -52,7 +52,7 @@ namespace PokerPrototype.Hubs
                 //change below to match up with grabbed information
                 //set roomID
                 manager.setRoomID(Convert.ToInt32(roomID));
-                manager.joinStart(Context.ConnectionId, 100, "Default Player Name");
+                manager.joinStart(Context.ConnectionId, 100, "Default Player Name" /*username*/);
                 manager.updateState(Convert.ToInt32(roomID));
                 //SQL block adds connection to database for later memory
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
@@ -77,7 +77,7 @@ namespace PokerPrototype.Hubs
                     cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
                     cmd.Parameters.AddWithValue("@roomID", roomID);
                     //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Default Player");
+                    cmd.Parameters.AddWithValue("@name", "Default Player"/*username*/);
                     cmd.ExecuteNonQuery();
                     Groups.Add(Context.ConnectionId, roomID);
                     //Do we need the below?
@@ -97,12 +97,12 @@ namespace PokerPrototype.Hubs
                 //if all active players have readied, then this player joins in the middle of the game
                 if (manager.allReady() == true)
                 {
-                    manager.joinMid(Context.ConnectionId, 100, "Bob");
+                    manager.joinMid(Context.ConnectionId, 100, "Bob"/*username*/);
                 }
                 //otherwise they join at prestart of game
                 else
                 {
-                    manager.joinStart(Context.ConnectionId, 100, "Bob");
+                    manager.joinStart(Context.ConnectionId, 100, "Bob"/*username*/);
                 }
                 manager.updateState(Convert.ToInt32(roomID));
                 //SQL block adds connection to database for later memory
@@ -128,7 +128,7 @@ namespace PokerPrototype.Hubs
                     cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
                     cmd.Parameters.AddWithValue("@roomID", roomID);
                     //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Bob");
+                    cmd.Parameters.AddWithValue("@name", "Bob"/*username*/);
                     cmd.ExecuteNonQuery();
                     Groups.Add(Context.ConnectionId, roomID);
                     //Do we need the below?
