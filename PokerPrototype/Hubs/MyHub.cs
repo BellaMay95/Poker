@@ -130,14 +130,14 @@ namespace PokerPrototype.Hubs
             //returns true if game is running, false if not
             //Clients.Group(roomID).updateStatus(check);
         }
-        public void broadcastHand(string roomID)
+        public void broadcastHand(string roomID, string connID)
         {
             
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             Card card1 = manager.getPlayerCard1(Context.ConnectionId);
             Card card2 = manager.getPlayerCard2(Context.ConnectionId);
-            //Clients.Client(Context.ConnectionId).updateHand(string card1.img , string card2.img);
+            //Clients.Client(connID).updateHand(string card1.img , string card2.img);
         }
         public void broadcastBoard(string roomID)
         {
@@ -325,6 +325,12 @@ namespace PokerPrototype.Hubs
                 {
                     //assign all players their cards
                     manager.init();
+                    //broadcast hands to players
+                    List<Player> players = manager.getActivePlayers();
+                    for(int i=0;i<players.Count; i++)
+                    {
+                        broadcastHand(roomID, players[i].ID);
+                    }
                     //broadcast fact that game is now running
                     broadcastStatus(true);
                     manager.updateState(Convert.ToInt32(roomID));
