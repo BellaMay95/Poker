@@ -51,7 +51,7 @@ namespace PokerPrototype.Hubs
                 //change below to match up with grabbed information
                 //set roomID
                 manager.setRoomID(Convert.ToInt32(roomID));
-                manager.joinStart(Context.ConnectionId, 100, "Default Player Name");
+                manager.joinStart(Context.ConnectionId, 0, "Default Player Name");
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
                 //Do we need the below?
@@ -69,12 +69,12 @@ namespace PokerPrototype.Hubs
                 //if all active players have readied, then this player joins in the middle of the game
                 if (manager.allReady() == true)
                 {
-                    manager.joinMid(Context.ConnectionId,100, "Bob");
+                    manager.joinMid(Context.ConnectionId, 0, "Bob");
                 }
                 //otherwise they join at prestart of game
                 else
                 {
-                    manager.joinStart(Context.ConnectionId, 100, "Bob");
+                    manager.joinStart(Context.ConnectionId, 0, "Bob");
                 }
                 manager.updateState(Convert.ToInt32(roomID));
                 Groups.Add(Context.ConnectionId, roomID);
@@ -271,7 +271,7 @@ namespace PokerPrototype.Hubs
                         adjustBoard(roomID);
                         broadcastPot(roomID);
                         alertPlayerTurn(manager.getCurrentPlayer().ID);
-                        return manager.getPot();
+                        return amount;
                     }
                     else
                     {
