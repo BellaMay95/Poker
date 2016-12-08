@@ -2,7 +2,6 @@
     $("#profile-dropdown").click(function () {
         showProfileModal($("#username").text());
     });
-    alert($("#username").text());
     var profiles = {};
     var currentUser = "";
     function showProfileModal(username) {
@@ -11,7 +10,13 @@
             printProfile();
         }
         else {
-            $("#profile-avatar").empty().append($("<span class='spinner'></span>"));
+            $("#profile-footer-left").addClass("spinner");
+            $("#profile-avatar").empty();
+            $("#profile-username").empty();
+            $("#profile-currency").empty();
+            $("#friend-label").empty();
+            $("#friend-body").empty();
+            $("#profile-top-right").empty();
             $.post("/ajax/viewProfile", {
                 username: username
             },
@@ -19,7 +24,7 @@
         }
     }
     function profileHandler(response) {
-       // alert("Hello I am: " + JSON.stringify(response.username));
+        //alert(JSON.stringify(response));
         if (JSON.stringify(response.username) != "null") {
             $("#friend-label").empty().append("<h3>Friends:</h3>");
             currentUser = response.username;
@@ -29,20 +34,20 @@
         else
         {
             $("#profile-avatar").empty();
-            $("#profile-username").empty().append("INVALID USERNAME");
+            $("#profile-username").empty().append("USERNAME NOT FOUND");
             $("#profile-currency").empty();
             $("#friend-label").empty();
             $("#friend-body").empty();
             $("#profile-top-right").empty();
         }
-        $(".spinner").remove();
+        $("#profile-footer-left").removeClass("spinner");
     }
     function printProfile() {
         profile = profiles[currentUser];
         $("#profile-avatar").empty().append("<img src='" + profile.avatar + "'>");
         $("#profile-username").empty().append(profile.username);
         $("#profile-currency").empty().append("Currency: " + profile.currency);
-        var $friendBody = $("#friendBody").empty();
+        var $friendBody = $("#friend-body").empty();
         //alert(response.friendUser.size);
 
         for (var i = 0; i < profile.friendUser.length; i++) {
@@ -62,30 +67,28 @@
         var $topright = $("#profile-top-right").empty();
         if (profile.canEdit) {
             $topright.append("<a href='/editprofile'><button>Edit Profile</button></a>");
+            return;
         }
-        else {
-            if (profile.isFriend) {
-                $topright.append("<button id='remove'>Remove Friend</button>");
-                $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
-                $("#remove").click(function () {
-                    removeFriend(profile.username);
-                })
-            }
-            else {
-                $topright.append("<button id='add'>Add Friend</button>");
-                if (profile.isAdmin) {
-                    $topright.append("<button id='message'>Send Message</button>");
-                }
-                $("#add").click(function () {
-                    addFriend(profile.username);
-                })
-            }
-            $("#message").click(function () {
-                $(".active").removeClass("active");
-                $("#compose-message").parent().addClass("active");
-                showMessageModal("compose", profile.username);
+        if (profile.isFriend) {
+            $topright.append("<button id='remove'>Remove Friend</button>");
+            $("#remove").click(function () {
+                removeFriend(profile.username);
             })
         }
+        else {
+            $topright.append("<button id='add'>Add Friend</button>");
+            $("#add").click(function () {
+                addFriend(profile.username);
+            })
+        }
+        if (profile.isFriend || profile.isAdmin || $("#admin").text() == "1"){
+             $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
+        }
+        $("#message").click(function () {
+            $(".active").removeClass("active");
+            $("#compose-message").parent().addClass("active");
+            showMessageModal("compose", profile.username);
+        })
     }//printtopright
     $("#friendBody").on("click", ".clickable-profile", function () {
         showProfileModal($(this).data("name"));
@@ -129,7 +132,11 @@
         showMessageModal($(this).first().text());
     })
     function showMessageModal(str, recipient) {
-        $("#message-content").empty().append("<span class='spinner'></span>");
+        if (!recipient) {
+            recipient = "";
+        }
+        $("#message-content").empty();
+        $("#message-footer-left").addClass('spinner');
         if (str == "inbox") {
             $("#message-content").removeClass("well");
             $.post("/ajax/inbox", inboxHandler);
@@ -144,6 +151,7 @@
         }
     }
     function printMessageList(heading) {
+        $("#message-footer-left").removeClass('spinner');
         if (messageList.length == 0) {
             $("#message-content").empty().append("<h2>empty</h2>");
             return;
@@ -161,18 +169,22 @@
         $("#message-content").empty().append($table);
         $("tbody").on("click", "tr", function () {
             var i = $(this).data('ind');
-            alert(messageList[i].message);
+            //alert(messageList[i].message);
+            $("#message-content").empty().append("<strong>" + heading + ": </strong>" + messageList[i].username);
+            $("#message-content").append("<br><strong>Date: </strong>" + messageList[i].date);
+            $("#message-content").append("<hr><strong>Message: </strong>" + messageList[i].message);
         });
     }
     function inboxHandler(response) {
         messageList = response;
-        printMessageList("sender");
+        printMessageList("Sender");
     }
     function sentHandler(response) {
         messageList = response;
-        printMessageList("Sent to");
+        printMessageList("Recipient");
     }
     function composeHandler(recipient) {
+        $("#message-footer-left").removeClass('spinner');
         var $row = $("<div class='form-group row' id='to-group'></div>");
         var $col3 = $('<div class="col-sm-3"></div>');
         $col3.append('<label class="control-label" for="to-input">recipient</label>');
@@ -190,15 +202,19 @@
 
         var button = "<button id='send-btn' class='btn btn-primary' style='float: right;'>Send Message</button>";
         $("#message-content").empty().append($row).append($row2).append(button);
-        $('#send-btn').click(function(){
+        $('#send-btn').click(function () {
+            $('#send-btn').prop("disabled", true);
             $.post("/ajax/sendmessage", {
                 to: $("#to-input").val(),
                 message: $("#send-input").val()
             },
             sendMessageHandler);
+            $("#message-footer-left").addClass('spinner');
         });
     }
     function sendMessageHandler(response) {
+        $("#message-footer-left").removeClass('spinner');
+        $('#send-btn').prop("disabled", false);
         var success = true;
         if (response.toError.length > 0) {
             success = false;
@@ -217,7 +233,8 @@
             $("#send-msg").text("");
         }
         if (success) {
-            sentHandler();
+            $("#message-footer-left").empty().append('<p class="text-success">Message Sent!</p>');
+            showMessageModal("hello everybody!");
         }
     }
 

@@ -1,11 +1,11 @@
 ﻿@model PokerPrototype.Models.UserModel
-
+<span id="admin" style="display: none;">@Model.isAdmin</span>
 <li class="dropdown">
     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
         Hello, <span id="username">@Model.username</span> <span class="caret"></span>
     </a>
     <ul class="dropdown-menu">
-        <li><img src="@Model.avatar" id="avatar" /></li>
+        <li><img src="@Model.avatar" /></li>
         <li>Currency: <span id="currency">@Model.currency</span></li>
         <li><a id="profile-dropdown" data-toggle="modal" data-target="#profile-modal" href="#">View Profile</a></li>
         <li><a data-toggle="modal" data-target="#fund-modal" href="#">Add Funds</a></li>

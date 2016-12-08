@@ -15,8 +15,7 @@ namespace PokerPrototype.Controllers
             if (System.Text.RegularExpressions.Regex.IsMatch(roomid, @"^\d+$"))
             {
                 ViewBag.RoomID = roomid;
-                int id = Convert.ToInt32(Session["id"]);
-                return View(new UserModel(id));
+                return View();
             }
             else
             {

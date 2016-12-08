@@ -1,11 +1,10 @@
-﻿@model PokerPrototype.Models.UserModel
-
-@section topright{
-    @Html.Partial("_profileDropdown")
-}
-
+﻿
 @{
     ViewBag.Title = "Index";
+}
+@section topright{
+    <li class="dropdown">
+    </li>
 }
 
 @section styles{
@@ -178,14 +177,14 @@
             overflow: auto;
         }
 
-        #message {
+        /*#message {
             border: 1px solid #000;
             position: absolute;
             left: 0%;
             top: 80%;
             height: 20%;
             width: 100%;
-        } 
+        } */
 
         #usermsg {
             position: absolute;
@@ -368,7 +367,7 @@
 <button id="message-btn" disabled>Send Message</button> 
 
     <!-- COMMUNITY CARDS -->
-<div id="community">
+<!-- <div id="community">
     <div id="inGameUpdates">{{message}}</div>
     <div id="flop1" class="communityCard"><img v-bind:src="flop1Url" /></div>
     <div id="flop2" class="communityCard"><img v-bind:src="flop2Url" /></div>
@@ -378,7 +377,7 @@
     <div id="pot">Pot Size: ${{potSize}}</div>
 </div>
 
-<!-- HUD 1 -->
+<!-- HUD 1 
 <div id="hud1" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -396,7 +395,7 @@
     </div>
 </div>
 
-<!-- HUD 2 -->
+<!-- HUD 2 
 <div id="hud2" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -414,7 +413,7 @@
     </div>
 </div>
 
-<!-- HUD 3 -->
+<!-- HUD 3 
 <div id="hud3" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -432,7 +431,7 @@
     </div>
 </div>
 
-<!-- HUD 4 -->
+<!-- HUD 4 
 <div id="hud4" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -450,7 +449,7 @@
     </div>
 </div>
 
-<!-- HUD 5 -->
+<!-- HUD 5 
 <div id="hud5" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -468,7 +467,7 @@
     </div>
 </div>
 
-<!-- HUD 6 -->
+<!-- HUD 6 
 <div id="hud6" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -486,7 +485,7 @@
     </div>
 </div>
 
-<button class="metaButton" id="ready">Ready</button>
+
 
 <div id="bottomFunctions">
     <div id="metaActions">
@@ -517,7 +516,7 @@
         </div>
     </div>
 </div>
-    
+    -->
 
 
 
@@ -531,201 +530,78 @@
     var chat = $.connection.myHub;
     var roomID = @ViewBag.roomid;
 
-        $(document).ready(function(){
-            var hudArray = [hud1, hud2, hud3, hud4, hud5, hud6];
-            
-            
-            var username = $('#username').text();
-            var currency = $('#currency').text();
-            var avatar = $('#avatar').attr('src');
+    chat.client.alertMessage = function (msg) {
+        alert(msg);
+    }
 
-            var playerCards;         
-            var communityCards;
-            //var isTurn: false;
-
-
-            
-             
-            //assign player to empty seat when joining room 
-            for(var i = 0; i < hudArray.length; i++){
-                if(hudArray[i].username == ''){
-                    hudArray[i].username = username;
-                    hudArray[i].currency = currency;
-                    hudArray[i].avatarUrl = avatar;
-                    break;
-                }
-            }
-
-
-            var chat = $.connection.myHub;
-            var roomID = @ViewBag.roomid;
-
-            
-
-            $("#submitmsg").click(function(){
-
-                var message=$("#usermsg").val();
-                if(message!=''){
-                    var old=$("#chatbox").html();
-                    $("#chatbox").html(old+"<p>"+message+"</p>");
-                    $("#usermsg").val("");
-                    var objDiv = document.getElementById("#chatbox");
-                    objDiv.scrollTop = objDiv.scrollHeight;
-                }
-            });
-
-            $('#usermsg').keypress(function (e) {
-                if (e.which == 13) {
-                    var message=$("#usermsg").val();
-                    if(message!=''){
-                        var old=$("#chatbox").html();
-                        $("#chatbox").html(old+"<p>"+message+"</p>");
-                        $("#usermsg").val("");
-                        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
-                    }
-                    return false;
-                }
-            });
-
-            $("#ready").click(function() {
-                chat.server.confirmReady(roomID);
-
-            });
-
-
-            $("#Fold").click(function() {
-                chat.server.fold(roomID); 
-            });
-
-            $("#Call").click(function() {
-                chat.server.call(roomID);
-            });
-
-            $("#Raise").click(function() {
-                chat.server.raise(roomID,10);
-            });
-
-            $("#LeaveGame").click(function() {
-                chat.server.leave(roomID);
-
-                for(var i = 0; i < hudArray.length; i++){
-                    if(hudArray[i].username == username){
-                        hudArray[i].username = '';
-                        hudArray[i].currency = 0;
-                        hudArray[i].avatarUrl = '';
-                        break;
-                    }
-                }
-            });
-
-           
-            function initConnect() {
-                alert("connection established")
-                chat.server.getRoomInfo(roomID);
-                $('#message-btn').prop("disabled", false).click(function () {
-                    chat.server.send(roomID, $("#message").val());
-                });
-                chat.server.GetRoomInfo();
-            }
-
-            function updateTextInput(value){
-                var update=document.getElementById("raiseInput");
-                update.innerHTML=value;
-            }
-
-            function updateSlider(value){
-                var update=document.getElementById("raiseSlider");
-                update.innerHtml=value;
-            }
-            //});
-
-        
-
-            chat.client.alertMessage = function (msg) {
-                alert(msg);
-            }
-
-            //chat.client.alertJson = function (model) {
-            //   console.log(JSON.stringify(model))
-            //};
-
-            $.connection.hub.start().done(initConnect).fail(function (reason) {
-                console.log("SignalR connection failed: " + reason);
-            });
-            function initConnect() {
-                alert("connection established");
-                chat.server.getRoomInfo(roomID);
-                $('#message-btn').prop("disabled", false).click(function () {
-                    chat.server.send(roomID, $("#message").val());
-                });
-            }
-
-            chat.client.updateHand = function(card1, card2){
-                var card1 = card1;
-                var card2 = card2;
-
-                for(var i = 0; i < hudArray.length; i++){
-                    if(hudArray[i].username == username){
-                        hudArray[i].card1Url = card1;
-                        hudArray[i].card2Url = card2;
-                        break;
-                    }
-                }
-            };
-
-            chat.client.updateBoard = function(board){
-
-                var communityCards = board.split(" ");
-        
-                switch(communityCards.length){
-
-                    case 3:  community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        break;
-            
-                    case 4:  community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        community.card4 = communityCards[3];
-                        break;
-
-                    case 5: community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        community.card4 = communityCards[3];
-                        community.card5 = communityCards[4];
-                        break;
-
-                    default: console.log("no cards added to board");
-
-                }
-                    
-              
-            }
-
-            chat.client.updatePot = function(pot){
-                community.pot = pot;
-            }
-
-
-            chat.client.updateCallAmount = function(amount){
-                if(amount == 0){
-                    $("#call").text("check");
-                }
-                else{
-                    $("#call").text("call" + amount);
-                    $("#raiseInput").attr('value') = amount;
-                }
-            }
-
-
+    chat.client.alertJson = function (model) {
+       console.log(JSON.stringify(model))
+    };
+    $.connection.hub.start().done(initConnect).fail(function (reason) {
+            console.log("SignalR connection failed: " + reason);
+    });
+    function initConnect() {
+        alert("connection established")
+        chat.server.getRoomInfo(roomID);
+        $('#message-btn').prop("disabled", false).click(function () {
+            chat.server.send(roomID, $("#message").val());
         });
+    }
 
-    //chat.client.updateRaise = function(){
-    //    alert("")
-    //}
+        //document.ready??
+
+      
+      function newPlayer(id, username, currency, avatar){
+          this.userId = id;
+          this.username = username;
+          this.currency = currency;
+          this.avatar = avatar;
+      }
+
+      function board(flop1, flop2, flop3, turn, river, pot, message){
+          this.flop1 = flop1;
+          this.flop2 = flop2;
+          this.flop3 = flop3;
+          this.turn = turn;
+          this.river = river;
+      } 
+
+      function card(value, img){
+          this.value = value;
+          this.img = img;
+      }
+
+      var deck = [];
+
+      //var player = new newPlayer(...);  //should get parameter values from json returned by signalr?
+                                        //add this after get room info?
+
+    var hudArray = [hud1, hud2, hud3, hud4, hud5, hud6];
     
- </script>
+    //hudArray.push(hud1);
+    //hudArray.push(hud2);
+    //hudArray.push(hud3);
+    //hudArray.push(hud4);
+    //hudArray.push(hud5);
+    //hudArray.push(hud6);
+
+    //chat.server.GetRoomInfo(...);        //call GetRoomInfo
+    
+    //if room is full, user will be alerted. else set hud values from json returned 
+        //containing user model
+
+
+    for(var hud in hudArray){
+        if(hud.username == ''){
+            hud.username = player.username;
+            hub.currency = player.currency;
+            hub.avatar = player.avatar;
+            break;
+        }
+        
+        
+    }
+    
+    </script>
 
 }
