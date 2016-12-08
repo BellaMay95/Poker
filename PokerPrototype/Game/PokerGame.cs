@@ -476,7 +476,9 @@ namespace PokerGame
             //if board is empty
             if (data.board.Equals(""))
             {
-                data.board = data.deck.draw().value;
+                Card temp = data.deck.draw();
+                data.boardCards.Add(temp);
+                data.board = temp.value;
                 data.boardCount = 1;
             }
             else
@@ -484,7 +486,9 @@ namespace PokerGame
                 //if room to add to board, add
                 if (data.boardCount < 5)
                 {
-                    data.board += " " + data.deck.draw().value;
+                    Card temp = data.deck.draw();
+                    data.boardCards.Add(temp);
+                    data.board += " " + temp.value;
                     data.boardCount++;
                 }
             }
@@ -902,6 +906,10 @@ namespace PokerGame
         public string getBoard()
         {
             return data.board;
+        }
+        public List<Card> getBoardCards()
+        {
+            return data.boardCards;
         }
         public int getBoardSize()
         {

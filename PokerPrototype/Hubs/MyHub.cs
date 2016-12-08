@@ -137,14 +137,17 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             Card card1 = manager.getPlayerCard1(Context.ConnectionId);
             Card card2 = manager.getPlayerCard2(Context.ConnectionId);
-            //Clients.Client(connID).updateHand(string card1.img , string card2.img);
+            //Clients.Client(connID).updateHand(card1.img ,  card2.img);
         }
+        //broadcasts to client a list of cards making up the board
+        //you can pull img strings from there
         public void broadcastBoard(string roomID)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            string board = manager.getBoard();
-            //Clients.Group(roomID).updateBoard(string board);
+            // string board = manager.getBoard();
+            List<Card> board = manager.getBoardCards();
+            //Clients.Group(roomID).updateBoard(board);
         }
         public bool broadcastRaise(string roomID)
         {
@@ -325,15 +328,16 @@ namespace PokerPrototype.Hubs
                 {
                     //assign all players their cards
                     manager.init();
-                    //broadcast hands to players
-                    List<Player> players = manager.getActivePlayers();
-                    for(int i=0;i<players.Count; i++)
-                    {
-                        broadcastHand(roomID, players[i].ID);
-                    }
+
                     //broadcast fact that game is now running
                     broadcastStatus(true);
                     manager.updateState(Convert.ToInt32(roomID));
+                    //broadcast hands to players
+                    List<Player> players = manager.getActivePlayers();
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        broadcastHand(roomID, players[i].ID);
+                    }
                     //grab activePlayer[0].ID and notify them it is there turn
                     Clients.Group(roomID).alertMessage("Game has started!");
                     alertPlayerTurn(manager.getCurrentPlayer().ID);
@@ -383,16 +387,19 @@ namespace PokerPrototype.Hubs
                     manager.addBoard();
                     manager.addBoard();
                     manager.addBoard();
-                    broadcastBoard(roomID);
+                    //broadcastBoard(roomID);
                     manager.nextRound();
                     manager.updateState(Convert.ToInt32(roomID));
+                    broadcastBoard(roomID); 
                 }
                 else if (manager.getRoundNumber()<4)//1, 2, 3 completed
                 {
                     manager.addBoard();
-                    broadcastBoard(roomID);
+                    //broadcastBoard(roomID);
                     manager.nextRound();
                     manager.updateState(Convert.ToInt32(roomID));
+                    broadcastBoard(roomID);
+
                 }
                 else
                 {
