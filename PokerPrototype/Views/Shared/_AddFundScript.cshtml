@@ -18,9 +18,22 @@
         }
     }
     function profileHandler(response) {
-        currentUser = response.username;
-        profiles[currentUser] = response;
-        printProfile();
+       // alert("Hello I am: " + JSON.stringify(response.username));
+        if (JSON.stringify(response.username) != "null") {
+            $("#friend-label").empty().append("<h3>Friends:</h3>");
+            currentUser = response.username;
+            profiles[currentUser] = response;
+            printProfile();
+        }
+        else
+        {
+            $("#profile-avatar").empty();
+            $("#profile-username").empty().append("INVALID USERNAME");
+            $("#profile-currency").empty();
+            $("#friend-label").empty();
+            $("#friend-body").empty();
+            $("#profile-top-right").empty();
+        }
         $(".spinner").remove();
     }
     function printProfile() {
