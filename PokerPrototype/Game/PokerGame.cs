@@ -199,7 +199,7 @@ namespace PokerGame
 
         }
         //draw continually from index 0, which is the top of the deck
-        public string draw()
+        public Card draw()
         {
             //make sure deck actually has a card to draw
             if (deckCards.Count > 0)
@@ -214,9 +214,9 @@ namespace PokerGame
                 Console.WriteLine("Drawn: ");
                 drawn.printCard();
                 */
-                return drawn.value;
+                return drawn;
             }
-            return "";
+            return null;
         }
         //takes all cards in play, readds them to deck, then reshuffles
         public void cleanup()
@@ -320,12 +320,19 @@ namespace PokerGame
         public string ID { get; set; }
         public string name { get; set; }
         public string hand { get; set; }
+        public Card card1 { get; set; }
+        public Card card2 { get; set; }
         //whether or not Player is in the current game (They have not folded)
         public bool folded { get; set; }
         //is player ready to start match
         public bool ready { get; set; }
         //mark if player has left the game
         //public bool leave { get; set; }
+        public Player()
+        {
+            card1 = new Card();
+            card2 = new Card();
+        }
     }
 
     //Holds all data necessary for GameManager
@@ -446,14 +453,18 @@ namespace PokerGame
             for (int i = 0; i < data.activePlayers.Count; i++)
             {
                 //Overwrite will empty previous player hand
-                data.activePlayers[i].hand = data.deck.draw();
+                data.activePlayers[i].card1 = data.deck.draw();
+                data.activePlayers[i].hand = data.activePlayers[i].card1.value;
+                
                 //set all active players as currently participating in round
                 data.activePlayers[i].folded = false;
             }
             for (int i = 0; i < data.activePlayers.Count; i++)
             {
                 //append " " and second card to each players hand
-                data.activePlayers[i].hand += " " + data.deck.draw();
+                data.activePlayers[i].card2 = data.deck.draw();
+                data.activePlayers[i].hand += " " + data.activePlayers[i].card2.value;
+                
             }
             data.currentIndex = 0;
             data.currentPlayer = data.activePlayers[0];
@@ -465,7 +476,7 @@ namespace PokerGame
             //if board is empty
             if (data.board.Equals(""))
             {
-                data.board = data.deck.draw();
+                data.board = data.deck.draw().value;
                 data.boardCount = 1;
             }
             else
@@ -473,7 +484,7 @@ namespace PokerGame
                 //if room to add to board, add
                 if (data.boardCount < 5)
                 {
-                    data.board += " " + data.deck.draw();
+                    data.board += " " + data.deck.draw().value;
                     data.boardCount++;
                 }
             }
@@ -921,6 +932,30 @@ namespace PokerGame
 
             return "";
 
+        }
+        public Card getPlayerCard1(string ID)
+        {
+            for (int i = 0; i < data.activePlayers.Count; i++)
+            {
+                if (data.activePlayers[i].ID.Equals(ID))
+                {
+                    return data.activePlayers[i].card1;
+                }
+            }
+
+            return null;
+        }
+        public Card getPlayerCard2(string ID)
+        {
+            for (int i = 0; i < data.activePlayers.Count; i++)
+            {
+                if (data.activePlayers[i].ID.Equals(ID))
+                {
+                    return data.activePlayers[i].card2;
+                }
+            }
+
+            return null;
         }
         public bool getFold(string ID)
         {
