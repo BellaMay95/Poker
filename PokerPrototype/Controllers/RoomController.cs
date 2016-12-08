@@ -15,14 +15,16 @@ namespace PokerPrototype.Controllers
             if (System.Text.RegularExpressions.Regex.IsMatch(roomid, @"^\d+$"))
             {
                 ViewBag.RoomID = roomid;
-                return View();
+                int id = Convert.ToInt32(Session["id"]);
+                if (id > 0)
+                {
+                    UserModel model = new UserModel(id);
+                    return View(model);
+                }
             }
-            else
-            {
-                ViewBag.MessageType = "warning";
-                ViewBag.Message = "Page not found";
-                return View("/Views/Home/Landing.cshtml");
-            }
+            ViewBag.MessageType = "warning";
+            ViewBag.Message = "Page not found";
+            return View("/Views/Home/Landing.cshtml");
         }
     }
 }

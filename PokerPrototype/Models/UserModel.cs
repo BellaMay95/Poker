@@ -16,6 +16,7 @@ namespace PokerPrototype.Models
         public UserModel(int id)
         {
             try {
+                isAdmin = "0";
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                 Conn.Open();
