@@ -582,6 +582,12 @@ namespace PokerGame
                     finalPlayers.Add(data.activePlayers[i]);
                 }
             }
+            //if this was called because literally only one player left
+            if(finalPlayers.Count==1)
+            {
+                winners.Add(finalPlayers[0].ID);
+                return winners;
+            }
             //start by examining first hand
             Hand h1 = new Hand(finalPlayers[0].hand, data.board);
             //default to first hand being winner (a hand better than no hand)
