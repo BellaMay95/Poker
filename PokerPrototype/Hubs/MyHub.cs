@@ -22,6 +22,7 @@ using Microsoft.AspNet.SignalR;
 using PokerPrototype.Models;
 using System.Threading.Tasks;
 using PokerGame;
+using MySql.Data.MySqlClient;
 
 namespace PokerPrototype.Hubs
 {
@@ -53,10 +54,37 @@ namespace PokerPrototype.Hubs
                 manager.setRoomID(Convert.ToInt32(roomID));
                 manager.joinStart(Context.ConnectionId, 100, "Default Player Name");
                 manager.updateState(Convert.ToInt32(roomID));
-                Groups.Add(Context.ConnectionId, roomID);
-                //Do we need the below?
-                UserModel user = new UserModel(3);
-                Clients.All.alertJson(user);
+                //SQL block adds connection to database for later memory
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                //change later to check username against passed username
+                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                //connectionID already exists
+                if (rdr.Read())
+                {
+                    Clients.Caller.alertMessage("Error: Connection already in use");
+                }
+                else
+                {
+                    rdr.Close();
+                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                    cmd.Parameters.AddWithValue("@roomID", roomID);
+                    //change this to reflect actual username
+                    cmd.Parameters.AddWithValue("@name", "Default Player");
+                    cmd.ExecuteNonQuery();
+                    Groups.Add(Context.ConnectionId, roomID);
+                    //Do we need the below?
+                    UserModel user = new UserModel(3);
+                    Clients.All.alertJson(user);
+                }
+                Conn.Close();
 
             }
             //else if room is not yet filled
@@ -77,9 +105,37 @@ namespace PokerPrototype.Hubs
                     manager.joinStart(Context.ConnectionId, 100, "Bob");
                 }
                 manager.updateState(Convert.ToInt32(roomID));
-                Groups.Add(Context.ConnectionId, roomID);
-                UserModel user = new UserModel(3);
-                Clients.All.alertJson(user);
+                //SQL block adds connection to database for later memory
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                //change later to check username against passed username
+                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                //connectionID already exists
+                if (rdr.Read())
+                {
+                    Clients.Caller.alertMessage("Error: Connection already in use");
+                }
+                else
+                {
+                    rdr.Close();
+                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                    cmd.Parameters.AddWithValue("@roomID", roomID);
+                    //change this to reflect actual username
+                    cmd.Parameters.AddWithValue("@name", "Bob");
+                    cmd.ExecuteNonQuery();
+                    Groups.Add(Context.ConnectionId, roomID);
+                    //Do we need the below?
+                    UserModel user = new UserModel(3);
+                    Clients.All.alertJson(user);
+                }
+                Conn.Close();
             }
             //room is full, alert client
             else
@@ -90,20 +146,36 @@ namespace PokerPrototype.Hubs
         public override Task OnDisconnected(bool stopCalled)
         {
             GameManager manager = new GameManager();
-            manager.getState(Convert.ToInt32(Context.ConnectionId));
-            Groups.Remove(Context.ConnectionId, Convert.ToString(manager.getRoomID()));
-            manager.leave(Context.ConnectionId);
-            manager.updateState(manager.getRoomID());
-            //manager.getState(Context.);
-            if (stopCalled)
+            string roomID = "";
+            //SQL block retrieves this connID's particular roomID, which is also the group name
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            //change later to check username against passed username
+            cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //connectionID exists
+            if (rdr.Read())
             {
-                //client exited gracefully
+                roomID = (string)rdr["roomID"];
+                rdr.Close();
+                cmd.CommandText = "DELETE FROM connections WHERE connID = @connID";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                cmd.ExecuteNonQuery();
             }
             else
             {
-                //server hasn't heard from client ~35 seconds
+                //connID doesn't exist
             }
-            //either way, call leave 
+            Conn.Close();
+            manager.getState(Convert.ToInt32(roomID));
+            Groups.Remove(Context.ConnectionId, Convert.ToString(manager.getRoomID()));
+            manager.leave(Context.ConnectionId);
+            manager.updateState(manager.getRoomID());
 
             return base.OnDisconnected(stopCalled);
         }
