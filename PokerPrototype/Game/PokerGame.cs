@@ -178,6 +178,22 @@ namespace PokerGame
             //deck now contains all cards again
             shuffle();
         }
+        public List<Card> getDeckCards()
+        {
+            return deckCards;
+        }
+        public List<Card> getGameCards()
+        {
+            return gameCards;
+        }
+        public void setDeckCards(List<Card> list)
+        {
+            deckCards = list;
+        }
+        public void setGameCards(List<Card> list)
+        {
+            gameCards = list;
+        }
         //TESTING FUNCTIONS-----------------------------------------------------------------------------------
         //These functions are prefaced with either "check" or "print", and are used for testing exclusively
         public bool checkShuffle()
@@ -290,6 +306,10 @@ namespace PokerGame
         public List<Player> activePlayers;
         //list of inactive players not in the game. Included for potential integration issues with SignalR
         public List<Player> inactivePlayers;
+        //list of cards (in order) in deck
+        public List<Card> deckCards;
+        //list of cards (in order drawn) out on field
+        public List<Card> gameCards;
         //two ways to track which player is currently going
         public Player currentPlayer { get; set; }
         public int currentIndex { get; set; }
@@ -313,6 +333,8 @@ namespace PokerGame
             boardCards = new List<Card> { };
             activePlayers = new List<Player> { };
             inactivePlayers = new List<Player> { };
+            deckCards = new List<Card> { };
+            gameCards = new List<Card> { };
             currentIndex = 0;
             cycleComplete = false;
             deck = new Deck();
@@ -508,18 +530,20 @@ namespace PokerGame
             }
         }
         //validates and checks raising
+        //amount is amount to raise BY (so 10 means beat current bet by 10)
         public int raise(string ID, int amount)
         {
+            int raiseTotal = amount + data.callAmt;
             for (int i = 0; i < data.activePlayers.Count; i++)
             {
                 if (data.activePlayers[i].ID.Equals(ID))
                 {
                     //amount must be greater than current call amt, and player must actually have the money
-                    if ((amount > data.callAmt) && (data.activePlayers[i].currency - amount >= 0))
+                    if ((raiseTotal > data.callAmt) && (data.activePlayers[i].currency - raiseTotal >= 0))
                     {
-                        data.activePlayers[i].currency -= amount;
-                        data.pot += amount;
-                        data.callAmt = amount;
+                        data.activePlayers[i].currency -= raiseTotal;
+                        data.pot += raiseTotal;
+                        data.callAmt = raiseTotal;
                         data.raiseCount++;
                         return amount;
                     }
@@ -708,6 +732,9 @@ namespace PokerGame
         public void updateState(int roomID)
             {
                 int room = roomID;
+                //save deck/game cards
+                data.deckCards = data.deck.getDeckCards();
+                data.gameCards = data.deck.getGameCards();
                 string output = JsonConvert.SerializeObject(data);
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
@@ -766,6 +793,9 @@ namespace PokerGame
                 string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
                 data = JsonConvert.DeserializeObject<GameData>(json);
+                //set deck to be of the values given
+                data.deck.setDeckCards(data.deckCards);
+                data.deck.setGameCards(data.gameCards);
                 Conn.Close();
                 return json;
             }
