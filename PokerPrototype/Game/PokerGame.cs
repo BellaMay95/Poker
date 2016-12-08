@@ -47,6 +47,7 @@ namespace PokerGame
         //using values 1-13, where 1 is ace, 11 is jack, 12 is queen, and 13 is king
         //represent as string in order for hand scoring using Keith's Rule (Format "As"= ace of spades)
         public string value { get; set; }
+        public string img { get; set; }
         public void printCard()
         {
             Console.WriteLine("{0}", this.value);
@@ -75,57 +76,109 @@ namespace PokerGame
                 cards[i] = new Card();
             }
             cards[0].value = "2s";
+            cards[0].img = "http://i.imgur.com/fOJY0qM.png";
             cards[1].value = "2h";
+            cards[1].img = "http://i.imgur.com/otFrf7M.png";
             cards[2].value = "2d";
+            cards[2].img = "http://i.imgur.com/ZIKlXvQ.png";
             cards[3].value = "2c";
+            cards[3].img = "http://i.imgur.com/Ahr4ZDX.png";
             cards[4].value = "3s";
+            cards[4].img = "http://i.imgur.com/xbkIbxZ.png";
             cards[5].value = "3h";
+            cards[5].img = "http://i.imgur.com/fuF6DXz.png";
             cards[6].value = "3d";
+            cards[6].img = "http://i.imgur.com/M8GcCvu.png";
             cards[7].value = "3c";
+            cards[7].img = "http://i.imgur.com/Lh2SB0W.png";
             cards[8].value = "4s";
+            cards[8].img = "http://i.imgur.com/KaWDEnD.png";
             cards[9].value = "4h";
+            cards[9].img = "http://i.imgur.com/llR3t2n.png";
             cards[10].value = "4d";
+            cards[10].img = "http://i.imgur.com/UxQ9p4z.png";
             cards[11].value = "4c";
+            cards[11].img = "http://i.imgur.com/9YNyIw7.png";
             cards[12].value = "5s";
+            cards[12].img = "http://i.imgur.com/sBnD2T9.png";
             cards[13].value = "5h";
+            cards[13].img = "http://i.imgur.com/TFYPQyb.png";
             cards[14].value = "5d";
+            cards[14].img = "http://i.imgur.com/pTT24BD.png";
             cards[15].value = "5c";
+            cards[15].img = "http://i.imgur.com/ks6Kq81.png";
             cards[16].value = "6s";
+            cards[16].img = "http://i.imgur.com/6pOjoz3.png";
             cards[17].value = "6h";
+            cards[17].img = "http://i.imgur.com/uRLqxcD.png";
             cards[18].value = "6d";
+            cards[18].img = "http://i.imgur.com/oX4tEmy.png";
             cards[19].value = "6c";
+            cards[19].img = "http://i.imgur.com/6pOjoz3.png";
             cards[20].value = "7s";
+            cards[20].img = "http://i.imgur.com/cyPD8Cq.png";
             cards[21].value = "7h";
+            cards[21].img = "http://i.imgur.com/ULutsTP.png";
             cards[22].value = "7d";
+            cards[22].img = "http://i.imgur.com/yOE1Dm4.png";
             cards[23].value = "7c";
+            cards[23].img = "http://i.imgur.com/MVcnEn1.png";
             cards[24].value = "8s";
+            cards[24].img = "http://i.imgur.com/nRnkT8r.png";
             cards[25].value = "8h";
+            cards[25].img = "http://i.imgur.com/5uPCQuH.png";
             cards[26].value = "8d";
+            cards[26].img = "http://i.imgur.com/pEUIk0Q.png";
             cards[27].value = "8c";
+            cards[27].img = "http://i.imgur.com/cGWACEW.png";
             cards[28].value = "9s";
+            cards[28].img = "http://i.imgur.com/mNfofz2.png";
             cards[29].value = "9h";
+            cards[29].img = "http://i.imgur.com/S7ineYY.png";
             cards[30].value = "9d";
+            cards[30].img = "http://i.imgur.com/m7uHg4M.png";
             cards[31].value = "9c";
+            cards[31].img = "http://i.imgur.com/kUNWr9P.png";
             cards[32].value = "10s";
+            cards[32].img = "http://i.imgur.com/oP9ojdP.png";
             cards[33].value = "10h";
+            cards[33].img = "http://i.imgur.com/0cvvO8A.png";
             cards[34].value = "10d";
+            cards[34].img = "http://i.imgur.com/cxJRgDg.png";
             cards[35].value = "10c";
+            cards[35].img = "http://i.imgur.com/ViYqrpm.png";
             cards[36].value = "js";
+            cards[36].img = "http://i.imgur.com/zLsfY1j.png";
             cards[37].value = "jh";
+            cards[37].img = "http://i.imgur.com/TIHRK9O.png";
             cards[38].value = "jd";
+            cards[38].img = "http://i.imgur.com/ThqybXZ.png";
             cards[39].value = "jc";
+            cards[39].img = "http://i.imgur.com/55JwrT2.png";
             cards[40].value = "qs";
+            cards[40].img = "http://i.imgur.com/H8emGDA.png";
             cards[41].value = "qh";
+            cards[41].img = "http://i.imgur.com/uoIwSCJ.png";
             cards[42].value = "qd";
+            cards[42].img = "http://i.imgur.com/bffE5sH.png";
             cards[43].value = "qc";
+            cards[43].img = "http://i.imgur.com/DuvUOCn.png";
             cards[44].value = "ks";
+            cards[44].img = "http://i.imgur.com/7GixzGk.png";
             cards[45].value = "kh";
+            cards[45].img = "http://i.imgur.com/lNLCY7g.png";
             cards[46].value = "kd";
+            cards[46].img = "http://i.imgur.com/KW6Bs88.png";
             cards[47].value = "kc";
+            cards[47].img = "http://i.imgur.com/7GWVCjA.png";
             cards[48].value = "as";
+            cards[48].img = "http://i.imgur.com/aofc5MZ.png";
             cards[49].value = "ah";
+            cards[49].img = "http://i.imgur.com/uCi6EeO.png";
             cards[50].value = "ad";
+            cards[50].img = "http://i.imgur.com/MVkax9V.png";
             cards[51].value = "ac";
+            cards[51].img = "http://i.imgur.com/mRW2YPg.png";
             for (i = 0; i < 52; i++)
             {
                 deckCards.Add(cards[i]);
