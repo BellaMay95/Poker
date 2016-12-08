@@ -1,10 +1,7 @@
-﻿
+﻿@model PokerPrototype.Models.UserModel
+
 @{
     ViewBag.Title = "Index";
-}
-@section topright{
-    <li class="dropdown">
-    </li>
 }
 
 @section styles{
@@ -177,14 +174,14 @@
             overflow: auto;
         }
 
-        /*#message {
+        #message {
             border: 1px solid #000;
             position: absolute;
             left: 0%;
             top: 80%;
             height: 20%;
             width: 100%;
-        } */
+        } 
 
         #usermsg {
             position: absolute;
@@ -367,7 +364,7 @@
 <button id="message-btn" disabled>Send Message</button> 
 
     <!-- COMMUNITY CARDS -->
-<!-- <div id="community">
+ <div id="community">
     <div id="inGameUpdates">{{message}}</div>
     <div id="flop1" class="communityCard"><img v-bind:src="flop1Url" /></div>
     <div id="flop2" class="communityCard"><img v-bind:src="flop2Url" /></div>
@@ -377,7 +374,7 @@
     <div id="pot">Pot Size: ${{potSize}}</div>
 </div>
 
-<!-- HUD 1 
+<!-- HUD 1--> 
 <div id="hud1" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -395,7 +392,7 @@
     </div>
 </div>
 
-<!-- HUD 2 
+<!-- HUD 2 -->
 <div id="hud2" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -413,7 +410,7 @@
     </div>
 </div>
 
-<!-- HUD 3 
+<!-- HUD 3 -->
 <div id="hud3" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -431,7 +428,7 @@
     </div>
 </div>
 
-<!-- HUD 4 
+<!-- HUD 4 -->
 <div id="hud4" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -449,7 +446,7 @@
     </div>
 </div>
 
-<!-- HUD 5 
+<!-- HUD 5 -->
 <div id="hud5" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -467,7 +464,7 @@
     </div>
 </div>
 
-<!-- HUD 6 
+<!-- HUD 6 -->
 <div id="hud6" class="playerHud" v-show="username != ''">
 
     <div class="playerCards">
@@ -504,8 +501,8 @@
         </div>
         <br>
         <div id="rangeSlider">
-            <input id="raiseSlider" type="range" min="0" max="100" value="0" oninput="updateTextInput(this.value);">
-            <input id="raiseInput" type="text" value="0" oninput="updateSlider(this.value);">
+            <input id="raiseSlider" type="range" min="0" max="100" value="0">
+            <input id="raiseInput" type="text" value="0">
         </div>
     </div>
     <div id="chatarea">
@@ -516,7 +513,7 @@
         </div>
     </div>
 </div>
-    -->
+    
 
 
 
@@ -540,6 +537,52 @@
     $.connection.hub.start().done(initConnect).fail(function (reason) {
             console.log("SignalR connection failed: " + reason);
     });
+
+    $("#LeaveGame").click(function(){
+        alert(@Model.username);
+        chat.server.Leave(roomID);
+    });
+
+    $("#submitmsg").click(function(){
+        alert($("#username")).txt();
+
+        broadcastHand("1","1");
+        var message=$("#usermsg").val();
+        if(message!=''){
+            var old=$("#chatbox").html();
+            $("#chatbox").html(old+"<p>"+message+"</p>");
+            $("#usermsg").val("");
+            var objDiv = document.getElementById("#chatbox");
+            objDiv.scrollTop = objDiv.scrollHeight;
+        }
+    });
+
+    $('#usermsg').keypress(function (e) {
+        if (e.which == 13) {
+            var message=$("#usermsg").val();
+            if(message!=''){
+                var old=$("#chatbox").html();
+                $("#chatbox").html(old+"<p>"+message+"</p>");
+                $("#usermsg").val("");
+                $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
+            }
+            return false;
+        }
+    })
+
+    $("#Fold").click(function() {
+        chat.server.Fold("123");
+    });
+
+    $( "#Call" ).click(function() {
+        chat.server.Call("123","1");
+    });
+
+    $( "#Raise" ).click(function() {
+        chat.server.raise(roomID,5);
+        alert(community.potSize);
+    });
+
     function initConnect() {
         alert("connection established")
         chat.server.getRoomInfo(roomID);

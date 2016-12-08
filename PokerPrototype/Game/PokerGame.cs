@@ -483,22 +483,22 @@ namespace PokerGame
         //validates and checks raising
         public int raise(string ID, int amount)
         {
-            for (int i = 0; i < data.activePlayers.Count; i++)
-            {
-                if (data.activePlayers[i].ID.Equals(ID))
+                for (int i = 0; i < data.activePlayers.Count; i++)
                 {
-                    //amount must be greater than current call amt, and player must actually have the money
-                    if ((amount > data.callAmt) && (data.activePlayers[i].currency - amount >= 0))
+                    if (data.activePlayers[i].ID.Equals(ID))
                     {
-                        data.activePlayers[i].currency -= amount;
-                        data.pot += amount;
-                        data.callAmt = amount;
-                        data.raiseCount++;
-                        return amount;
+                        //amount must be greater than current call amt, and player must actually have the money
+                        if ((amount > data.callAmt) && (data.activePlayers[i].currency - amount >= 0))
+                        {
+                            data.activePlayers[i].currency -= amount;
+                            data.pot += amount;
+                            data.callAmt = amount;
+                            data.raiseCount++;
+                            return data.pot;
+                        }
                     }
                 }
-            }
-            return -1;
+                return -1;
         }
         //validates and checks calling
         //what should happen if not enough to call, automatically deduct currency?
@@ -694,9 +694,10 @@ namespace PokerGame
                 if (rdr.Read())
                 {
                     rdr.Close();
-                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @room";
-                    cmd.Parameters.AddWithValue("@output", output);
-                    cmd.Parameters.AddWithValue("@room", room);
+                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @roomID";
+                cmd.Parameters.AddWithValue("@roomID", room);
+                cmd.Parameters.AddWithValue("@output", output);
+
                     cmd.ExecuteNonQuery();
                 }
                 else
@@ -736,7 +737,7 @@ namespace PokerGame
             //if the entry exists
             if (rdr.Read())
             {
-                string json = (string)rdr[1];
+                string json = (string)rdr[0];
                 //change to point to data class held by this
                 data = JsonConvert.DeserializeObject<GameData>(json);
                 Conn.Close();
