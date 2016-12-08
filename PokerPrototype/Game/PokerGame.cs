@@ -997,7 +997,7 @@ namespace PokerGame
         }
         public int getPlayerCount()
         {
-            return data.playerCount;
+            return data.activePlayers.Count+data.inactivePlayers.Count;
         }
         public int getRoomCap()
         {

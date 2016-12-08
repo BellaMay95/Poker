@@ -213,6 +213,11 @@ namespace PokerPrototype.Hubs
             Clients.Client(connID).updateHand(card1.img, card2.img);
 
         }
+        //broadcast number of current players
+        public void broadcastPlayers(string roomID)
+        {
+
+        }
         //broadcasts to client a list of cards making up the board
         //you can pull img strings from there
         public void broadcastBoard(string roomID)
@@ -255,7 +260,7 @@ namespace PokerPrototype.Hubs
 //END BROADCAST FUNCTIONS
 //POKER FUNCTIONS
 //Bind to buttons and pass relevant input.
-
+        
         public void Leave(string roomID)
         {
             GameManager manager = new GameManager();
@@ -496,8 +501,15 @@ namespace PokerPrototype.Hubs
             Clients.Client(connID).alertMessage("Your turn");
         }
 //END POKER FUNCTIONS
-//CONNECTION FUNCTIONS
-//handle disconnects
+//GETTER FUNCTIONS
+//get functions
+        public int getNumPlayers(string roomID)
+        {
+            GameManager manager = new PokerGame.GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+
+            return manager.getPlayerCount();
+        }
 
     }
 }
