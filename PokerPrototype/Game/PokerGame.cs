@@ -933,6 +933,10 @@ namespace PokerGame
             return "";
 
         }
+        public List<Player> getActivePlayers()
+        {
+            return data.activePlayers;
+        }
         public Card getPlayerCard1(string ID)
         {
             for (int i = 0; i < data.activePlayers.Count; i++)
