@@ -207,15 +207,11 @@ namespace PokerPrototype.Hubs
             
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-<<<<<<< HEAD
+
             Card card1 = manager.getPlayerCard1(Context.ConnectionId);
             Card card2 = manager.getPlayerCard2(Context.ConnectionId);
             Clients.Client(connID).updateHand(card1.img, card2.img);
-=======
-            Card card1 = manager.getPlayerCard1(connID);
-            Card card2 = manager.getPlayerCard2(connID);
-            //Clients.Client(connID).updateHand(card1.img ,  card2.img);
->>>>>>> 4209d6a2a1eb9a1ab9ba517c81be5956917e63a1
+
         }
         //broadcasts to client a list of cards making up the board
         //you can pull img strings from there
@@ -225,9 +221,7 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             // string board = manager.getBoard();
             List<Card> board = manager.getBoardCards();
-<<<<<<< HEAD
             Clients.Group(roomID).updateBoard(board);
-=======
             string boardString="";
             for (int i=0;i<board.Count;i++)
             {
@@ -235,7 +229,6 @@ namespace PokerPrototype.Hubs
             }
             //Passes space delinated img files ("img1 img 2 img3 ")
             //Clients.Group(roomID).updateBoard(boardString);
->>>>>>> 4209d6a2a1eb9a1ab9ba517c81be5956917e63a1
         }
         public bool broadcastRaise(string roomID)
         {
@@ -257,7 +250,7 @@ namespace PokerPrototype.Hubs
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             int pot = manager.getPot();
-            Clients.Group(roomID).updatePot(int pot);
+            Clients.Group(roomID).updatePot(pot);
         }
 //END BROADCAST FUNCTIONS
 //POKER FUNCTIONS
