@@ -8,11 +8,11 @@ var community = new Vue({
 
 	data: {
 	    potSize: 0,
-        flop1Url: '',
-		flop2Url: '',
-		flop3Url: '',
-		turnUrl: '',
-		riverUrl: ''
+        card1: '',
+		card2: '',
+		card3: '',
+		card4: '',
+		card5: ''
 	}
 
 })

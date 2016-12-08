@@ -137,7 +137,7 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             Card card1 = manager.getPlayerCard1(Context.ConnectionId);
             Card card2 = manager.getPlayerCard2(Context.ConnectionId);
-            //Clients.Client(connID).updateHand(card1.img ,  card2.img);
+            Clients.Client(connID).updateHand(card1.img, card2.img);
         }
         //broadcasts to client a list of cards making up the board
         //you can pull img strings from there
@@ -147,7 +147,7 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             // string board = manager.getBoard();
             List<Card> board = manager.getBoardCards();
-            //Clients.Group(roomID).updateBoard(board);
+            Clients.Group(roomID).updateBoard(board);
         }
         public bool broadcastRaise(string roomID)
         {
@@ -161,7 +161,7 @@ namespace PokerPrototype.Hubs
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            //Clients.Group(roomID).updateCallAmt(manager.getCallAmt());
+            Clients.Group(roomID).updateCallAmt(manager.getCallAmt());
             return manager.getCallAmt();
         }
         public void broadcastPot(string roomID)
@@ -169,7 +169,7 @@ namespace PokerPrototype.Hubs
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             int pot = manager.getPot();
-            //Clients.Group(roomID).updatePot(int pot);
+            Clients.Group(roomID).updatePot(int pot);
         }
 //END BROADCAST FUNCTIONS
 //POKER FUNCTIONS
