@@ -135,8 +135,8 @@ namespace PokerPrototype.Hubs
             
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
-            Card card1 = manager.getPlayerCard1(Context.ConnectionId);
-            Card card2 = manager.getPlayerCard2(Context.ConnectionId);
+            Card card1 = manager.getPlayerCard1(connID);
+            Card card2 = manager.getPlayerCard2(connID);
             //Clients.Client(connID).updateHand(card1.img ,  card2.img);
         }
         //broadcasts to client a list of cards making up the board
