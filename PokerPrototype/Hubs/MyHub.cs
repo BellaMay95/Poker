@@ -221,14 +221,14 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             // string board = manager.getBoard();
             List<Card> board = manager.getBoardCards();
-            Clients.Group(roomID).updateBoard(board);
+            //Clients.Group(roomID).updateBoard(board);
             string boardString="";
             for (int i=0;i<board.Count;i++)
             {
                 boardString += board[i].img;
             }
             //Passes space delinated img files ("img1 img 2 img3 ")
-            //Clients.Group(roomID).updateBoard(boardString);
+            Clients.Group(roomID).updateBoard(boardString);
         }
         public bool broadcastRaise(string roomID)
         {

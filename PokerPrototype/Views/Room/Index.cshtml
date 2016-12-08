@@ -560,7 +560,8 @@
             var chat = $.connection.myHub;
             var roomID = @ViewBag.roomid;
 
-            var 
+            
+
             $("#submitmsg").click(function(){
 
                 var message=$("#usermsg").val();
@@ -584,7 +585,7 @@
                     }
                     return false;
                 }
-            })
+            });
 
             $("#ready").click(function() {
                 chat.server.confirmReady(roomID);
@@ -615,20 +616,9 @@
                         break;
                     }
                 }
-
             });
 
-            /*   chat.client.alertMessage = function (msg) {
-                   alert(msg);
-               }
-   
-               chat.client.alertJson = function (model) {
-                   console.log(JSON.stringify(model))
-               };
-   
-               $.connection.hub.start().done(initConnect).fail(function (reason) {
-                   console.log("SignalR connection failed: " + reason);
-               });*/
+           
             function initConnect() {
                 alert("connection established")
                 chat.server.getRoomInfo(roomID);
@@ -637,95 +627,100 @@
                 });
                 chat.server.GetRoomInfo();
             }
+
             function updateTextInput(value){
                 var update=document.getElementById("raiseInput");
                 update.innerHTML=value;
             }
+
             function updateSlider(value){
                 var update=document.getElementById("raiseSlider");
                 update.innerHtml=value;
             }
-        });
+            //});
 
         
 
-    chat.client.alertMessage = function (msg) {
-        alert(msg);
-    }
-
-    //chat.client.alertJson = function (model) {
-    //   console.log(JSON.stringify(model))
-        //};
-
-    $.connection.hub.start().done(initConnect).fail(function (reason) {
-            console.log("SignalR connection failed: " + reason);
-    });
-    function initConnect() {
-        alert("connection established")
-        chat.server.getRoomInfo(roomID);
-        $('#message-btn').prop("disabled", false).click(function () {
-            chat.server.send(roomID, $("#message").val());
-        });
-    }
-
-    chat.client.updateHand = function(card1, card2){
-        var card1 = card1;
-        var card2 = card2;
-
-        for(var i = 0; i < hudArray.length; i++){
-            if(hudArray[i].username == username){
-                hudArray[i].card1Url = card1;
-                hudArray[i].card2Url = card2;
-                break;
+            chat.client.alertMessage = function (msg) {
+                alert(msg);
             }
-        }
-    };
 
-    chat.client.updateBoard = function(board){
+            //chat.client.alertJson = function (model) {
+            //   console.log(JSON.stringify(model))
+            //};
 
-        var communityCards = board.split(" ");
+            $.connection.hub.start().done(initConnect).fail(function (reason) {
+                console.log("SignalR connection failed: " + reason);
+            });
+            function initConnect() {
+                alert("connection established");
+                chat.server.getRoomInfo(roomID);
+                $('#message-btn').prop("disabled", false).click(function () {
+                    chat.server.send(roomID, $("#message").val());
+                });
+            }
+
+            chat.client.updateHand = function(card1, card2){
+                var card1 = card1;
+                var card2 = card2;
+
+                for(var i = 0; i < hudArray.length; i++){
+                    if(hudArray[i].username == username){
+                        hudArray[i].card1Url = card1;
+                        hudArray[i].card2Url = card2;
+                        break;
+                    }
+                }
+            };
+
+            chat.client.updateBoard = function(board){
+
+                var communityCards = board.split(" ");
         
-        switch(communityCards.length){
+                switch(communityCards.length){
 
-            case 3:  community.card1 = communityCards[0];
-                     community.card2 = communityCards[1];
-                     community.card3 = communityCards[2];
-                     break;
+                    case 3:  community.card1 = communityCards[0];
+                        community.card2 = communityCards[1];
+                        community.card3 = communityCards[2];
+                        break;
             
-            case 4:  community.card1 = communityCards[0];
-                     community.card2 = communityCards[1];
-                     community.card3 = communityCards[2];
-                     community.card4 = communityCards[3];
-                     break;
+                    case 4:  community.card1 = communityCards[0];
+                        community.card2 = communityCards[1];
+                        community.card3 = communityCards[2];
+                        community.card4 = communityCards[3];
+                        break;
 
-            case 5: community.card1 = communityCards[0];
-                    community.card2 = communityCards[1];
-                    community.card3 = communityCards[2];
-                    community.card4 = communityCards[3];
-                    community.card5 = communityCards[4];
-                    break;
+                    case 5: community.card1 = communityCards[0];
+                        community.card2 = communityCards[1];
+                        community.card3 = communityCards[2];
+                        community.card4 = communityCards[3];
+                        community.card5 = communityCards[4];
+                        break;
 
-            default: console.log("no cards added to board");
+                    default: console.log("no cards added to board");
 
-        }
+                }
                     
               
-    }
+            }
 
-    chat.client.updatePot = function(pot){
-        community.pot = pot;
-    }
+            chat.client.updatePot = function(pot){
+                community.pot = pot;
+            }
 
 
-    chat.client.updateCallAmount = function(amount){
-        if(amount == 0){
-            $("#call").text("check");
-        }
-        else{
-            $("#call").text("call" + amount);
-            $("#raiseInput").attr('value') = amount;
-        }
-    }
+            chat.client.updateCallAmount = function(amount){
+                if(amount == 0){
+                    $("#call").text("check");
+                }
+                else{
+                    $("#call").text("call" + amount);
+                    $("#raiseInput").attr('value') = amount;
+                }
+            }
+
+
+        });
 
     //chat.client.updateRaise = function(){
     //    alert("")
