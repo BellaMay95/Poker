@@ -37,7 +37,7 @@ namespace PokerPrototype.Hubs
 //block dedicated to functions handling connection/disconnection
         //Joining room
 
-        public void GetRoomInfo(string roomID ,string username)
+        public void GetRoomInfo(string roomID,string username)
         {
             //room table info
             string title;
@@ -50,30 +50,30 @@ namespace PokerPrototype.Hubs
             //user table info
             int currency;
             //read in the current status of the room
-            MySqlConnection Conn = new MySqlConnection(Connection.Str);
-            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-            Conn.Open();
-            cmd.Connection = Conn;
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
             //check username
             
             cmd.CommandText = "SELECT * FROM users WHERE username = @givenstring";
-            cmd.Prepare();
+                cmd.Prepare();
             cmd.Parameters.AddWithValue("@givenstring", username);
-            MySqlDataReader rdr = cmd.ExecuteReader();
+                MySqlDataReader rdr = cmd.ExecuteReader();
             //user name exists
-            if (rdr.Read())
-            {
+                if (rdr.Read())
+                {
                 currency = (int)rdr["currency"];
-            }
-            else
-            {
+                }
+                else
+                {
                 //user doesn't exist?
                 Clients.Caller.alertMessage("Error: unable to join");
                 return;
             }
             //user exists, now check if room exists
             cmd.CommandText = "SELECT * FROM rooms WHERE id = @givenid";
-            cmd.Prepare();
+                    cmd.Prepare();
             cmd.Parameters.AddWithValue("@givenid", roomID);
             rdr = cmd.ExecuteReader();
             if (rdr.Read())
@@ -84,6 +84,7 @@ namespace PokerPrototype.Hubs
                 if(current_players>=max_players)
                 {
                     Clients.Caller.alertMessage("Error: Room is Full");
+                  
                 }
                 big_blind = (int)rdr["big_blind"];
                 seconds = (int)rdr["seconds"];
@@ -118,16 +119,16 @@ namespace PokerPrototype.Hubs
                 manager.joinStart(Context.ConnectionId, currency, username);
                 manager.updateState(Convert.ToInt32(roomID));
             }
-            else
-            {
+                else
+                {
                 //game has started, join in middle of game instead
                 manager.joinMid(Context.ConnectionId, currency, username);
                 manager.updateState(Convert.ToInt32(roomID));
-            }
+                }
             //add connection to connections table
-            cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
-            cmd.Prepare();
-            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
                 rdr = cmd.ExecuteReader();
                 //connectionID already exists
                 if (rdr.Read())
@@ -153,7 +154,7 @@ namespace PokerPrototype.Hubs
 
   
 
-        }
+            }
         public override Task OnDisconnected(bool stopCalled)
         {
             GameManager manager = new GameManager();
@@ -195,7 +196,6 @@ namespace PokerPrototype.Hubs
         //functions to handle chatting portion of game
         public void Send(string roomID, string message)
         {
-
             string connid = Context.ConnectionId;
             Clients.Group(roomID).alertMessage(message + " from " + connid);
             //Clients.All.alertJson(message + " from " + connid);
@@ -269,10 +269,21 @@ namespace PokerPrototype.Hubs
             int pot = manager.getPot();
             Clients.Group(roomID).updatePot(pot);
         }
-//END BROADCAST FUNCTIONS
-//POKER FUNCTIONS
-//Bind to buttons and pass relevant input.
-        
+
+        public void broadcastHUD(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            List<Player> player = manager.getActivePlayers();
+            for (int i = 0; i < player.Count; i++)
+            {
+                Clients.Group(roomID).updateHUD(player[i].currency,player[i].card1,player[i].card2);
+            }
+        }
+        //END BROADCAST FUNCTIONS
+        //POKER FUNCTIONS
+        //Bind to buttons and pass relevant input.
+
         public void Leave(string roomID)
         {
             GameManager manager = new GameManager();

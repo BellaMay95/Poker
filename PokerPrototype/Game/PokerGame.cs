@@ -896,6 +896,7 @@ namespace PokerGame
         public List<Card> getBoardCards()
         {
             return data.boardCards;
+
         }
         public int getBoardSize()
         {
