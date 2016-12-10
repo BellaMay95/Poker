@@ -536,6 +536,8 @@
             var currency = $('#currency').text();
             var avatar = $('#avatar').attr('src');
 
+            alert(username);
+
             var playerCards;
             var communityCards;
             //var isTurn: false;
@@ -616,14 +618,14 @@
             });
 
 
-            function initConnect() {
+            /*function initConnect() {
                 alert("connection established")
                 chat.server.getRoomInfo(roomID);
                 $('#message-btn').prop("disabled", false).click(function () {
                     chat.server.send(roomID, $("#message").val());
                 });
                 chat.server.GetRoomInfo();
-            }
+            }*/
 
             function updateTextInput(value){
                 var update=document.getElementById("raiseInput");
@@ -640,6 +642,16 @@
 
             chat.client.alertMessage = function (msg) {
                 alert(msg);
+            }
+
+            chat.client.updateHUD = function(username,currency,card1,card2){
+                for(var i=0;i<hudArray.length();i++){
+                    if(hudArray[i].username==username){
+                        hudArray[i].currency=currency;
+                        hudArray[i].card1Url=card1;
+                        hudArray[i].card2Url=card2;
+                    }
+                }
             }
 
             //chat.client.alertJson = function (model) {
