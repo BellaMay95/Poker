@@ -35,7 +35,7 @@ namespace PokerPrototype.Hubs
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
         //Joining room
-        public void GetRoomInfo(string roomID /*,string username*/)
+        public void GetRoomInfo(string roomID,string username)
         {
             //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
             //On join, getState of game

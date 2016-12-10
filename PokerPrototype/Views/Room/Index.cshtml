@@ -538,6 +538,7 @@
 
             var playerCards;
             var communityCards;
+
             //var isTurn: false;
 
 
@@ -618,7 +619,7 @@
 
             function initConnect() {
                 alert("connection established")
-                chat.server.getRoomInfo(roomID);
+                chat.server.getRoomInfo(roomID,username);
                 $('#message-btn').prop("disabled", false).click(function () {
                     chat.server.send(roomID, $("#message").val());
                 });
@@ -649,9 +650,9 @@
             $.connection.hub.start().done(initConnect).fail(function (reason) {
                 console.log("SignalR connection failed: " + reason);
             });
-            function initConnect() {
+            function initConnect(username) {
                 alert("connection established");
-                chat.server.getRoomInfo(roomID);
+                chat.server.getRoomInfo(roomID,username);
                 $('#message-btn').prop("disabled", false).click(function () {
                     chat.server.send(roomID, $("#message").val());
                 });
