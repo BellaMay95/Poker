@@ -33,6 +33,10 @@
             background-size: cover;
         }
 
+        p{
+
+        }
+
         #bottomFunctions {
             position: fixed;
             bottom: 0%;
@@ -565,9 +569,7 @@
 
             function initConnect() {
                 community.message = "connection established";
-
                 chat.server.getRoomInfo(roomID, username);
-
             }
 
             //chat.server.broadcastRoomInfo(roomID);
@@ -591,6 +593,7 @@
                     hudArray[i].currency = roomResponse.players[i].currency;
                     hudArray[i].avatarUrl = roomResponse.players[i].avatar;
                     hudArray[i].timer = roomResponse.time;
+                    alert("HI");
                 }
 
                 community.potSize = roomResponse.pot;
@@ -617,11 +620,8 @@
 
                 var message=$("#usermsg").val();
                 if(message!=''){
-                    var old=$("#chatbox").html();
-                    $("#chatbox").html(old+"<p>"+message+"</p>");
+                    chat.server.updateChat(roomID,message);
                     $("#usermsg").val("");
-                    var objDiv = document.getElementById("#chatbox");
-                    objDiv.scrollTop = objDiv.scrollHeight;
                 }
             });
 
@@ -629,10 +629,8 @@
                 if (e.which == 13) {
                     var message=$("#usermsg").val();
                     if(message!=''){
-                        var old=$("#chatbox").html();
-                        $("#chatbox").html(old+"<p>"+message+"</p>");
+                        chat.server.updateChat(roomID,message);
                         $("#usermsg").val("");
-                        $("#chatbox").scrollTop($("#chatbox")[0].scrollHeight);
                     }
                     return false;
                 }
@@ -741,7 +739,12 @@
             }
             //});
 
-
+            chat.client.broadcastMessage = function(message){
+                var old=$("#chatbox").html();
+                $("#chatbox").html(old+"<p>"+message+"</p>");
+                var objDiv = document.getElementById("#chatbox");
+                objDiv.scrollTop = objDiv.scrollHeight;
+            }
 
             chat.client.alertMessage = function (msg) {
                 community.message = msg;
