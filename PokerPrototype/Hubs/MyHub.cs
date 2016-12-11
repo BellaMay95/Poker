@@ -33,8 +33,9 @@ namespace PokerPrototype.Hubs
 //block dedicated to functions handling connection/disconnection
         //Slightly misleading name. Handles joining a room
 
-        public void GetRoomInfo(string roomID,string username)
+        public void getRoomInfo(string roomID,string username)
         {
+            Clients.Caller.alertMessage("I can communicate");
             //room table info
             string title;
             int current_players;
@@ -46,16 +47,16 @@ namespace PokerPrototype.Hubs
             //user table info
             int currency;
             //read in the current status of the room
-                MySqlConnection Conn = new MySqlConnection(Connection.Str);
-                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                Conn.Open();
-                cmd.Connection = Conn;
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
             //check username
             
             cmd.CommandText = "SELECT * FROM users WHERE username = @givenstring";
-                cmd.Prepare();
+            cmd.Prepare();
             cmd.Parameters.AddWithValue("@givenstring", username);
-                MySqlDataReader rdr = cmd.ExecuteReader();
+            MySqlDataReader rdr = cmd.ExecuteReader();
             //user name exists
                 if (rdr.Read())
                 {
@@ -67,9 +68,10 @@ namespace PokerPrototype.Hubs
                 Clients.Caller.alertMessage("Error: unable to join");
                 return;
             }
+            rdr.Close();
             //user exists, now check if room exists
             cmd.CommandText = "SELECT * FROM rooms WHERE id = @givenid";
-                    cmd.Prepare();
+            cmd.Prepare();
             cmd.Parameters.AddWithValue("@givenid", roomID);
             rdr = cmd.ExecuteReader();
             if (rdr.Read())
@@ -102,7 +104,7 @@ namespace PokerPrototype.Hubs
             //On join, getState of game
             GameManager manager = new GameManager();
             string result = manager.getState(Convert.ToInt32(roomID));
-
+            Clients.Caller.alertMessage("result is " + result);
             //game has not yet started, join in the "pre-game" stage
             if(manager.allReady()==false)
             {
@@ -174,16 +176,17 @@ namespace PokerPrototype.Hubs
                 cmd.Prepare();
                 cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
                 cmd.ExecuteNonQuery();
+                manager.getState(Convert.ToInt32(roomID));
+                Groups.Remove(Context.ConnectionId, roomID);
+                manager.leave(Context.ConnectionId);
+                manager.updateState(Convert.ToInt32(roomID));
             }
             else
             {
                 //connID doesn't exist
             }
             Conn.Close();
-            manager.getState(Convert.ToInt32(roomID));
-            Groups.Remove(Context.ConnectionId, roomID);
-            manager.leave(Context.ConnectionId);
-            manager.updateState(Convert.ToInt32(roomID));
+
 
             return base.OnDisconnected(stopCalled);
         }

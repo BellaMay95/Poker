@@ -894,10 +894,13 @@ namespace PokerGame
             {
                 string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
-                data = JsonConvert.DeserializeObject<GameData>(json);
-                //set deck to be of the values given
-                data.deck.setDeckCards(data.deckCards);
-                data.deck.setGameCards(data.gameCards);
+                if (!json.Equals(""))
+                {
+                    data = JsonConvert.DeserializeObject<GameData>(json);
+                    //set deck to be of the values given
+                    data.deck.setDeckCards(data.deckCards);
+                    data.deck.setGameCards(data.gameCards);
+                }
                 Conn.Close();
                 return json;
             }
