@@ -58,15 +58,15 @@ namespace PokerPrototype.Hubs
             cmd.Parameters.AddWithValue("@givenstring", username);
             MySqlDataReader rdr = cmd.ExecuteReader();
             //user name exists
-                if (rdr.Read())
-                {
-                currency = (int)rdr["currency"];
-                }
-                else
-                {
-                //user doesn't exist?
-                Clients.Caller.alertMessage("Error: unable to join");
-                return;
+            if (rdr.Read())
+            {
+            currency = (int)rdr["currency"];
+            }
+            else
+            {
+            //user doesn't exist?
+            Clients.Caller.alertMessage("Error: unable to join");
+            return;
             }
             rdr.Close();
             //user exists, now check if room exists
@@ -77,18 +77,18 @@ namespace PokerPrototype.Hubs
             if (rdr.Read())
             {
                 title = (string)rdr["title"];
-                current_players = (int)rdr["current_players"];
-                max_players = (int)rdr["max_players"];
+                current_players = Convert.ToInt32(rdr["current_players"]);
+                max_players = Convert.ToInt32(rdr["max_players"]);
                 if(current_players>=max_players)
                 {
                     Clients.Caller.alertMessage("Error: Room is Full");
                   
                 }
-                big_blind = (int)rdr["big_blind"];
-                seconds = (int)rdr["seconds"];
-                max_buy_in = (int)rdr["max_buy_in"];
+                big_blind = Convert.ToInt32(rdr["big_blind"]);
+                seconds = Convert.ToInt32(rdr["seconds"]);
+                max_buy_in = Convert.ToInt32(rdr["max_buy_in"]);
                 //private/public are keywords
-                permissions= (int)rdr["Private"];
+                permissions= Convert.ToInt32(rdr["Private"]);
                 //don't see reason to keep creator_id, add if necessary
             }
             else
@@ -98,6 +98,7 @@ namespace PokerPrototype.Hubs
                 Conn.Close();
                 return;
             }
+            rdr.Close();
             //To reach this point, room must exist and there must be room to join
             //Client user exists, information has been pulled, and is allowed to join
 
@@ -131,6 +132,7 @@ namespace PokerPrototype.Hubs
             //connectionID already exists
             if (rdr.Read())
             {
+                rdr.Close();
                 Clients.Caller.alertMessage("Error: Connection already in use");
             }
             else
