@@ -115,38 +115,38 @@ namespace PokerPrototype.Hubs
                 manager.joinStart(Context.ConnectionId, currency, username);
                 manager.updateState(Convert.ToInt32(roomID));
             }
-                else
-                {
-                //game has started, join in middle of game instead
-                manager.joinMid(Context.ConnectionId, currency, username);
-                manager.updateState(Convert.ToInt32(roomID));
-                }
+            else
+            {
+            //game has started, join in middle of game instead
+            manager.joinMid(Context.ConnectionId, currency, username);
+            manager.updateState(Convert.ToInt32(roomID));
+            }
             //add connection to connections table
-                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+            cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+            rdr = cmd.ExecuteReader();
+            //connectionID already exists
+            if (rdr.Read())
+            {
+                Clients.Caller.alertMessage("Error: Connection already in use");
+            }
+            else
+            {
+                rdr.Close();
+                cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
                 cmd.Prepare();
-                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
-                rdr = cmd.ExecuteReader();
-                //connectionID already exists
-                if (rdr.Read())
-                {
-                    Clients.Caller.alertMessage("Error: Connection already in use");
-                }
-                else
-                {
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
-                    cmd.Parameters.AddWithValue("@roomID", roomID);
-                    //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", username);
-                    cmd.ExecuteNonQuery();
-                    Groups.Add(Context.ConnectionId, roomID);
-                    //Do we need the below?
-                    UserModel user = new UserModel(3);
-                    Clients.All.alertJson(user);
-                }
-                Conn.Close();
+                cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                cmd.Parameters.AddWithValue("@roomID", roomID);
+                //change this to reflect actual username
+                cmd.Parameters.AddWithValue("@name", username);
+                cmd.ExecuteNonQuery();
+                Groups.Add(Context.ConnectionId, roomID);
+                //Do we need the below?
+                UserModel user = new UserModel(3);
+                Clients.All.alertJson(user);
+            }
+            Conn.Close();
 
   
 

@@ -477,7 +477,6 @@ namespace PokerGame
             data.maxBuyIn = max_buy_in;
             data.permissions = permissions;
         }
-
         //adds card to board
         public void addBoard()
         {
@@ -905,8 +904,6 @@ namespace PokerGame
             else
             {
                 Conn.Close();
-                //on creation, GameManager creates a default Gamedata with a roomID of -1
-                //check for this, then update roomID and store in db
                 //return empty string, state doesn't exist as room hasn't been created
                 return "";
             }
