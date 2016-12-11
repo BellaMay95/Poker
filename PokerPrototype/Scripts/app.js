@@ -7,7 +7,7 @@ var community = new Vue({
 	el: '#community',
 
 	data: {
-        message: 'hello',
+        message: '',
 	    potSize: 0,
         card1: '',
 		card2: '',

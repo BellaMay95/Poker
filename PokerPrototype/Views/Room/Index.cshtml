@@ -296,20 +296,20 @@
             border-radius: 2px;
         }
 
-            .playerCard img {
-                height: 100%;
-                width: 100%;
-                /*visibility:  ;*/
-            }
+        .playerCard img {
+            height: 100%;
+            width: 100%;
+                
+         }
 
         .playerBar {
             display: flex;
             justify-content: center;
         }
 
-            .playerBar > div {
-                background-color: #585749;
-            }
+        .playerBar > div {
+           background-color: #585749;
+        }
 
         .avatar {
             height: 50px;
@@ -339,7 +339,9 @@
             margin-top: 5px;
             margin-bottom: 5px;
             text-align: center;
-            background-color: #E59866;
+            font-family: Impact, Charcoal, sans-serif;
+            font-size: 22px;
+            color: white;
         }
 
         .currency {
@@ -347,7 +349,7 @@
             width: 60%;
             margin-bottom: 5px;
             text-align: center;
-            background-color: #97ddff;
+            /*background-color: #97ddff;*/
         }
 
         .timer {
@@ -562,13 +564,13 @@
             });
 
             function initConnect() {
-                alert("connection established");
+                community.message = "connection established";
 
                 chat.server.getRoomInfo(roomID, username);
 
             }
 
-            chat.server.broadcastRoomInfo(roomID);
+            //chat.server.broadcastRoomInfo(roomID);
        
 
             //var roomResponse = {
@@ -647,24 +649,32 @@
             });
 
             $("#Call").click(function(username) {
-                if(hud1.username==username){
-                    alert("HI");
+
+                chat.client.updateHUD = function(response){
+                    for(var i=0;i<hudArray.length;i++){
+                        if(hudArray[i].username == response.players[i].username){
+                            hudArray[i].currency=response.players[i].currency;
+                        }
+                    }
                 }
-                else if(hud2.username==username){
-                    alert("2");
-                }
-                else if(hud4.username==username){
-                    alert("3");
-                }
-                else if(hud2.username==username){
-                    alert("4");
-                }
-                else if(hud4.username==username){
-                    alert("5");
-                }
-                else if(hud2.username==username){
-                    alert("6");
-                }
+                //if(hud1.username==username){
+                //    alert("HI");
+                //}
+                //else if(hud2.username==username){
+                //    alert("2");
+                //}
+                //else if(hud4.username==username){
+                //    alert("3");
+                //}
+                //else if(hud2.username==username){
+                //    alert("4");
+                //}
+                //else if(hud4.username==username){
+                //    alert("5");
+                //}
+                //else if(hud2.username==username){
+                //    alert("6");
+                //}
                 
                 //                currency-=chat.server.call(username,roomID);
             });
@@ -683,18 +693,31 @@
 
             $("#LeaveGame").click(function() {
 
-                //chat.server.leave(roomID);
 
-                for(var i = 0; i < hudArray.length; i++){
-                    if(hudArray[i].username == username){
-                        hudArray[i].username = '';
-                        hudArray[i].currency = 0;
-                        hudArray[i].avatarUrl = '';
-                        break;
+                chat.client.updateHUD = function(response){
+                    for(var i = 0; i < response.players.length; i++){
+                        if(hudArray[i].username == username){
+                            hudArray[i].username = '';
+                            hudArray[i].currency = 0;
+                            hudArray[i].card1Url = '';
+                            hudArray[i].card2Url = '';
+                        }
+                        response.players.splice(i, 1);
                     }
                 }
-
+                
                 chat.server.leave(roomID);
+
+                //for(var i = 0; i < hudArray.length; i++){
+                //    if(hudArray[i].username == username){
+                //        hudArray[i].username = '';
+                //        hudArray[i].currency = 0;
+                //        hudArray[i].avatarUrl = '';
+                //        break;
+                //    }
+                //}
+
+                //chat.server.leave(roomID);
             });
 
 
@@ -721,18 +744,18 @@
 
 
             chat.client.alertMessage = function (msg) {
-                alert(msg);
+                community.message = msg;
             }
 
-            chat.client.updateHUD = function(username,currency,card1,card2){
-                for(var i=0;i<hudArray.length;i++){
-                    if(hudArray[i].username==username){
-                        hudArray[i].currency=currency;
-                        hudArray[i].card1Url=card1;
-                        hudArray[i].card2Url=card2;
-                    }
-                }
-            }
+            //chat.client.updateHUD = function(response){
+            //    for(var i=0;i<hudArray.length;i++){
+            //        if(hudArray[i].username==username){
+            //            hudArray[i].currency=currency;
+            //            hudArray[i].card1Url=card1;
+            //            hudArray[i].card2Url=card2;
+            //        }
+            //    }
+            //}
 
             //chat.client.alertJson = function (model) {
             //   console.log(JSON.stringify(model))
@@ -768,35 +791,22 @@
 
                 var communityCards = board.split(" ");
 
-                switch(communityCards.length){
-
-                    case 3:  community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        break;
-
-                    case 4:  community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        community.card4 = communityCards[3];
-                        break;
-
-                    case 5: community.card1 = communityCards[0];
-                        community.card2 = communityCards[1];
-                        community.card3 = communityCards[2];
-                        community.card4 = communityCards[3];
-                        community.card5 = communityCards[4];
-                        break;
-
-                    default: console.log("no cards added to board");
-
+                if(communityCards.length){
+                    community.card1 = communityCards[0];
+                    community.card2 = communityCards[1];
+                    community.card3 = communityCards[2];
                 }
 
-
+                if(communityCards[3]){
+                    community.card4 = communityCards[3];
+                }       
+                if(communityCards[4]){
+                    community.card5 = communityCards[4];
+                }
             }
 
             chat.client.updatePot = function(pot){
-                community.potSize += pot;
+                community.potSize = pot;
             }
 
 
@@ -805,8 +815,8 @@
                     $("#call").text("check");
                 }
                 else{
-                    $("#call").text("call" + amount);
-                    $("#raiseInput").attr('value') = amount;
+                    $("#call").text("call " + amount);
+                    $("#raiseInput").attr('value') = amount * 2;
                 }
             }
 
