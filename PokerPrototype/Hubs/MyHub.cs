@@ -3,15 +3,11 @@
 Use connectionIDs for playerIDs.
 This way can send targeted alerts to the player whose turn it is 
 
-TODO:
--Figure out how to retrieve player username from view for data 
-    @Model.username similar to ViewProfile?
--Ensure the difference between "userID" (username) and "connID" (what most of these functions actually need
-    Mostly done, need one last final check. All instances of userID replaced with more accurate connID 
--Raise currently bugged. Need to set Raise to trigger 'another' betting round (up to a predefined limit)
-    Potential work around implemented. Will need to test because potentially really buggy
--Need to allow View to see data on which players have folded or not
-
+TODO FOR GROUP TOMORROW TO HELP AS MUCH AS I CAN:
+-Handle potential null decks (ensure room creation and game state creation happen in sync)
+-Update users currency table values
+-Ensure room AND game destroyed when last player leaves
+-Write up documentation on how game flow works in hub.
 
 
 */
@@ -35,7 +31,7 @@ namespace PokerPrototype.Hubs
         }
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
-        //Joining room
+        //Slightly misleading name. Handles joining a room
 
         public void GetRoomInfo(string roomID,string username)
         {
@@ -113,7 +109,7 @@ namespace PokerPrototype.Hubs
                 //check if game data existed, fill in options if it didn't
                 if (result.Equals(""))
                 {
-                    manager.setupRoom(max_players, big_blind, max_buy_in, permissions);
+                    manager.setupRoom(title,max_players, big_blind, max_buy_in, permissions);
 
                 }
                 manager.joinStart(Context.ConnectionId, currency, username);
@@ -269,16 +265,23 @@ namespace PokerPrototype.Hubs
             int pot = manager.getPot();
             Clients.Group(roomID).updatePot(pot);
         }
-
+        //Tim/Jamie sort out which one you want for what
+        /*
         public void broadcastHUD(string roomID)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             List<Player> player = manager.getActivePlayers();
-            for (int i = 0; i < player.Count; i++)
-            {
-                Clients.Group(roomID).updateHUD(player[i].currency,player[i].card1,player[i].card2);
-            }
+            Clients.Group(roomID).updateHUD(player[i].currency,player[i].card1,player[i].card2);
+            
+        }
+        */
+        
+        public void broadcastRoomInfo(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            Clients.Group(roomID).updateHUD(manager.buildResponse(Convert.ToInt32(roomID)));
         }
         //END BROADCAST FUNCTIONS
         //POKER FUNCTIONS
