@@ -1,16 +1,13 @@
 ﻿/*
+ *             //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
 Use connectionIDs for playerIDs.
 This way can send targeted alerts to the player whose turn it is 
 
-TODO:
--Figure out how to retrieve player username from view for data 
-    @Model.username similar to ViewProfile?
--Ensure the difference between "userID" (username) and "connID" (what most of these functions actually need
-    Mostly done, need one last final check. All instances of userID replaced with more accurate connID 
--Raise currently bugged. Need to set Raise to trigger 'another' betting round (up to a predefined limit)
-    Potential work around implemented. Will need to test because potentially really buggy
--Need to allow View to see data on which players have folded or not
-
+TODO FOR GROUP TOMORROW TO HELP AS MUCH AS I CAN:
+-Handle potential null decks (ensure room creation and game state creation happen in sync)
+-Update users currency table values
+-Ensure room AND game destroyed when last player leaves
+-Write up documentation on how game flow works in hub.
 
 
 */
@@ -34,115 +31,130 @@ namespace PokerPrototype.Hubs
         }
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
-        //Joining room
-        public void GetRoomInfo(string roomID /*,string username*/)
+        //Slightly misleading name. Handles joining a room
+
+        public void getRoomInfo(string roomID,string username)
         {
-            //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
-            //On join, getState of game
-            Clients.Caller.alertMessage(getNumPlayers(roomID) + " Players currently in the room");
-            GameManager manager = new GameManager();
-            manager.getState(Convert.ToInt32(roomID));
-            //if brandn new room
-            if (manager.getRoomID() == -1)
+            Clients.Caller.alertMessage("I can communicate");
+            //room table info
+            string title;
+            int current_players;
+            int max_players;
+            int big_blind;
+            int seconds;
+            int max_buy_in;
+            int permissions;
+            //user table info
+            int currency;
+            //read in the current status of the room
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            //check username
+            
+            cmd.CommandText = "SELECT * FROM users WHERE username = @givenstring";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenstring", username);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //user name exists
+            if (rdr.Read())
             {
-
-                /*Need to grab player's username at the very least, can SQL pull the currency
-                 * 
-                 * */
-                //change below to match up with grabbed information
-                //set roomID
-                manager.setRoomID(Convert.ToInt32(roomID));
-                manager.joinStart(Context.ConnectionId, 100, "Default Player Name" /*username*/);
-                manager.updateState(Convert.ToInt32(roomID));
-                //SQL block adds connection to database for later memory
-                MySqlConnection Conn = new MySqlConnection(Connection.Str);
-                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                Conn.Open();
-                cmd.Connection = Conn;
-                //change later to check username against passed username
-                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
-                MySqlDataReader rdr = cmd.ExecuteReader();
-                //connectionID already exists
-                if (rdr.Read())
-                {
-                    Clients.Caller.alertMessage("Error: Connection already in use");
-                }
-                else
-                {
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
-                    cmd.Parameters.AddWithValue("@roomID", roomID);
-                    //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Default Player"/*username*/);
-                    cmd.ExecuteNonQuery();
-                    Groups.Add(Context.ConnectionId, roomID);
-                    //Do we need the below?
-                    UserModel user = new UserModel(3);
-                    Clients.All.alertJson(user);
-                }
-                Conn.Close();
-
+            currency = (int)rdr["currency"];
             }
-            //else if room is not yet filled
-            else if (manager.getPlayerCount() < manager.getRoomCap())
-            {
-                /*Need to grab player's username at the very least, can SQL pull the currency
-* 
-* */
-                //change below to match up with grabbed information
-                //if all active players have readied, then this player joins in the middle of the game
-                if (manager.allReady() == true)
-                {
-                    manager.joinMid(Context.ConnectionId, 100, "Bob"/*username*/);
-                }
-                //otherwise they join at prestart of game
-                else
-                {
-                    manager.joinStart(Context.ConnectionId, 100, "Bob"/*username*/);
-                }
-                manager.updateState(Convert.ToInt32(roomID));
-                //SQL block adds connection to database for later memory
-                MySqlConnection Conn = new MySqlConnection(Connection.Str);
-                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                Conn.Open();
-                cmd.Connection = Conn;
-                //change later to check username against passed username
-                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
-                MySqlDataReader rdr = cmd.ExecuteReader();
-                //connectionID already exists
-                if (rdr.Read())
-                {
-                    Clients.Caller.alertMessage("Error: Connection already in use");
-                }
-                else
-                {
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
-                    cmd.Parameters.AddWithValue("@roomID", roomID);
-                    //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Bob"/*username*/);
-                    cmd.ExecuteNonQuery();
-                    Groups.Add(Context.ConnectionId, roomID);
-                    //Do we need the below?
-                    UserModel user = new UserModel(3);
-                    Clients.All.alertJson(user);
-                }
-                Conn.Close();
-            }
-            //room is full, alert client
             else
             {
-                Clients.Caller.alertMessage("Error: Room is full");
+            //user doesn't exist?
+            Clients.Caller.alertMessage("Error: unable to join");
+            return;
             }
-        }
+            rdr.Close();
+            //user exists, now check if room exists
+            cmd.CommandText = "SELECT * FROM rooms WHERE id = @givenid";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenid", roomID);
+            rdr = cmd.ExecuteReader();
+            if (rdr.Read())
+            {
+                title = (string)rdr["title"];
+                current_players = Convert.ToInt32(rdr["current_players"]);
+                max_players = Convert.ToInt32(rdr["max_players"]);
+                if(current_players>=max_players)
+                {
+                    Clients.Caller.alertMessage("Error: Room is Full");
+                  
+                }
+                big_blind = Convert.ToInt32(rdr["big_blind"]);
+                seconds = Convert.ToInt32(rdr["seconds"]);
+                max_buy_in = Convert.ToInt32(rdr["max_buy_in"]);
+                //private/public are keywords
+                permissions= Convert.ToInt32(rdr["Private"]);
+                //don't see reason to keep creator_id, add if necessary
+            }
+            else
+            {
+                //room doesn't exist
+                Clients.Caller.alertMessage("Error: Room does not exist");
+                Conn.Close();
+                return;
+            }
+            rdr.Close();
+            //To reach this point, room must exist and there must be room to join
+            //Client user exists, information has been pulled, and is allowed to join
+
+            //On join, getState of game
+            GameManager manager = new GameManager();
+            string result = manager.getState(Convert.ToInt32(roomID));
+            Clients.Caller.alertMessage("result is " + result);
+            //game has not yet started, join in the "pre-game" stage
+            if(manager.allReady()==false)
+            {
+                //check if game data existed, fill in options if it didn't
+                if (result.Equals(""))
+                {
+                    manager.setupRoom(title,max_players, big_blind, max_buy_in, permissions);
+
+                }
+                manager.joinStart(Context.ConnectionId, currency, username);
+                manager.updateState(Convert.ToInt32(roomID));
+            }
+            else
+            {
+            //game has started, join in middle of game instead
+            manager.joinMid(Context.ConnectionId, currency, username);
+            manager.updateState(Convert.ToInt32(roomID));
+            }
+            //add connection to connections table
+            cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+            rdr = cmd.ExecuteReader();
+            //connectionID already exists
+            if (rdr.Read())
+            {
+                rdr.Close();
+                Clients.Caller.alertMessage("Error: Connection already in use");
+            }
+            else
+            {
+                rdr.Close();
+                cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                cmd.Parameters.AddWithValue("@roomID", roomID);
+                //change this to reflect actual username
+                cmd.Parameters.AddWithValue("@name", username);
+                cmd.ExecuteNonQuery();
+                Groups.Add(Context.ConnectionId, roomID);
+                //Do we need the below?
+                UserModel user = new UserModel(3);
+                Clients.All.alertJson(user);
+            }
+            Conn.Close();
+
+  
+
+            }
         public override Task OnDisconnected(bool stopCalled)
         {
             GameManager manager = new GameManager();
@@ -166,16 +178,17 @@ namespace PokerPrototype.Hubs
                 cmd.Prepare();
                 cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
                 cmd.ExecuteNonQuery();
+                manager.getState(Convert.ToInt32(roomID));
+                Groups.Remove(Context.ConnectionId, roomID);
+                manager.leave(Context.ConnectionId);
+                manager.updateState(Convert.ToInt32(roomID));
             }
             else
             {
                 //connID doesn't exist
             }
             Conn.Close();
-            manager.getState(Convert.ToInt32(roomID));
-            Groups.Remove(Context.ConnectionId, Convert.ToString(manager.getRoomID()));
-            manager.leave(Context.ConnectionId);
-            manager.updateState(manager.getRoomID());
+
 
             return base.OnDisconnected(stopCalled);
         }
@@ -184,7 +197,6 @@ namespace PokerPrototype.Hubs
         //functions to handle chatting portion of game
         public void Send(string roomID, string message)
         {
-
             string connid = Context.ConnectionId;
             Clients.Group(roomID).alertMessage(message + " from " + connid);
             //Clients.All.alertJson(message + " from " + connid);
@@ -236,12 +248,12 @@ namespace PokerPrototype.Hubs
             //Passes space delinated img files ("img1 img 2 img3 ")
             Clients.Group(roomID).updateBoard(boardString);
         }
-        public bool broadcastRaise(string roomID)
+        public int broadcastRaise(string roomID,int raiseAmount)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //Clients.Group(roomID).updateRaise(manager.getHasRaised()
-            return false;// just to get function working
+            return raiseAmount;// just to get function working
             //return manager.getHasRaised()
         }
         public int broadcastCallAmt(string roomID)
@@ -258,16 +270,45 @@ namespace PokerPrototype.Hubs
             int pot = manager.getPot();
             Clients.Group(roomID).updatePot(pot);
         }
-//END BROADCAST FUNCTIONS
-//POKER FUNCTIONS
-//Bind to buttons and pass relevant input.
+        //Tim/Jamie sort out which one you want for what
+        /*
+        public void broadcastHUD(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            List<Player> player = manager.getActivePlayers();
+            Clients.Group(roomID).updateHUD(player[i].currency,player[i].card1,player[i].card2);
+            
+        }
+        */
         
+        public void broadcastRoomInfo(string roomID)
+        {
+            GameManager manager = new GameManager();
+            manager.getState(Convert.ToInt32(roomID));
+            Clients.Group(roomID).updateHUD(manager.buildResponse(Convert.ToInt32(roomID)));
+        }
+        //END BROADCAST FUNCTIONS
+        //POKER FUNCTIONS
+        //Bind to buttons and pass relevant input.
+
         public void Leave(string roomID)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             manager.leave(Context.ConnectionId);
             manager.updateState(Convert.ToInt32(roomID));
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            //change later to check username against passed username
+            cmd.CommandText = "DELETE FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+            int success = cmd.ExecuteNonQuery();
+            Conn.Close();
+            Groups.Remove(Context.ConnectionId, roomID);
             Clients.Caller.alertMessage("You have successfully left the game");
         }
         public void Fold(string roomID)
@@ -295,7 +336,7 @@ namespace PokerPrototype.Hubs
             }
             //broadcast to allclients
         }
-        public int Call(string roomID)
+        public int Call(string username,string roomID)
         {
             GameManager manager= new GameManager();
             manager.getState(Convert.ToInt32(roomID));
@@ -304,25 +345,23 @@ namespace PokerPrototype.Hubs
             {
                 if (Context.ConnectionId.Equals(temp.ID))
                 {
-                    manager.call(Context.ConnectionId);
+                    int callAmt=manager.call(username);
                     manager.cycle();
                     manager.updateState(Convert.ToInt32(roomID));
                     //need to take place after updating state, in order to grab up to date information
                     adjustBoard(roomID);
                     broadcastPot(roomID);
-                    alertPlayerTurn(manager.getCurrentPlayer().ID);
-                    return manager.getCallAmt();
+                    return callAmt;
                 }
                 else
                 {
-                    Clients.Caller.alertMessage("Error: Not your turn");
-                    return -1;
+                    return 0;
                 }
             }
             else
             {
                 Clients.Caller.alertMessage("Error: Game has not started");
-                return -1;
+                return 0;
             }
         }     
         public int Check(string roomID)
@@ -364,37 +403,28 @@ namespace PokerPrototype.Hubs
             //verify it is user's turn
             if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
             {
-                //verify raises are legal under the current state
-                if (manager.getRaiseCount() < 3)
-                {
-                    //verify user can raise by that amount/call at tsame time
-                    if (manager.raise(Context.ConnectionId, amount) >= 0)//check for nonnegative number
-                    {
+            //verify raises are legal under the current state
 
-                        manager.cycle();
-                        manager.updateState(Convert.ToInt32(roomID));
-                        //need to take place after updating state, in order to grab up to date information
-                        adjustBoard(roomID);
-                        broadcastPot(roomID);
-                        alertPlayerTurn(manager.getCurrentPlayer().ID);
-                        return amount;
-                    }
-                    else
-                    {
-                        Clients.Caller.alertMessage("Error: Not enough currency");
-                        return -1;
-                    }
+                //verify user can raise by that amount/call at tsame time
+                if (manager.raise(Context.ConnectionId, amount) >= 0)//check for nonnegative number
+                {
+
+                    manager.cycle();
+                    manager.updateState(Convert.ToInt32(roomID));
+                    adjustBoard(roomID);
+                    broadcastPot(roomID);
+                    return amount;
                 }
                 else
                 {
-                    Clients.Caller.alertMessage("Error: Not your turn");
-                    return -1;
-                }
+                    Clients.Caller.alertMessage("Error: Not enough currency");
+                    return 0;
+                }           
             }
             else
             {
                 Clients.Caller.alertMessage("Error: Not your turn");
-                return -1;
+                return 0;
             }
         }
         //call this function when player confirms they are ready

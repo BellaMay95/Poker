@@ -319,6 +319,7 @@ namespace PokerGame
         public int currency { get; set; }
         public string ID { get; set; }
         public string name { get; set; }
+        public string avatar { get; set; }
         public string hand { get; set; }
         public Card card1 { get; set; }
         public Card card2 { get; set; }
@@ -341,12 +342,20 @@ namespace PokerGame
     public class GameData
     {
         //Attributes-------------------------------------------------------------------
-        //ID of room itself
-        public int roomID { get; set; }
         //maximum size of room, default to six;
         public int roomCap { get; set; }
+        //maximum buy in allowed per player
+        public int maxBuyIn { get; set; }
+        //0 for public 1 for private
+        public int permissions { get; set; }
         //current number of players in room
         public int playerCount { get; set; }
+        //big blind value
+        public int bigBlind { get; set; }
+        //amount of time per turn
+        public int time { get; set; }
+        //title of room
+        public string title;
         //last bet number. calls must meet this, raises must beat it
         public int callAmt { get; set; }
         //track number of raises (limit 3)
@@ -379,9 +388,7 @@ namespace PokerGame
 
         public GameData()
         {
-            //set roomID to invalid number. May need to test if room was just made/not in database
-            //alternatively let SQL return nothing?
-            roomID = -1;
+            title = "";
             roomCap = 6;
             playerCount = 0;
             callAmt = 0;
@@ -422,13 +429,6 @@ namespace PokerGame
 
         }
         //Functions--------------------------------------------------------------------
-        //TODO: \\ check(), blind(char p, );
-        //getwinner(){ 
-        // list of winners, usually only contains
-        // loop through the active players
-        // Hand h1 = new Hand("ad kd", board);
-        /// evaluate hand for all players and find maximum
-        // in the event of a tie, push onto the winners list
         //intializes beginning state of game
         public void init()
         {
@@ -469,7 +469,14 @@ namespace PokerGame
             data.currentIndex = 0;
             data.currentPlayer = data.activePlayers[0];
         }
-
+        public void setupRoom(string title,int max_players, int big_blind,int max_buy_in, int permissions)
+        {
+            data.title = title;
+            data.roomCap = max_players;
+            data.bigBlind = big_blind;
+            data.maxBuyIn = max_buy_in;
+            data.permissions = permissions;
+        }
         //adds card to board
         public void addBoard()
         {
@@ -612,7 +619,6 @@ namespace PokerGame
                         data.activePlayers[i].currency -= raiseTotal;
                         data.pot += raiseTotal;
                         data.callAmt = raiseTotal;
-                        data.raiseCount++;
                         return amount;
                     }
                 }
@@ -712,6 +718,21 @@ namespace PokerGame
             temp.name = username;
             temp.ready = false;
             //add to inactive players, to become active next round
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Close();
+            Conn.Open();
+            cmd.Connection = Conn;
+            cmd.CommandText = "SELECT avatar FROM users WHERE username = @name";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@name", username);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //if the entry exists
+            if (rdr.Read())
+            {
+                temp.avatar = (string)rdr["avatar"];
+            }
+            Conn.Close();
             data.activePlayers.Add(temp);
             data.playerCount++;
         }
@@ -724,6 +745,21 @@ namespace PokerGame
             temp.name = username;
             temp.ready = false;
             //add to inactive players, to become active next round
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Close();
+            Conn.Open();
+            cmd.Connection = Conn;
+            cmd.CommandText = "SELECT avatar FROM users WHERE username = @name";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@name", username);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //if the entry exists
+            if (rdr.Read())
+            {
+                temp.avatar = (string)rdr["avatar"];
+            }
+            Conn.Close();
             data.inactivePlayers.Add(temp);
             data.playerCount++;
         }
@@ -785,7 +821,7 @@ namespace PokerGame
         //returns true if all active players have signaled they are ready to start the game
         public bool allReady()
             {
-                //can't play poker with just yourself
+                //can't play poker with just yourself or with no one in the room
                 if(data.activePlayers.Count<2)
                 {
                     return false;
@@ -814,11 +850,11 @@ namespace PokerGame
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                 Conn.Open();
                 cmd.Connection = Conn;
-                cmd.CommandText = "SELECT * FROM games WHERE roomID = @room";
+                cmd.CommandText = "SELECT * FROM rooms WHERE id = @room";
                 cmd.Prepare();
                 cmd.Parameters.AddWithValue("@room", room);
                 MySqlDataReader rdr = cmd.ExecuteReader();
-                //if entry already exists update, if not, insert
+                //if entry already exists update. Entry created by other means, should always exist
                 if (rdr.Read())
                 {
                     rdr.Close();
@@ -829,24 +865,14 @@ namespace PokerGame
                 }
                 else
                 {
+                /*
                     rdr.Close();
                     cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@roomID", room);
                     cmd.Parameters.AddWithValue("@output", output);
                     cmd.ExecuteNonQuery();
-                    /*                    cmd.CommandText = "INSERT into users(username, password, email, currency) VALUES (@user,@pass,@email, 10) ";
-                            cmd.Prepare();
-                            cmd.Parameters.AddWithValue("@pass", Crypto.HashPassword(password));
-                            cmd.Parameters.AddWithValue("@email", email);
-                            success = cmd.ExecuteNonQuery() > 0;
-                            if (success)
-                            {
-                                id = Convert.ToInt32(cmd.LastInsertedId);//.ToString();
-                            }
-                            Conn.Close();
-                     * 
-                     * 
+   
                      * */
                 }
                 Conn.Close();
@@ -858,20 +884,75 @@ namespace PokerGame
             Conn.Close();
             Conn.Open();
             cmd.Connection = Conn;
-            cmd.CommandText = "SELECT jsondata FROM games WHERE roomID = " + roomID;
+            cmd.CommandText = "SELECT jsondata FROM rooms WHERE id = @givenID";
             cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenID", roomID);
             MySqlDataReader rdr = cmd.ExecuteReader();
             //if the entry exists
             if (rdr.Read())
             {
                 string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
+                if (!json.Equals(""))
+                {
+                    data = JsonConvert.DeserializeObject<GameData>(json);
+                    //set deck to be of the values given
+                    data.deck.setDeckCards(data.deckCards);
+                    data.deck.setGameCards(data.gameCards);
+                }
+                Conn.Close();
+                return json;
+            }
+            else
+            {
+                Conn.Close();
+                //return empty string, state doesn't exist as room hasn't been created
+                return "";
+            }
+            
+            
+        }
+        public string buildResponse(int roomID)
+        {
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Close();
+            Conn.Open();
+            cmd.Connection = Conn;
+            cmd.CommandText = "SELECT jsondata FROM rooms WHERE id = @givenID";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenID", roomID);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //if the entry exists
+            if (rdr.Read())
+            {
+                string output = "";
+                List<BasicPlayer> list = new List<BasicPlayer> { };
+                string json = (string)rdr["jsondata"];
+                //change to point to data class held by this
                 data = JsonConvert.DeserializeObject<GameData>(json);
                 //set deck to be of the values given
                 data.deck.setDeckCards(data.deckCards);
                 data.deck.setGameCards(data.gameCards);
+                //for every player in active players, create a temp basic player and add it to list
+                for(int i=0; i< data.activePlayers.Count;i++)
+                {
+                    BasicPlayer temp = new BasicPlayer(data.activePlayers[i].name, data.activePlayers[i].currency, data.activePlayers[i].avatar);
+                    list.Add(temp);
+                }
+                //repeat for inactive players
+                for (int i = 0; i < data.inactivePlayers.Count; i++)
+                {
+                    BasicPlayer temp = new BasicPlayer(data.inactivePlayers[i].name, data.inactivePlayers[i].currency, data.inactivePlayers[i].avatar);
+                    list.Add(temp);
+                }
+                //add to update object
+                Update response = new Update(list, data.pot, data.title, data.board, data.time);
+                //serialze
+                output = JsonConvert.SerializeObject(response);
+
                 Conn.Close();
-                return json;
+                return output;
             }
             else
             {
@@ -881,20 +962,11 @@ namespace PokerGame
                 //return empty string, state doesn't exist as room hasn't been created
                 return "";
             }
-            
-            
-        }
-        //Need to be able to set roomID value
-        public void setRoomID(int num)
-        {
-            data.roomID = num;
+
         }
         //GET functions for integration with web interface
         //Unless otherwise stated, returns the specified variable with no modifications
-        public int getRoomID()
-        {
-            return data.roomID;
-        }
+
         public int getCallAmt()
         {
             return data.callAmt;
@@ -910,6 +982,7 @@ namespace PokerGame
         public List<Card> getBoardCards()
         {
             return data.boardCards;
+
         }
         public int getBoardSize()
         {
@@ -1012,8 +1085,39 @@ namespace PokerGame
             return data.bettingRound;
         }
         }
+    public class BasicPlayer
+    {
+        string username { get; set; }
+        int currency { get; set; }
+        string avatar { get; set; }
 
+        public BasicPlayer(string name, int amount, string img)
+        {
+            username=name;
+            currency=amount;
+            avatar = img;
+        }
+    }
+
+    public class Update
+    {
+        List<BasicPlayer> players;
+        int pot;
+        string roomName;
+        string board;//space separated list of img text
+        int time;
+
+        public Update(List<BasicPlayer> list, int amount, string name, string img, int num)
+        {
+            players = list;
+            pot = amount;
+            roomName = name;
+            board = img;
+            time = num;
+        }
+    }    
 }
+
 class Program
 {
     static void Main(string[] args)
