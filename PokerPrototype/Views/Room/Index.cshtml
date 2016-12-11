@@ -563,6 +563,7 @@
 
             function initConnect() {
                 alert("connection established");
+
                 chat.server.getRoomInfo(roomID, username);
 
             }
@@ -581,7 +582,7 @@
             //Initial call to updateHud when player joins a room 
             chat.client.updateHud = function(roomResponse){
                 
-                roomResponse.players.push(newPlayer);
+                roomResponse.players.push(newUser);
 
                 for(var i = 0; i < roomResponse.players.length; i++){
                     hudArray[i].username = roomResponse.players[i].username;
@@ -606,7 +607,7 @@
                     community.card5 = roomResponse.boardCards[4];
                 }
 
-          }
+            }
 
 
 
@@ -665,7 +666,7 @@
                     alert("6");
                 }
                 
-//                currency-=chat.server.call(username,roomID);
+                //                currency-=chat.server.call(username,roomID);
             });
 
             $("#Raise").click(function() {
@@ -724,7 +725,7 @@
             }
 
             chat.client.updateHUD = function(username,currency,card1,card2){
-                for(var i=0;i<hudArray.length();i++){
+                for(var i=0;i<hudArray.length;i++){
                     if(hudArray[i].username==username){
                         hudArray[i].currency=currency;
                         hudArray[i].card1Url=card1;
@@ -747,8 +748,8 @@
             //        chat.server.send(roomID, $("#message").val());
             //    });
             //}
-                }
-            }
+                
+        
 
             chat.client.updateHand = function(card1, card2){
                 var card1 = card1;
