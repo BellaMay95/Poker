@@ -1,4 +1,5 @@
 ﻿/*
+ *             //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
 Use connectionIDs for playerIDs.
 This way can send targeted alerts to the player whose turn it is 
 
@@ -35,113 +36,122 @@ namespace PokerPrototype.Hubs
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
         //Joining room
-        public void GetRoomInfo(string roomID /*,string username*/)
+        public void GetRoomInfo(string roomID ,string username)
         {
-            //Context.RequestCookies["MYCOOKIE"].Value; //this is how to access a cookie
-            //On join, getState of game
-            Clients.Caller.alertMessage(getNumPlayers(roomID) + " Players currently in the room");
-            GameManager manager = new GameManager();
-            manager.getState(Convert.ToInt32(roomID));
-            //if brandn new room
-            if (manager.getRoomID() == -1)
+            //room table info
+            string title;
+            int current_players;
+            int max_players;
+            int big_blind;
+            int seconds;
+            int max_buy_in;
+            int permissions;
+            //user table info
+            int currency;
+            //read in the current status of the room
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            //check username
+            
+            cmd.CommandText = "SELECT * FROM users WHERE username = @givenstring";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenstring", username);
+            MySqlDataReader rdr = cmd.ExecuteReader();
+            //user name exists
+            if (rdr.Read())
             {
-
-                /*Need to grab player's username at the very least, can SQL pull the currency
-                 * 
-                 * */
-                //change below to match up with grabbed information
-                //set roomID
-                manager.setRoomID(Convert.ToInt32(roomID));
-                manager.joinStart(Context.ConnectionId, 100, "Default Player Name" /*username*/);
-                manager.updateState(Convert.ToInt32(roomID));
-                //SQL block adds connection to database for later memory
-                MySqlConnection Conn = new MySqlConnection(Connection.Str);
-                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                Conn.Open();
-                cmd.Connection = Conn;
-                //change later to check username against passed username
-                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
-                MySqlDataReader rdr = cmd.ExecuteReader();
-                //connectionID already exists
-                if (rdr.Read())
-                {
-                    Clients.Caller.alertMessage("Error: Connection already in use");
-                }
-                else
-                {
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
-                    cmd.Parameters.AddWithValue("@roomID", roomID);
-                    //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Default Player"/*username*/);
-                    cmd.ExecuteNonQuery();
-                    Groups.Add(Context.ConnectionId, roomID);
-                    //Do we need the below?
-                    UserModel user = new UserModel(3);
-                    Clients.All.alertJson(user);
-                }
-                Conn.Close();
-
+                currency = (int)rdr["currency"];
             }
-            //else if room is not yet filled
-            else if (manager.getPlayerCount() < manager.getRoomCap())
-            {
-                /*Need to grab player's username at the very least, can SQL pull the currency
-* 
-* */
-                //change below to match up with grabbed information
-                //if all active players have readied, then this player joins in the middle of the game
-                if (manager.allReady() == true)
-                {
-                    manager.joinMid(Context.ConnectionId, 100, "Bob"/*username*/);
-                }
-                //otherwise they join at prestart of game
-                else
-                {
-                    manager.joinStart(Context.ConnectionId, 100, "Bob"/*username*/);
-                }
-                manager.updateState(Convert.ToInt32(roomID));
-                //SQL block adds connection to database for later memory
-                MySqlConnection Conn = new MySqlConnection(Connection.Str);
-                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
-                Conn.Open();
-                cmd.Connection = Conn;
-                //change later to check username against passed username
-                cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
-                cmd.Prepare();
-                cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
-                MySqlDataReader rdr = cmd.ExecuteReader();
-                //connectionID already exists
-                if (rdr.Read())
-                {
-                    Clients.Caller.alertMessage("Error: Connection already in use");
-                }
-                else
-                {
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
-                    cmd.Parameters.AddWithValue("@roomID", roomID);
-                    //change this to reflect actual username
-                    cmd.Parameters.AddWithValue("@name", "Bob"/*username*/);
-                    cmd.ExecuteNonQuery();
-                    Groups.Add(Context.ConnectionId, roomID);
-                    //Do we need the below?
-                    UserModel user = new UserModel(3);
-                    Clients.All.alertJson(user);
-                }
-                Conn.Close();
-            }
-            //room is full, alert client
             else
             {
-                Clients.Caller.alertMessage("Error: Room is full");
+                //user doesn't exist?
+                Clients.Caller.alertMessage("Error: unable to join");
+                return;
             }
+            //user exists, now check if room exists
+            cmd.CommandText = "SELECT * FROM rooms WHERE id = @givenid";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@givenid", roomID);
+            rdr = cmd.ExecuteReader();
+            if (rdr.Read())
+            {
+                title = (string)rdr["title"];
+                current_players = (int)rdr["current_players"];
+                max_players = (int)rdr["max_players"];
+                if(current_players>=max_players)
+                {
+                    Clients.Caller.alertMessage("Error: Room is Full");
+                }
+                big_blind = (int)rdr["big_blind"];
+                seconds = (int)rdr["seconds"];
+                max_buy_in = (int)rdr["max_buy_in"];
+                //private/public are keywords
+                permissions= (int)rdr["Private"];
+                //don't see reason to keep creator_id, add if necessary
+            }
+            else
+            {
+                //room doesn't exist
+                Clients.Caller.alertMessage("Error: Room does not exist");
+                Conn.Close();
+                return;
+            }
+            //To reach this point, room must exist and there must be room to join
+            //Client user exists, information has been pulled, and is allowed to join
+
+            //On join, getState of game
+            GameManager manager = new GameManager();
+            string result = manager.getState(Convert.ToInt32(roomID));
+
+            //game has not yet started, join in the "pre-game" stage
+            if(manager.allReady()==false)
+            {
+                //check if game data existed, fill in options if it didn't
+                if (result.Equals(""))
+                {
+                    manager.setupRoom(max_players, big_blind, max_buy_in, permissions);
+
+                }
+                manager.joinStart(Context.ConnectionId, currency, username);
+                manager.updateState(Convert.ToInt32(roomID));
+            }
+            else
+            {
+                //game has started, join in middle of game instead
+                manager.joinMid(Context.ConnectionId, currency, username);
+                manager.updateState(Convert.ToInt32(roomID));
+            }
+            //add connection to connections table
+            cmd.CommandText = "SELECT * FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+                rdr = cmd.ExecuteReader();
+                //connectionID already exists
+                if (rdr.Read())
+                {
+                    Clients.Caller.alertMessage("Error: Connection already in use");
+                }
+                else
+                {
+                    rdr.Close();
+                    cmd.CommandText = "INSERT INTO connections (connID, roomID, username) VALUES (@connID, @roomID, @name)";
+                    cmd.Prepare();
+                    cmd.Parameters.AddWithValue("@connID", Context.ConnectionId);
+                    cmd.Parameters.AddWithValue("@roomID", roomID);
+                    //change this to reflect actual username
+                    cmd.Parameters.AddWithValue("@name", username);
+                    cmd.ExecuteNonQuery();
+                    Groups.Add(Context.ConnectionId, roomID);
+                    //Do we need the below?
+                    UserModel user = new UserModel(3);
+                    Clients.All.alertJson(user);
+                }
+                Conn.Close();
+
+  
+
         }
         public override Task OnDisconnected(bool stopCalled)
         {
@@ -173,9 +183,9 @@ namespace PokerPrototype.Hubs
             }
             Conn.Close();
             manager.getState(Convert.ToInt32(roomID));
-            Groups.Remove(Context.ConnectionId, Convert.ToString(manager.getRoomID()));
+            Groups.Remove(Context.ConnectionId, roomID);
             manager.leave(Context.ConnectionId);
-            manager.updateState(manager.getRoomID());
+            manager.updateState(Convert.ToInt32(roomID));
 
             return base.OnDisconnected(stopCalled);
         }
@@ -268,6 +278,17 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
             manager.leave(Context.ConnectionId);
             manager.updateState(Convert.ToInt32(roomID));
+            MySqlConnection Conn = new MySqlConnection(Connection.Str);
+            var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+            Conn.Open();
+            cmd.Connection = Conn;
+            //change later to check username against passed username
+            cmd.CommandText = "DELETE FROM connections WHERE connID = @conn";
+            cmd.Prepare();
+            cmd.Parameters.AddWithValue("@conn", Context.ConnectionId);
+            int success = cmd.ExecuteNonQuery();
+            Conn.Close();
+            Groups.Remove(Context.ConnectionId, roomID);
             Clients.Caller.alertMessage("You have successfully left the game");
         }
         public void Fold(string roomID)
