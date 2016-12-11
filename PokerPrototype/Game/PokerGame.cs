@@ -619,7 +619,6 @@ namespace PokerGame
                         data.activePlayers[i].currency -= raiseTotal;
                         data.pot += raiseTotal;
                         data.callAmt = raiseTotal;
-                        data.raiseCount++;
                         return amount;
                     }
                 }

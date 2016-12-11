@@ -5,7 +5,7 @@
 }
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "Game";
 }
 
 @section styles{
@@ -528,7 +528,7 @@
 
     var chat = $.connection.myHub;
     var roomID = @ViewBag.roomid;
-    
+
         console.log(roomID);
         //$.connection.hub.start().done(initConnect).fail(function (reason) {
         //    console.log("SignalR connection failed: " + reason);
@@ -564,7 +564,7 @@
             function initConnect() {
                 alert("connection established");
                 chat.server.getRoomInfo(roomID, username);
-               
+
             }
 
             chat.server.broadcastRoomInfo(roomID);
@@ -645,12 +645,39 @@
                 chat.server.fold(roomID);
             });
 
-            $("#Call").click(function() {
-                chat.server.call(roomID);
+            $("#Call").click(function(username) {
+                if(hud1.username==username){
+                    alert("HI");
+                }
+                else if(hud2.username==username){
+                    alert("2");
+                }
+                else if(hud4.username==username){
+                    alert("3");
+                }
+                else if(hud2.username==username){
+                    alert("4");
+                }
+                else if(hud4.username==username){
+                    alert("5");
+                }
+                else if(hud2.username==username){
+                    alert("6");
+                }
+                
+//                currency-=chat.server.call(username,roomID);
             });
 
             $("#Raise").click(function() {
-                chat.server.raise(roomID,10);
+                var raise=document.getElementById("raiseSlider");
+                var raiseVal=parseInt(raise.value);
+                var curr=document.getElementById("")
+                currency-=chat.server.raise(roomID,10);
+                for(var i=0;i<hudArray.length;i++){
+                    if(hudArray[i].username==username){
+                        hudArray[i].currency=currency;
+                    }
+                }
             });
 
             $("#LeaveGame").click(function() {
@@ -720,6 +747,8 @@
             //        chat.server.send(roomID, $("#message").val());
             //    });
             //}
+                }
+            }
 
             chat.client.updateHand = function(card1, card2){
                 var card1 = card1;
@@ -766,7 +795,7 @@
             }
 
             chat.client.updatePot = function(pot){
-                community.pot = pot;
+                community.potSize += pot;
             }
 
 

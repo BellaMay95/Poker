@@ -248,12 +248,12 @@ namespace PokerPrototype.Hubs
             //Passes space delinated img files ("img1 img 2 img3 ")
             Clients.Group(roomID).updateBoard(boardString);
         }
-        public bool broadcastRaise(string roomID)
+        public int broadcastRaise(string roomID,int raiseAmount)
         {
             GameManager manager = new GameManager();
             manager.getState(Convert.ToInt32(roomID));
             //Clients.Group(roomID).updateRaise(manager.getHasRaised()
-            return false;// just to get function working
+            return raiseAmount;// just to get function working
             //return manager.getHasRaised()
         }
         public int broadcastCallAmt(string roomID)
@@ -336,7 +336,7 @@ namespace PokerPrototype.Hubs
             }
             //broadcast to allclients
         }
-        public int Call(string roomID)
+        public int Call(string username,string roomID)
         {
             GameManager manager= new GameManager();
             manager.getState(Convert.ToInt32(roomID));
@@ -345,25 +345,23 @@ namespace PokerPrototype.Hubs
             {
                 if (Context.ConnectionId.Equals(temp.ID))
                 {
-                    manager.call(Context.ConnectionId);
+                    int callAmt=manager.call(username);
                     manager.cycle();
                     manager.updateState(Convert.ToInt32(roomID));
                     //need to take place after updating state, in order to grab up to date information
                     adjustBoard(roomID);
                     broadcastPot(roomID);
-                    alertPlayerTurn(manager.getCurrentPlayer().ID);
-                    return manager.getCallAmt();
+                    return callAmt;
                 }
                 else
                 {
-                    Clients.Caller.alertMessage("Error: Not your turn");
-                    return -1;
+                    return 0;
                 }
             }
             else
             {
                 Clients.Caller.alertMessage("Error: Game has not started");
-                return -1;
+                return 0;
             }
         }     
         public int Check(string roomID)
@@ -405,37 +403,28 @@ namespace PokerPrototype.Hubs
             //verify it is user's turn
             if (Context.ConnectionId.Equals(manager.getCurrentPlayer().ID))
             {
-                //verify raises are legal under the current state
-                if (manager.getRaiseCount() < 3)
-                {
-                    //verify user can raise by that amount/call at tsame time
-                    if (manager.raise(Context.ConnectionId, amount) >= 0)//check for nonnegative number
-                    {
+            //verify raises are legal under the current state
 
-                        manager.cycle();
-                        manager.updateState(Convert.ToInt32(roomID));
-                        //need to take place after updating state, in order to grab up to date information
-                        adjustBoard(roomID);
-                        broadcastPot(roomID);
-                        alertPlayerTurn(manager.getCurrentPlayer().ID);
-                        return amount;
-                    }
-                    else
-                    {
-                        Clients.Caller.alertMessage("Error: Not enough currency");
-                        return -1;
-                    }
+                //verify user can raise by that amount/call at tsame time
+                if (manager.raise(Context.ConnectionId, amount) >= 0)//check for nonnegative number
+                {
+
+                    manager.cycle();
+                    manager.updateState(Convert.ToInt32(roomID));
+                    adjustBoard(roomID);
+                    broadcastPot(roomID);
+                    return amount;
                 }
                 else
                 {
-                    Clients.Caller.alertMessage("Error: Not your turn");
-                    return -1;
-                }
+                    Clients.Caller.alertMessage("Error: Not enough currency");
+                    return 0;
+                }           
             }
             else
             {
                 Clients.Caller.alertMessage("Error: Not your turn");
-                return -1;
+                return 0;
             }
         }
         //call this function when player confirms they are ready
