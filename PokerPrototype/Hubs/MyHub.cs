@@ -36,6 +36,7 @@ namespace PokerPrototype.Hubs
 //CONNECTION FUNCTIONS
 //block dedicated to functions handling connection/disconnection
         //Joining room
+
         public void GetRoomInfo(string roomID ,string username)
         {
             //room table info
