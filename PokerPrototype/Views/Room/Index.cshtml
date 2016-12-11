@@ -367,11 +367,11 @@
 <!-- COMMUNITY CARDS -->
 <div id="community">
     <div id="inGameUpdates">{{message}}</div>
-    <div id="flop1" class="communityCard"><img v-bind:src="flop1Url" /></div>
-    <div id="flop2" class="communityCard"><img v-bind:src="flop2Url" /></div>
-    <div id="flop3" class="communityCard"><img v-bind:src="flop3Url" /></div>
-    <div id="turn" class="communityCard"><img v-bind:src="turnUrl" /></div>
-    <div id="river" class="communityCard"><img v-bind:src="riverUrl" /></div>
+    <div id="flop1" class="communityCard"><img v-bind:src="card1" /></div>
+    <div id="flop2" class="communityCard"><img v-bind:src="card2" /></div>
+    <div id="flop3" class="communityCard"><img v-bind:src="card3" /></div>
+    <div id="turn" class="communityCard"><img v-bind:src="card4" /></div>
+    <div id="river" class="communityCard"><img v-bind:src="card5" /></div>
     <div id="pot">Pot Size: ${{potSize}}</div>
 </div>
 
@@ -525,39 +525,88 @@
     <script src="http://ajax.aspnetcdn.com/ajax/signalr/jquery.signalr-2.1.0.min.js"></script>
     <script src="~/signalr/hubs"></script>
     <script>
+
     var chat = $.connection.myHub;
     var roomID = @ViewBag.roomid;
+    
+        console.log(roomID);
+        //$.connection.hub.start().done(initConnect).fail(function (reason) {
+        //    console.log("SignalR connection failed: " + reason);
+        //});
+
+        //function initConnect() {
+        //    alert("connection established");
+        //    chat.server.getRoomInfo(roomID, user);
+        //}
+            //$('#message-btn').prop("disabled", false).click(function () {
+            //    chat.server.send(roomID, $("#message").val());
+            //});
+        
 
         $(document).ready(function(){
-            var hudArray = [hud1, hud2, hud3, hud4, hud5, hud6];
-
 
             var username = $('#username').text();
             var currency = $('#currency').text();
             var avatar = $('#avatar').attr('src');
 
-            alert(username);
+            var hudArray = [hud1, hud2, hud3, hud4, hud5, hud6];
 
-            var playerCards;
-            var communityCards;
-            //var isTurn: false;
+            var newUser = {
+                username: username,
+                currency: currency,
+                avatar: avatar
+            };
 
+            $.connection.hub.start().done(initConnect).fail(function (reason) {
+                console.log("SignalR connection failed: " + reason);
+            });
 
-
-
-            //assign player to empty seat when joining room
-            for(var i = 0; i < hudArray.length; i++){
-                if(hudArray[i].username == ''){
-                    hudArray[i].username = username;
-                    hudArray[i].currency = currency;
-                    hudArray[i].avatarUrl = avatar;
-                    break;
-                }
+            function initConnect() {
+                alert("connection established");
+                chat.server.getRoomInfo(roomID, username);
+               
             }
 
+            chat.server.broadcastRoomInfo(roomID);
+       
 
-            var chat = $.connection.myHub;
-            var roomID = @ViewBag.roomid;
+            //var roomResponse = {
+            //    players: [{username: 'joe', currency: 900, avatar: 'http://animal-dream.com/data_images/whale/whale4.jpg'}, {username: 'uncle rico', currency: 400, avatar: 'http://totalsportscomplex.com/wp-content/uploads/2014/09/baseball-pic.jpg'}],
+            //    pot: 700,
+            //    roomname: "pokerchimps",
+            //    boardCards: ['http://i.imgur.com/uCi6EeO.png', 'http://i.imgur.com/llR3t2n.png', 'http://i.imgur.com/TIHRK9O.png'],
+            //    time: 30
+            //};
+
+            //Initial call to updateHud when player joins a room 
+            chat.client.updateHud = function(roomResponse){
+                
+                roomResponse.players.push(newPlayer);
+
+                for(var i = 0; i < roomResponse.players.length; i++){
+                    hudArray[i].username = roomResponse.players[i].username;
+                    hudArray[i].currency = roomResponse.players[i].currency;
+                    hudArray[i].avatarUrl = roomResponse.players[i].avatar;
+                    hudArray[i].timer = roomResponse.time;
+                }
+
+                community.potSize = roomResponse.pot;
+
+                if(roomResponse.boardCards.length == 3){
+                    community.card1 = roomResponse.boardCards[0];
+                    community.card2 = roomResponse.boardCards[1];
+                    community.card3 = roomResponse.boardCards[2];
+                }
+
+                if(roomResponse.boardCards[3] != NULL){
+                    community.card4 = roomResponse.boardCards[3];
+                }
+
+                if(roomResponse.boardCards[4] != NULL){
+                    community.card5 = roomResponse.boardCards[4];
+                }
+
+          }
 
 
 
@@ -605,7 +654,8 @@
             });
 
             $("#LeaveGame").click(function() {
-                chat.server.leave(roomID);
+
+                //chat.server.leave(roomID);
 
                 for(var i = 0; i < hudArray.length; i++){
                     if(hudArray[i].username == username){
@@ -615,6 +665,8 @@
                         break;
                     }
                 }
+
+                chat.server.leave(roomID);
             });
 
 
@@ -658,16 +710,16 @@
             //   console.log(JSON.stringify(model))
             //};
 
-            $.connection.hub.start().done(initConnect).fail(function (reason) {
-                console.log("SignalR connection failed: " + reason);
-            });
-            function initConnect() {
-                alert("connection established");
-                chat.server.getRoomInfo(roomID);
-                $('#message-btn').prop("disabled", false).click(function () {
-                    chat.server.send(roomID, $("#message").val());
-                });
-            }
+            //$.connection.hub.start().done(initConnect).fail(function (reason) {
+            //    console.log("SignalR connection failed: " + reason);
+            //});
+            //function initConnect() {
+            //    alert("connection established");
+            //    chat.server.getRoomInfo(roomID);
+            //    $('#message-btn').prop("disabled", false).click(function () {
+            //        chat.server.send(roomID, $("#message").val());
+            //    });
+            //}
 
             chat.client.updateHand = function(card1, card2){
                 var card1 = card1;
