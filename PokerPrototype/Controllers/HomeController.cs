@@ -41,9 +41,16 @@ namespace PokerPrototype.Controllers
             return View("Landing");
         }
 
-        public ActionResult About()
+        public ActionResult Reports()
         {
-            return View();
+            int id = Convert.ToInt32(Session["id"]);
+            if (id > 0)
+            {
+                UserModel model = new UserModel(id);
+                return View("Reports", model);
+            }
+            return View("Landing");
+            //return View();
         }
 
         public ActionResult ViewProfile(string username)

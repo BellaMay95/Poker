@@ -16,6 +16,7 @@ namespace PokerPrototype.Models
         public string avatar;
         public bool canEdit;
         public bool isFriend;
+        public bool disabled;
         public bool canAdmin;
         public List <string> friendAvatar;
         public List <string> friendUser;
@@ -23,7 +24,7 @@ namespace PokerPrototype.Models
         public ViewProfileModel(int sessionid, string username)
         {
             success = true;
-            canEdit = isFriend = canAdmin = false;
+            canEdit = isFriend = canAdmin = disabled = false;
             friendAvatar = new List<string>();
             friendUser = new List<string>();
             //User = new UserModel(sessionid);
@@ -35,10 +36,10 @@ namespace PokerPrototype.Models
                 cmd.Connection = Conn;
                 if (username.Length == 0)
                 {
-                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin FROM users WHERE id = " + sessionid;
+                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin,diabled FROM users WHERE id = " + sessionid;
                 }else
                 {
-                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin FROM users WHERE username = @user";
+                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin,disabled FROM users WHERE username = @user";
                 }
                 cmd.Prepare();
                 cmd.Parameters.AddWithValue("@user", username);
@@ -60,6 +61,10 @@ namespace PokerPrototype.Models
                         if (rdr[4].ToString() == "1")
                         {
                             canAdmin = true;
+                        }
+                        if (rdr[5].ToString() == "1")
+                        {
+                            disabled = true;
                         }
                     }
                     rdr.Close();
@@ -179,6 +184,50 @@ namespace PokerPrototype.Models
             catch (Exception ex)
             {
                 connectError = ex.Message;
+            }
+        }
+    }
+
+    public class BanUser
+    {
+        public BanUser(string user)
+        {
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "UPDATE users SET disabled=1 WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+    }
+
+    public class unbanUser
+    {
+        public unbanUser(string user)
+        {
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "UPDATE users SET disabled=0 WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+
             }
         }
     }

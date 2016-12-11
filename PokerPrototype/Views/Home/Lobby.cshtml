@@ -33,6 +33,7 @@
     @Html.Partial("_ProfileDropdown", Model)
 }
 @Html.Partial("_AddFund")
+<br />
 <input type="text" id="profile-input" placeholder="enter username"/><button id="profile-btn" data-toggle="modal" data-target="#profile-modal" >View Profile</button>
 <h1>Join a Game!</h1>
 <div class="col-sm-3">
@@ -210,6 +211,7 @@
         $("#last-refresh").html("&nbsp;")
     }
     function roomListHandler(response) {
+        //alert(JSON.stringify(response));
         roomList = response;
         printRoomList();
         //setTimeout(refresh, 60 * 1000);

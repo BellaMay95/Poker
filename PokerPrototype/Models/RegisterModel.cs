@@ -34,7 +34,12 @@ namespace PokerPrototype.Models
             else if (username.Length < 2)
             {
                 success = false;
-                usernameError = "Username too short";
+                usernameError = "Username is too short";
+            }
+            else if (username.Length > 30)
+            {
+                success = false;
+                usernameError = "Username is too long";
             }
             else if (!Regex.IsMatch(username, @"^[A-Za-z0-9_.-~]+$"))
             {
@@ -46,6 +51,11 @@ namespace PokerPrototype.Models
             {
                 success = false;
                 emailError = "Enter an email";
+            }
+            else if (email.Length > 100)
+            {
+                success = false;
+                emailError = "Your email is too long. Provide a different email.";
             }
             else if (!Regex.IsMatch(email, @"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"))
             {
@@ -61,6 +71,11 @@ namespace PokerPrototype.Models
             {
                 success = false;
                 passwordError = "Password must be at least 8 characters long";
+            }
+            else if (password.Length > 80)
+            {
+                success = false;
+                passwordError = "Your password is too long!";
             }
             if (confirm.Length == 0)
             {

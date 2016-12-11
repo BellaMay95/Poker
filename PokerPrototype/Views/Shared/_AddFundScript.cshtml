@@ -81,8 +81,23 @@
                 addFriend(profile.username);
             })
         }
-        if (profile.isFriend || profile.isAdmin || $("#admin").text() == "1"){
+        if (profile.isFriend || profile.canAdmin || $("#admin").text() == "1"){
              $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
+        }
+        if ($("#admin").text() == "1") {
+           // $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
+            if (profile.disabled == false) {
+                $topright.append("<button id='ban-user'>Ban User</button>");
+                $("#ban-user").click(function () {
+                    banUser(profile.username);
+                })
+            }
+            else {
+                $topright.append("<button id='unban-user'>Restore User</button>");
+                $("#unban-user").click(function () {
+                    unbanUser(profile.username);
+                })
+            }
         }
         $("#message").click(function () {
             $(".active").removeClass("active");
@@ -116,6 +131,32 @@
 
     function removeFriendHandler(response) {
         profiles[response.username].isFriend = false;
+        $(".spinner").remove();
+        printTopRight();
+    }
+
+    function banUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/banUser", {
+            user: profile.username
+        }, banUserHandler);
+    }
+
+    function banUserHandler(response) {
+        profile.disabled = true;
+        $(".spinner").remove();
+        printTopRight();
+    }
+
+    function unbanUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/unbanUser", {
+            user: profile.username
+        }, unbanUserHandler);
+    }
+
+    function unbanUserHandler(response) {
+        profile.disabled = false;
         $(".spinner").remove();
         printTopRight();
     }

@@ -16,7 +16,8 @@ namespace PokerPrototype.Models
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                 Conn.Open();
                 cmd.Connection = Conn;
-                cmd.CommandText = "SELECT rooms.id, title, current_players, max_players, big_blind, seconds, max_buy_in, username FROM rooms JOIN users on users.id = creator_id WHERE private = 0 AND current_players != 0";                cmd.Prepare();
+                cmd.CommandText = "SELECT rooms.id, title, current_players, max_players, big_blind, seconds, max_buy_in, username FROM rooms JOIN users on users.id = creator_id WHERE private = 0 AND current_players != 0";
+                cmd.Prepare();
                 MySqlDataReader rdr = cmd.ExecuteReader();
 
                 while (rdr.Read())

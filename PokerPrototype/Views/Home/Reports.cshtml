@@ -1,0 +1,385 @@
+﻿@model PokerPrototype.Models.UserModel
+@{
+    ViewBag.Title = "Report a Bug";
+}
+
+<style media="screen" type="text/css">
+    .dropdown-toggle, .dropdown-menu {
+        width: 100%;
+    }
+
+    tbody > tr {
+        cursor: pointer;
+    }
+
+    thead > tr > th {
+        cursor: pointer;
+    }
+
+    .caret-up {
+        border-top: 0 dotted;
+        border-bottom: 4px solid #000;
+    }
+
+    .clickable-profile {
+        border: 1px solid #FAFAFA;
+        cursor: pointer;
+    }
+
+        .clickable-profile:hover {
+            background-color: #F4F4F4;
+            border: 1px solid #EEEEEE;
+        }
+
+    }
+</style>
+
+<!--when I create the reports model, replace this with the right thing-->
+@section topright{
+    @Html.Partial("_ProfileDropdown", Model)
+}
+@Html.Partial("_AddFund")
+@if (ViewBag.Message != null)
+{
+    <div class="alert alert-@ViewBag.MessageType" role="alert">@ViewBag.Message</div>
+}
+
+<h2>@ViewBag.Title</h2>
+<br />
+<h3>We're sorry you're having problems! Please select one of the options below to tell us about your issue. You may also contact an admin directly with any concerns.</h3>
+<button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#report-bug-modal">Report a Bug!</button>
+<button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#report-user-modal">Report a User!</button>
+
+<div class="modal fade" id="report-bug-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Report a Bug!</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" id="bug-title-group">
+                    <label class="control-label" for="bug-title">Summarize the Problem</label>
+                    <input type="text" class="form-control" id="bug-title">
+                    <span id="bug-title-msg" class="help-block"></span>
+                </div>
+                <div class="form-group" id="bug-problem-group">
+                    <label class="control-label" for="bug-problem">Describe your issue</label><br />
+                    <textarea rows="10" cols="74" id="bug-problem"></textarea>
+                    <span id="bug-problem-msg" class="help-block"></span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <div id="report-footer-left" style="float: left" ;></div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="report-bug-btn" class="btn btn-primary">Submit Report</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="report-user-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                <h4 class="modal-title" id="myModalLabel">Report a User!</h4>
+            </div>
+            <div class="modal-body">
+                <div class="form-group" id="user-title-group">
+                    <label class="control-label" for="user-title">Summarize the Issue</label>
+                    <input type="text" class="form-control" id="user-title">
+                    <span id="user-title-msg" class="help-block"></span>
+                </div>
+                <div class="form-group" id="brat-username-group">
+                    <label class="control-label" for="brat-username">Enter the other person's username</label>
+                    <input type="text" class="form-control" id="brat-username">
+                    <span id="brat-username-msg" class="help-block"></span>
+                </div>
+                <div class="form-group" id="user-problem-group">
+                    <label class="control-label" for="user-problem">Describe your issue</label><br />
+                    <textarea rows="10" cols="74" id="user-problem"></textarea>
+                    <span id="user-problem-msg" class="help-block"></span>
+                </div>
+                
+            </div>
+            <div class="modal-footer">
+                <div id="report-footer-left" style="float: left" ;></div>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" id="report-user-btn" class="btn btn-primary">Report User</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (Model.isAdmin == "1")
+{
+    <html>
+        <body>
+            <div class="col-sm-3">
+                <button class="btn-primary btn" style="margin-bottom: 10px" id="refresh">Refresh</button>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">Filter Results</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="input-group">
+                            <input type="text" id="filter-input" class="form-control" placeholder="filter...">
+                            <span class="input-group-btn">
+                                <button id="filter-clear" class="btn btn-default" type="button">
+                                    <span class="glyphicon glyphicon-remove" aria-hidden="true"></span>
+                                </button>
+                            </span>
+                        </div>
+                        <div class="checkbox">
+                            <label><input type="checkbox" id="hide-unresolved" value=""/>Hide Unresolved Tickets</label><br />
+                            <label><input type="checkbox" id="hide-resolved" value=""/>Hide Resolved Tickets</label><br />
+                            <label><input type="checkbox" id="hide-users" value=""/>Hide User Reports</label><br />
+                            <label><input type="checkbox" id="hide-reports" value=""/>Hide Bug Reports</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-9">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Ticket ID</th>
+                            <th>Ticket Name</th>
+                            <th>Ticket Creator</th>
+                            <th>Ticketed User</th>
+                            <th>Resolved</th>
+                        </tr>
+                    </thead>
+                    <tbody id="report-tbody"></tbody>
+                </table>
+            </div>
+        </body>
+    </html>
+}
+
+@section scripts {
+<script type="text/javascript" src="@Url.Content("/Scripts/bootstrap-slider.js")"></script>
+<script>
+    $("#report-bug-btn").click(reportBug);
+    $("#report-user-btn").click(reportUser);
+    //$("#resolve-report").click(resolveReport);
+
+    function reportBug()
+    {
+        $("#report-footer-left").addClass("spinner");
+        //alert("Reached report bug function!");
+        $.post("/ajax/reportbug", {
+            title: $('#bug-title').val(),
+            issue: $('#bug-problem').val(),
+        },
+        bugHandler);
+    }
+
+    function bugHandler(response) {
+        $("#report-footer-left").removeClass("spinner");
+        if (response.titleError.length > 0) {
+            $("#bug-title-group").addClass("has-error");
+            $("#bug-title-msg").text(response.titleError);
+        } else {
+            $("#bug-title-group").removeClass("has-error");
+            $("#bug-title-msg").text("");
+        }
+        if (response.problemError.length > 0) {
+            $("#bug-problem-group").addClass("has-error");
+            $("#bug-problem-msg").text(response.problemError);
+        } else {
+            $("#bug-problem-group").removeClass("has-error");
+            $("#bug-problem-msg").text("");
+        }
+        if (response.titleError.length == 0 && response.problemError.length == 0) {
+            $("#login-footer-left").append('<p class="text-success">Sent Report!</p>');
+            window.location.href = '/';
+        }
+    }
+
+    function reportUser() {
+        $("#report-footer-left").addClass("spinner");
+        //alert("Reached the report user function!");
+        $.post("/ajax/reportuser", {
+            title: $('#user-title').val(),
+            toUser: $('#brat-username').val(),
+            issue: $('#user-problem').val(),
+        },
+        userHandler);
+    }
+
+    function userHandler(response) {
+        $("#report-footer-left").removeClass("spinner");
+        if (response.titleError.length > 0) {
+            $("#user-title-group").addClass("has-error");
+            $("#user-title-msg").text(response.titleError);
+        } else {
+            $("#user-title-group").removeClass("has-error");
+            $("#user-title-msg").text("");
+        }
+        if (response.toUserError.length > 0) {
+            $("#brat-username-group").addClass("has-error");
+            $("#brat-username-msg").text(response.toUserError);
+        } else {
+            $("#brat-username-group").removeClass("has-error");
+            $("#brat-username-msg").text("");
+        }
+        if (response.problemError.length > 0) {
+            $("#user-problem-group").addClass("has-error");
+            $("#user-problem-msg").text(response.problemError);
+        } else {
+            $("#user-problem-group").removeClass("has-error");
+            $("#user-problem-msg").text("");
+        }
+        if (response.titleError.length == 0 && response.toUserError.length == 0 && response.problemError.length == 0) {
+            $("#login-footer-left").append('<p class="text-success">Sent Report!</p>');
+            window.location.href = '/';
+        }
+    }
+</script>
+
+<script>
+    refresh();
+    var reportList = [];
+    var sortType = "Ticket Name";
+    var reverse = false;
+    var sortType2 = "Ticket Creator";
+    var reverse2 = false;
+    var sortType3 = "Ticketed User";
+    var reverse3 = false;
+    $("#refresh").click(refresh);
+    //alert("before refresh function");
+    function refresh() {
+        $("tbody").empty().append("<div class='spinner'></div>")
+       // alert("going to send the request");
+        $.post("/ajax/ReportList", reportListHandler);
+        $("#last-refresh").html("&nbsp;")
+    }
+    function reportListHandler(response) {
+        //alert(JSON.stringify(response));
+        reportList = response;
+        printReportList();
+    }
+    function printReportList() {
+        reportList.sort(function (a, b) {
+            var result = compare(a, b, sortType, reverse);
+            if (result == 0) {
+                return compare(a, b, sortType2, reverse2);
+            }
+            return result;
+        });
+        var $tbody = $("tbody").empty();
+        for (var i = 0; i < reportList.length; i++) {
+            var report = reportList[i];
+            if (!passesFilter(report)) {
+                continue;
+            }
+            var $line = $("<tr data-id='" + report.reportID + "'></tr>");
+            $line.append("<td>" + report.reportID + "</tr>")
+            $line.append("<td>" + report.reportName + "</td>");
+            $line.append("<td>" + report.ticketCreator + "</td>");
+            $line.append("<td>" + report.ticketedUser + "</td>");
+            if (report.resolved == 1)
+                $line.append("<td><strong>RESOLVED</strong></td>");
+            else
+                $line.append("<td><i>WAITING</i></td>");
+            $tbody.append($line);
+        }
+    }
+    function passesFilter(report) {
+        var filters = $("#filter-input").val().toLowerCase().split(/[ ,_\-]+/);
+        var tokens = report.reportName.toLowerCase().split(/[ ,\-]+/);
+        tokens = tokens.concat(report.ticketCreator.split(/[ ,_\-]+/));
+        tokens = tokens.concat(report.ticketedUser.split(/[ ,_\-]+/));
+        for (var i = 0; i < filters.length; i++) {
+            var match = false;
+            for (var j = 0; j < tokens.length; j++) {
+                if (tokens[j].startsWith(filters[i])) {
+                    match = true;
+                    break;
+                }
+            }
+            if (match == false) {
+                return false;
+            }
+        }
+        if (report.resolved == 0 && ($("#hide-unresolved").is(':checked'))) {
+            return false;
+        }
+        else if (report.resolved == 1 && ($("#hide-resolved").is(':checked'))) {
+            return false;
+        }
+        else if (report.type == 1 && ($("#hide-reports").is(':checked'))) {
+            return false;
+        }
+        else if (report.type == 2 && ($("#hide-users").is(':checked'))) {
+            return false;
+        }
+        return true;
+    }
+    function compare(a, b, sortType, reverse) {
+        if (reverse) {
+            var temp = a
+            a = b;
+            b = temp;
+        }
+        if (sortType == "Ticket ID") {
+            return a.reportID - b.reportID;
+        }
+        else if (sortType == "Ticket Name") {
+            return a.reportName.toLowerCase().localeCompare(b.reportName.toLowerCase());
+        }
+        else if (sortType == "Ticket Creator") {
+            return a.ticketCreator.toLowerCase().localeCompare(b.ticketCreator.toLowerCase());
+        }
+        else if (sortType == "Ticketed User") {
+            return a.ticketedUser.toLowerCase().localeCompare(b.ticketedUser.toLowerCase());
+        }
+        else if (sortType == "Resolved") {
+            return a.resolved - b.resolved;
+        }
+    }
+
+    $("#filter-input").on("input", printReportList);
+    $("#filter-clear").click(function () {
+        $("#filter-input").val("");
+        printReportList();
+    })
+    $("#hide-unresolved").change(printReportList);
+    $("#hide-resolved").change(printReportList);
+    $("#hide-users").change(printReportList);
+    $("#hide-reports").change(printReportList);
+    $('#room-tbody').on("click", 'tr', function () {
+        var id = $(this).data("id");
+        window.location.href = "#";
+    })
+    $('thead>tr').on("click", 'th', function () {
+        $('tr .caret').remove();
+        var text = $(this).text();
+        if (sortType == text) {
+            reverse = !reverse;
+        } else {
+            sortType2 = sortType;
+            reverse2 = reverse;
+            reverse = false;
+            sortType = text;
+        }
+        if (!reverse) {
+            $(this).html($(this).text() + "<span class='caret'></span>");
+        }
+        else {
+            $(this).html($(this).text() + "<span class='caret caret-up'></span>");
+        }
+        printReportList();
+    }
+
+    /*function ResolveReport()
+    {
+        $.post("/ajax/resolvereport", {
+            reportID: reportID
+        },
+        bugHandler);
+    })*/)
+</script>
+}

@@ -36,11 +36,15 @@ namespace PokerPrototype.Models
                     var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                     Conn.Open();
                     cmd.Connection = Conn;
-                    cmd.CommandText = "SELECT id, password FROM users WHERE username = @user";
+                    cmd.CommandText = "SELECT id, password, disabled FROM users WHERE username = @user";
                     cmd.Prepare();
                     cmd.Parameters.AddWithValue("@user", username);
                     MySqlDataReader rdr = cmd.ExecuteReader();
-                    if (rdr.Read() && Crypto.VerifyHashedPassword(rdr[1].ToString(), password))
+                    if (rdr.Read() && Convert.ToInt32(rdr[2]) == 1)
+                    {
+                        passwordError = "Your account has been disabled. An administrator will contact you with instructions for reactivating your account";
+                    }
+                    else if (Crypto.VerifyHashedPassword(rdr[1].ToString(), password))
                     {
                         id = Convert.ToInt32(rdr[0]);
 

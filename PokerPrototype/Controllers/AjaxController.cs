@@ -95,6 +95,16 @@ namespace PokerPrototype.Controllers
             RemoveFriendModel model = new RemoveFriendModel(Convert.ToInt32(Session["id"]), newuser);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult BanUser(string user)
+        {
+            BanUser model = new BanUser(user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult UnbanUser(string user)
+        {
+            unbanUser model = new unbanUser(user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult inbox()
         {
             InboxList list = new InboxList(Convert.ToInt32(Session["id"]));
@@ -114,6 +124,25 @@ namespace PokerPrototype.Controllers
         {
             
             return Json(new RoomList(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ReportList()
+        {
+            return Json(new ReportList(), JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ReportUser(string title, string toUser, string issue)
+        {
+            ReportUserModel model = new ReportUserModel(Convert.ToInt32(Session["id"]), title, toUser, issue);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ReportBug(string title, string issue)
+        {
+            ReportBugModel model = new ReportBugModel(Convert.ToInt32(Session["id"]), title, issue);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult ResolveReport(int reportID)
+        {
+            ResolveReport model = new ResolveReport(reportID);
+            return Json(model, JsonRequestBehavior.AllowGet);
         }
     }
 }

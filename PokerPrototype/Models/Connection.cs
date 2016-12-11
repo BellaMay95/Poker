@@ -14,7 +14,7 @@ namespace PokerPrototype.Models
                 return "server=sql9.freemysqlhosting.net;database=sql9140372;user=sql9140372;password=WSx2C8iRZx;";
                 //alternate database below. Have not set up tables yet
                 //return "server=sql9.freemysqlhosting.net;database=sql3148156;user=sql3148156;password=5jSMq4ea5u;";
-                //return "server=sql9.freemysqlhosting.net;database=sql9148269;user=sql9148269;password=9X9dBAduZl";
+                //return "server=sql9.freemysqlhosting.net;database=sql9148269;user=sql9148269;password=9X9dBAduZl;";
             }
             set { }
         }
