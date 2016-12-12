@@ -862,7 +862,18 @@ namespace PokerGame
                     cmd.Parameters.AddWithValue("@output", output);
                     cmd.Parameters.AddWithValue("@id", room);
                     cmd.ExecuteNonQuery();
+                    //update player currency values
+                    cmd.CommandText = "UPDATE users SET currency = @newmoney WHERE username = @username";
+                    cmd.Parameters.AddWithValue("@newmoney", data.activePlayers[0].currency);
+                    cmd.Parameters.AddWithValue("@username", data.activePlayers[0].name);
+                    cmd.ExecuteNonQuery();
+                    for (int i = 1; i < data.activePlayers.Count; i++)
+                    {
+                        cmd.Parameters["@newmoney"].Value = data.activePlayers[i].currency;
+                        cmd.Parameters["@username"].Value = data.activePlayers[i].name;
 
+                        cmd.ExecuteNonQuery();
+                    } 
                 }
                 else
                 {
