@@ -564,6 +564,7 @@
                 avatar: avatar
             };
 
+
             $.connection.hub.start().done(initConnect).fail(function (reason) {
                 alert("bop");
                 console.log("SignalR connection failed: " + reason);
@@ -577,32 +578,31 @@
                 chat.server.getRoomInfo(roomID, username);
             }
 
-            chat.client.updateHud = function(roomResponse){
-                console.log(roomResponse);
-                roomResponse.players.push(newUser);
+            chat.client.updateHud = function (roomResponse){
+                var response = JSON.parse(roomResponse);
 
-                for(var i = 0; i < roomResponse.players.length; i++){
-                    hudArray[i].username = roomResponse.players[i].username;
-                    hudArray[i].currency = roomResponse.players[i].currency;
-                    hudArray[i].avatarUrl = roomResponse.players[i].avatar;
-                    hudArray[i].timer = roomResponse.time;
+                for(var i = 0; i < response.players.length; i++){
+                    hudArray[i].username = response.players[i].username;
+                    hudArray[i].currency = response.players[i].currency;
+                    hudArray[i].avatarUrl = response.players[i].avatar;
+                    hudArray[i].timer = response.time;
                 }
 
-                community.potSize = roomResponse.pot;
+                community.potSize = response.pot;
 
 
-                if(roomResponse.boardCards.length){
-                    community.card1 = roomResponse.boardCards[0];
-                    community.card2 = roomResponse.boardCards[1];
-                    community.card3 = roomResponse.boardCards[2];
+                if(response.boardCards.length){
+                    community.card1 = response.boardCards[0];
+                    community.card2 = response.boardCards[1];
+                    community.card3 = response.boardCards[2];
                 }
 
-                if(roomResponse.boardCards[3]){
-                    community.card4 = roomResponse.boardCards[3];
+                if(response.boardCards[3]){
+                    community.card4 = response.boardCards[3];
                 }
 
-                if(roomResponse.boardCards[4]){
-                    community.card5 = roomResponse.boardCards[4];
+                if(response.boardCards[4]){
+                    community.card5 = response.boardCards[4];
                 }
 
             };
@@ -641,13 +641,13 @@
 
             $("#Call").click(function(username) {
 
-                chat.client.updateHUD = function(response){
-                    for(var i=0;i<hudArray.length;i++){
-                        if(hudArray[i].username == response.players[i].username){
-                            hudArray[i].currency=response.players[i].currency;
-                        }
-                    }
-                }
+                //chat.client.updateHUD = function(response){
+                //    for(var i=0;i<hudArray.length;i++){
+                //        if(hudArray[i].username == response.players[i].username){
+                //            hudArray[i].currency=response.players[i].currency;
+                //        }
+                //    }
+                //}
             });
 
             $("#Raise").click(function() {
