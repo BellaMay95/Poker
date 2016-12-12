@@ -97,12 +97,15 @@
                 <h4 class="modal-title" id="RegisterLabel">Viewing Profile</h4>
             </div>
             <div class="modal-body">
-                <div id="profile-avatar" style="display: inline-block"><span class="spinner"></span></div>
-                <h1 id="profile-username" style="display: inline-block"></h1>
-                <h3 id="profile-currency" style="display: inline-block"></h3>
-                <div id="profile-top-right" style="float: right"></div>
-                
-                <div id="friend-label"<h3>Friends:</h3></div>
+                <div id="profile-top-right" style="float: left; margin-bottom: 10px;"></div><br /><br />
+                <div class="grid">
+                    <div id="profile-avatar" class="col-1-2" style="display: inline-block; padding-left: 0px; float: left;"><span class="spinner"></span></div>
+                    <div id="profile-info" class="col-2-3" style="display: inline-block; padding-left: 10px;">
+                        <h1 id="profile-username" style="float: left; margin-top: 0px;"></h1>
+                        <p><h3 id="profile-currency" style="float: left"></h3></p>
+                    </div>
+                </div>
+                <div id="friend-label" class="col-sm-12" style="display: block; padding-left: 0px; padding-top: 10px;"><h3>Friends:</h3></div>
                 <div id="friend-body" class="row">
                 </div>
             </div>

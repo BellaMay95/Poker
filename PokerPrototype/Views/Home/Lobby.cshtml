@@ -34,9 +34,10 @@
 }
 @Html.Partial("_AddFund")
 <br />
-<input type="text" id="profile-input" placeholder="enter username"/><button id="profile-btn" data-toggle="modal" data-target="#profile-modal" >View Profile</button>
+<input type="text" id="profile-input" class="form-control"  style="width:unset; display: inline-block;" placeholder="enter username"/>
+<button type='button' class='btn btn-default' style="display: inline-block; margin-left: 5px;" id='profile-btn' data-toggle="modal" data-target="#profile-modal">View Profile</button>
 <h1>Join a Game!</h1>
-<div class="col-sm-3">
+<div class="col-sm-3" style="padding-left: 0px;">
     <button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#room-modal">Create Room</button>
     <button class="btn-primary btn" style="margin-bottom: 10px" id="refresh">Refresh</button>
     <div class="panel panel-default">
@@ -58,7 +59,7 @@
         </div>
     </div>
 </div>
-<div class="col-sm-9">
+<div class="col-sm-9" style="padding-left: 0px;">
     <table class="table table-hover">
         <thead>
             <tr>
@@ -171,7 +172,7 @@
                             <a id="private-btn" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" href="#">Public<span class="caret"></span></a>
                             <ul id="private-dropdown" class="dropdown-menu">
                                 <li><a href="#">Public</a></li>
-                                <li><a href="#">Private (invite only)</a></li>
+                                <!--<li><a href="#">Private (invite only)</a></li>-->
                             </ul>
                         </div>
                     </div>

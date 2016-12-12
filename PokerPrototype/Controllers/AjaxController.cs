@@ -105,6 +105,16 @@ namespace PokerPrototype.Controllers
             unbanUser model = new unbanUser(user);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult PromoteUser(string user)
+        {
+            promoteUser model = new promoteUser(user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult DemoteUser(string user)
+        {
+            demoteUser model = new demoteUser(user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult inbox()
         {
             InboxList list = new InboxList(Convert.ToInt32(Session["id"]));

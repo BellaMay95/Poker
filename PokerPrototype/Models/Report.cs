@@ -180,6 +180,7 @@ namespace PokerPrototype.Models
 
     public class ResolveReport
     {
+        public bool success { get; set; }
         public ResolveReport(int reportID)
         {
             try
@@ -188,13 +189,15 @@ namespace PokerPrototype.Models
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
                 Conn.Open();
                 cmd.Connection = Conn;
-                cmd.CommandText = "UPDATE resolved FROM reports WHERE id =" + reportID;
+                cmd.CommandText = "UPDATE reports SET resolved=1 WHERE id =" + reportID;
                 cmd.Prepare();
                 cmd.ExecuteNonQuery();
                 Conn.Close();
+                success = true;
             }
             catch (Exception e)
             {
+                success = false;
             }
         }
     }
