@@ -340,16 +340,16 @@
             margin-bottom: 5px;
             text-align: center;
             font-family: Impact, Charcoal, sans-serif;
-            font-size: 22px;
+            font-size: 14px;
             color: white;
         }
 
         .currency {
-            display: block;
-            width: 60%;
+           
+            /*width: 60%;*/
             margin-bottom: 5px;
             text-align: center;
-            /*background-color: #97ddff;*/
+            color: #FFD700;
         }
 
         .timer {
@@ -389,7 +389,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -407,7 +407,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -425,7 +425,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -443,7 +443,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -461,7 +461,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -479,7 +479,7 @@
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
-            <div class="currency">currency:${{currency}}</div>
+            <div class="currency">currency: ${{currency}}</div>
         </div>
         <div class="timer">{{timer}}</div>
     </div>
@@ -564,7 +564,7 @@
             });
 
             function initConnect() {
-                community.message = "connection established";
+               alert("connection established");
 
                 chat.server.getRoomInfo(roomID, username);
 
@@ -583,7 +583,7 @@
 
             //Initial call to updateHud when player joins a room 
             chat.client.updateHud = function(roomResponse){
-                
+                console.log(roomResponse);
                 roomResponse.players.push(newUser);
 
                 for(var i = 0; i < roomResponse.players.length; i++){
@@ -595,17 +595,17 @@
 
                 community.potSize = roomResponse.pot;
 
-                if(roomResponse.boardCards.length == 3){
+                if(roomResponse.boardCards.length){
                     community.card1 = roomResponse.boardCards[0];
                     community.card2 = roomResponse.boardCards[1];
                     community.card3 = roomResponse.boardCards[2];
                 }
 
-                if(roomResponse.boardCards[3] != NULL){
+                if(roomResponse.boardCards[3]){
                     community.card4 = roomResponse.boardCards[3];
                 }
 
-                if(roomResponse.boardCards[4] != NULL){
+                if(roomResponse.boardCards[4]){
                     community.card5 = roomResponse.boardCards[4];
                 }
 
@@ -787,6 +787,7 @@
                 }
             };
 
+
             chat.client.updateBoard = function(board){
 
                 var communityCards = board.split(" ");
@@ -805,12 +806,15 @@
                 }
             }
 
+
             chat.client.updatePot = function(pot){
                 community.potSize = pot;
             }
 
 
             chat.client.updateCallAmount = function(amount){
+                
+                //loop through hudArray
                 if(amount == 0){
                     $("#call").text("check");
                 }
