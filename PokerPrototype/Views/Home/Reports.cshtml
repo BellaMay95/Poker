@@ -45,8 +45,8 @@
 }
 
 <h2>@ViewBag.Title</h2>
-<br />
 <h3>We're sorry you're having problems! Please select one of the options below to tell us about your issue. You may also contact an admin directly with any concerns.</h3>
+<br />
 <button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#report-bug-modal">Report a Bug!</button>
 <button class="btn-primary btn" style="margin-bottom: 10px" data-toggle="modal" data-target="#report-user-modal">Report a User!</button>
 
@@ -153,6 +153,29 @@
                     </thead>
                     <tbody id="report-tbody"></tbody>
                 </table>
+            </div>
+
+            <div class="modal fade" id="report-view-modal" tabindex="-1" role="dialog">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="ReportViewHeader">Report Details</h4>
+                        </div>
+                        <div class="modal-body" style="padding-bottom: 0px; padding-top: 0px">
+                            <div class="row">
+                                <div id="report-content" class="col-sm-9 well" style="margin-bottom: 0px">
+                                    <!--<span class="spinner"></span>-->
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer" style="margin-top: 0px">
+                            <div id="resolve-footer-left" style="float: left"></div>
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <button type="button" id="resolve-btn" class="btn btn-primary">Resolve Issue</button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </body>
     </html>
@@ -350,9 +373,28 @@
     $("#hide-resolved").change(printReportList);
     $("#hide-users").change(printReportList);
     $("#hide-reports").change(printReportList);
-    $('#room-tbody').on("click", 'tr', function () {
-        var id = $(this).data("id");
-        window.location.href = "#";
+    var reportID = 0;
+    $('#report-tbody').on("click", 'tr', function () {
+        $("#resolve-footer-left").empty();
+        //alert("Length: " + reportList.length);
+        //var i = $(this).data("id");
+        //alert("i is " + i);
+        //window.location.href = "#";
+        reportID = $(this).data("id");
+        var i;
+        for (i = 0; i < reportList.length; i++)
+        {
+            if (reportList[i].reportID == reportID)
+                break;
+        }
+        $('#report-view-modal').modal('show');
+        $("#report-content").empty().append("<strong>Report ID: </strong>" + reportList[i].reportID);
+        $("#report-content").append("<br><strong>Message Title: </strong>" + reportList[i].reportName);
+        $("#report-content").append("<br><strong>Submitted By: </strong>" + reportList[i].ticketCreator);
+        $("#report-content").append("<br><strong>Regarding User: </strong>" + reportList[i].ticketedUser);
+        $("#report-content").append("<hr><strong>Details: </strong>" + reportList[i].issue);
+        reportID = $(this).data("id");
+        $("#resolve-btn").click(resolveReport);
     })
     $('thead>tr').on("click", 'th', function () {
         $('tr .caret').remove();
@@ -372,14 +414,28 @@
             $(this).html($(this).text() + "<span class='caret caret-up'></span>");
         }
         printReportList();
-    }
+    })
 
-    /*function ResolveReport()
+
+    function resolveReport()
     {
+        alert("Handling ID: " + reportID);
+        $("#resolve-footer-left").addClass("spinner");
         $.post("/ajax/resolvereport", {
             reportID: reportID
         },
-        bugHandler);
-    })*/)
+        resolveHandler);
+    }
+    
+    function resolveHandler(response)
+    {
+        $("#resolve-footer-left").removeClass("spinner");
+        if (response.success == true)
+            $("#resolve-footer-left").empty().append("Ticket Successfully Resolved!");
+        else {
+            $("#resolve-footer-left").empty().append("Error occurred. Try again later.");
+        }
+        refresh();
+    }
 </script>
 }

@@ -54,7 +54,7 @@
             var friend = profile.friendUser[i];
             var avatar = profile.friendAvatar[i];
             //var $line = $("");
-            $div = $("<div class='clickable-profile col-sm-6' data-name='" + friend + "'></div>");
+            $div = $("<div class='clickable-profile col-sm-6' data-name='" + friend + "' style='padding-bottom: 5px;'></div>");
             $div.append("<img style='width: 64px; height: 64px;' src='" + avatar + "'>");
             $div.append($("<span></span>").text(" " + friend));
             $friendBody.append($div);
@@ -66,34 +66,45 @@
         profile = profiles[currentUser];
         var $topright = $("#profile-top-right").empty();
         if (profile.canEdit) {
-            $topright.append("<a href='/editprofile'><button>Edit Profile</button></a>");
+            $topright.append("<a href='/editprofile'><button type='button' class='btn btn-default'>Edit Profile</button></a>");
             return;
         }
         if (profile.isFriend) {
-            $topright.append("<button id='remove'>Remove Friend</button>");
+            $topright.append("<button type='button' id='remove' class='btn btn-default' style='margin-right: 5px'>Remove Friend</button>");
             $("#remove").click(function () {
                 removeFriend(profile.username);
             })
         }
         else {
-            $topright.append("<button id='add'>Add Friend</button>");
+            $topright.append("<button type='button' class='btn btn-default' id='add' style='margin-right: 5px'>Add Friend</button>");
             $("#add").click(function () {
                 addFriend(profile.username);
             })
         }
         if (profile.isFriend || profile.canAdmin || $("#admin").text() == "1"){
-             $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
+             $topright.append("<button type='button' class='btn btn-default' id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal' style='margin-right: 5px'>Send Message</button>");
         }
         if ($("#admin").text() == "1") {
-           // $topright.append("<button id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal'>Send Message</button>");
+            if (profile.canAdmin == true) {
+                $topright.append("<button type='button' class='btn btn-default' id='demote-admin' style='margin-right: 5px'>Remove as Admin</button>");
+                $("#demote-admin").click(function () {
+                    demoteUser(profile.username);
+                })
+            }
+            else {
+                $topright.append("<button type='button' class='btn btn-default' id='promote-admin' style='margin-right: 5px'>Promote to Admin</button>");
+                $("#promote-admin").click(function () {
+                    promoteUser(profile.username);
+                })
+            }
             if (profile.disabled == false) {
-                $topright.append("<button id='ban-user'>Ban User</button>");
+                $topright.append("<button type='button' class='btn btn-default' id='ban-user' style='margin-right: 5px'>Ban User</button>");
                 $("#ban-user").click(function () {
                     banUser(profile.username);
                 })
             }
             else {
-                $topright.append("<button id='unban-user'>Restore User</button>");
+                $topright.append("<button type='button' class='btn btn-default' id='unban-user' style='margin-right: 5px'>Restore User</button>");
                 $("#unban-user").click(function () {
                     unbanUser(profile.username);
                 })
@@ -105,7 +116,7 @@
             showMessageModal("compose", profile.username);
         })
     }//printtopright
-    $("#friendBody").on("click", ".clickable-profile", function () {
+    $("#friend-body").on("click", ".clickable-profile", function () {
         showProfileModal($(this).data("name"));
     })
     function addFriend()
@@ -161,6 +172,32 @@
         printTopRight();
     }
 
+    function promoteUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/promoteUser", {
+            user: profile.username
+        }, promoteUserHandler);
+    }
+
+    function promoteUserHandler(reponse) {
+        profile.canAdmin = true;
+        $(".spinner").remove();
+        printTopRight();
+    }
+
+    function demoteUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/demoteUser", {
+            user: profile.username
+        }, demoteUserHandler);
+    }
+
+    function demoteUserHandler(reponse) {
+        profile.canAdmin = false;
+        $(".spinner").remove();
+        printTopRight();
+    }
+
 
     //**********MESSAGE MODAL
     var messageList = [];
@@ -192,7 +229,8 @@
         }
     }
     function printMessageList(heading) {
-        $("#message-footer-left").removeClass('spinner');
+        $("#message-footer-left").empty()
+        //$("#message-footer-left").removeClass('spinner');
         if (messageList.length == 0) {
             $("#message-content").empty().append("<h2>empty</h2>");
             return;
@@ -225,7 +263,8 @@
         printMessageList("Recipient");
     }
     function composeHandler(recipient) {
-        $("#message-footer-left").removeClass('spinner');
+        $("#message-footer-left").empty()
+        //$("#message-footer-left").removeClass('spinner');
         var $row = $("<div class='form-group row' id='to-group'></div>");
         var $col3 = $('<div class="col-sm-3"></div>');
         $col3.append('<label class="control-label" for="to-input">recipient</label>');
@@ -254,7 +293,8 @@
         });
     }
     function sendMessageHandler(response) {
-        $("#message-footer-left").removeClass('spinner');
+       // $("#message-footer-left").removeClass('spinner');
+        $("#message-footer-left").empty()
         $('#send-btn').prop("disabled", false);
         var success = true;
         if (response.toError.length > 0) {

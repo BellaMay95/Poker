@@ -231,4 +231,48 @@ namespace PokerPrototype.Models
             }
         }
     }
+
+    public class promoteUser
+    {
+        public promoteUser(string user)
+        {
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "UPDATE users SET isAdmin=1 WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+    }
+
+    public class demoteUser
+    {
+        public demoteUser(string user)
+        {
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "UPDATE users SET isAdmin=0 WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                cmd.ExecuteNonQuery();
+            }
+            catch (Exception e)
+            {
+
+            }
+        }
+    }
 }
