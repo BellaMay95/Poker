@@ -858,7 +858,7 @@ namespace PokerGame
                 if (rdr.Read())
                 {
                     rdr.Close();
-                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE roomID = @roomID";
+                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @roomID";
                     cmd.Parameters.AddWithValue("@output", output);
                     cmd.Parameters.AddWithValue("@roomID", room);
                     cmd.ExecuteNonQuery();
@@ -963,7 +963,7 @@ namespace PokerGame
                 //on creation, GameManager creates a default Gamedata with a roomID of -1
                 //check for this, then update roomID and store in db
                 //return empty string, state doesn't exist as room hasn't been created
-                return "";
+                return "No json";
             }
 
         }
