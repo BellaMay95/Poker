@@ -858,7 +858,7 @@ namespace PokerGame
                 if (rdr.Read())
                 {
                     rdr.Close();
-                    cmd.CommandText = "UPDATE games SET jsondata = @output WHERE roomID = @roomID";
+                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE roomID = @roomID";
                     cmd.Parameters.AddWithValue("@output", output);
                     cmd.Parameters.AddWithValue("@roomID", room);
                     cmd.ExecuteNonQuery();
