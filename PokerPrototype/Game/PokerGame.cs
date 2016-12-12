@@ -333,6 +333,9 @@ namespace PokerGame
         {
             card1 = new Card();
             card2 = new Card();
+            avatar = "";
+            ID = "";
+            name = "";
         }
     }
 
@@ -930,8 +933,8 @@ namespace PokerGame
             //if the entry exists
             if (rdr.Read())
             {
+                Update response = new Update();
                 string output = "";
-                List<BasicPlayer> list = new List<BasicPlayer> { };
                 string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
                 if (!json.Equals(""))
@@ -944,17 +947,27 @@ namespace PokerGame
                 //for every player in active players, create a temp basic player and add it to list
                 for(int i=0; i< data.activePlayers.Count;i++)
                 {
-                    BasicPlayer temp = new BasicPlayer(data.activePlayers[i].name, data.activePlayers[i].currency, data.activePlayers[i].avatar);
-                    list.Add(temp);
+                    BasicPlayer temp = new BasicPlayer();
+                    temp.username = data.activePlayers[i].name;
+                    temp.currency = data.activePlayers[i].currency;
+                    temp.avatar = data.activePlayers[i].avatar;
+                    response.players.Add(temp);
                 }
                 //repeat for inactive players
                 for (int i = 0; i < data.inactivePlayers.Count; i++)
                 {
-                    BasicPlayer temp = new BasicPlayer(data.inactivePlayers[i].name, data.inactivePlayers[i].currency, data.inactivePlayers[i].avatar);
-                    list.Add(temp);
+                    BasicPlayer temp = new BasicPlayer();
+                    temp.username = data.activePlayers[i].name;
+                    temp.currency = data.activePlayers[i].currency;
+                    temp.avatar = data.activePlayers[i].avatar;
+                    response.players.Add(temp);
                 }
                 //add to update object
-                Update response = new Update(list, data.pot, data.title, data.board, data.time);
+                
+                response.pot = data.pot;
+                response.roomName = data.title;
+                response.time = data.time;
+                response.board = data.board;
                 //serialze
                 output = JsonConvert.SerializeObject(response);
 
@@ -1102,33 +1115,27 @@ namespace PokerGame
         }
     public class BasicPlayer
     {
-        string username { get; set; }
-        int currency { get; set; }
-        string avatar { get; set; }
+        public string username { get; set; }
+        public int currency { get; set; }
+        public string avatar { get; set; }
 
-        public BasicPlayer(string name, int amount, string img)
+        public BasicPlayer()
         {
-            username=name;
-            currency=amount;
-            avatar = img;
+
         }
     }
 
     public class Update
     {
-        List<BasicPlayer> players;
-        int pot;
-        string roomName;
-        string board;//space separated list of img text
-        int time;
+        public List<BasicPlayer> players;
+        public int pot { get; set; }
+        public string roomName { get; set; }
+        public string board { get; set; }//space separated list of img text
+        public int time { get; set; }
 
-        public Update(List<BasicPlayer> list, int amount, string name, string img, int num)
+        public Update()
         {
-            players = list;
-            pot = amount;
-            roomName = name;
-            board = img;
-            time = num;
+            players = new List<BasicPlayer> { }; ;
         }
     }    
 }
