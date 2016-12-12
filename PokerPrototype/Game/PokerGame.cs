@@ -858,22 +858,26 @@ namespace PokerGame
                 //if entry already exists update. Entry created by other means, should always exist
                 if (rdr.Read())
                 {
-                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @roomID";
-                    cmd.Parameters.AddWithValue("@output", output);
-                    cmd.Parameters.AddWithValue("@roomID", room);
-                    cmd.ExecuteNonQuery();
+                rdr.Close();
+                var cmde = new MySql.Data.MySqlClient.MySqlCommand();
+                cmde.Connection = Conn; 
+                    cmde.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @roomID";
+                    cmde.Parameters.AddWithValue("@output", output);
+                    cmde.Parameters.AddWithValue("@roomID", room);
+                    cmde.ExecuteNonQuery();
                 }
                 else
                 {
-                /*
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@roomID", room);
-                    cmd.Parameters.AddWithValue("@output", output);
-                    cmd.ExecuteNonQuery();
+                rdr.Close();
+                var cmde = new MySql.Data.MySqlClient.MySqlCommand();
+                cmde.Connection = Conn; 
+                cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
+                    cmde.Prepare();
+                    cmde.Parameters.AddWithValue("@roomID", room);
+                    cmde.Parameters.AddWithValue("@output", output);
+                    cmde.ExecuteNonQuery();
    
-                     * */
+                     
                 }
                 Conn.Close();
         }
