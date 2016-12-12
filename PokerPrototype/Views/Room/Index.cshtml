@@ -365,13 +365,17 @@
             font-size: 30px;
             text-align: center;
         }
+
+        [v-cloak] {
+            visibility: hidden;
+        }
     </style>
 }
 
 <h2>Room #@ViewBag.roomid</h2>
 
 <!-- COMMUNITY CARDS -->
-<div id="community">
+<div id="community" v-cloak>
     <div id="inGameUpdates">{{message}}</div>
     <div id="flop1" class="communityCard"><img v-bind:src="card1" /></div>
     <div id="flop2" class="communityCard"><img v-bind:src="card2" /></div>
@@ -389,7 +393,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
@@ -407,7 +411,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
@@ -425,7 +429,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
@@ -443,7 +447,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
@@ -461,7 +465,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
@@ -479,7 +483,7 @@
         <div id="card2" class="playerCard"><img v-bind:src="card2Url" /></div>
     </div>
 
-    <div class="playerBar">
+    <div class="playerBar" v-cloak>
         <a href="#" class="avatar"><img v-bind:src="avatarUrl" /></a>
         <div class="nameAndCurrency">
             <div class="name">{{username}}</div>
