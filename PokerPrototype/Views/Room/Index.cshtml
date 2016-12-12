@@ -572,22 +572,25 @@
 
             function initConnect() {
 
-               alert("connection established");
-               chat.server.getRoomInfo(roomID, username);
-               chat.client.updateHud = function(roomResponse){
-                   console.log(roomResponse);
-                   roomResponse.players.push(newUser);
-
-                   for(var i = 0; i < roomResponse.players.length; i++){
-                       hudArray[i].username = roomResponse.players[i].username;
-                       hudArray[i].currency = roomResponse.players[i].currency;
-                       hudArray[i].avatarUrl = roomResponse.players[i].avatar;
-                       hudArray[i].timer = roomResponse.time;
-                   }
-
-                   community.potSize = roomResponse.pot;
-
+                alert("connection established");
+              
+                chat.server.getRoomInfo(roomID, username);
             }
+
+            chat.client.updateHud = function(roomResponse){
+                console.log(roomResponse);
+                roomResponse.players.push(newUser);
+
+                for(var i = 0; i < roomResponse.players.length; i++){
+                    hudArray[i].username = roomResponse.players[i].username;
+                    hudArray[i].currency = roomResponse.players[i].currency;
+                    hudArray[i].avatarUrl = roomResponse.players[i].avatar;
+                    hudArray[i].timer = roomResponse.time;
+                }
+
+                community.potSize = roomResponse.pot;
+
+
                 if(roomResponse.boardCards.length){
                     community.card1 = roomResponse.boardCards[0];
                     community.card2 = roomResponse.boardCards[1];
@@ -602,7 +605,7 @@
                     community.card5 = roomResponse.boardCards[4];
                 }
 
-            }
+            };
 
 
 
@@ -627,8 +630,8 @@
             });
 
             $("#ready").click(function() {
-                    document.getElementById("ready").value="Waiting...";
-                    chat.server.confirmReady(roomID);
+                document.getElementById("ready").value="Waiting...";
+                chat.server.confirmReady(roomID);
             });
 
 
@@ -662,31 +665,22 @@
             $("#LeaveGame").click(function() {
 
 
-                chat.client.updateHUD = function(response){
-                    for(var i = 0; i < response.players.length; i++){
-                        if(hudArray[i].username == username){
-                            hudArray[i].username = '';
-                            hudArray[i].currency = 0;
-                            hudArray[i].card1Url = '';
-                            hudArray[i].card2Url = '';
-                        }
-                        response.players.splice(i, 1);
-                    }
-                }
+                //    chat.client.updateHUD = function(response){
+                //        for(var i = 0; i < response.players.length; i++){
+                //            if(hudArray[i].username == username){
+                //                hudArray[i].username = '';
+                //                hudArray[i].currency = 0;
+                //                hudArray[i].card1Url = '';
+                //                hudArray[i].card2Url = '';
+                //            }
+                //            response.players.splice(i, 1);
+                //        }
+                //    }
                 
+
                 chat.server.leave(roomID);
                 window.location.href = '/';
             });
-
-
-            /*function initConnect() {
-                alert("connection established")
-                chat.server.getRoomInfo(roomID);
-                $('#message-btn').prop("disabled", false).click(function () {
-                    chat.server.send(roomID, $("#message").val());
-                });
-                chat.server.GetRoomInfo();
-            }*/
 
             function updateTextInput(value){
                 var update=document.getElementById("raiseInput");
@@ -700,24 +694,24 @@
                 var updateVal=update.value;
                 updateVal=value;
             }
-            //});
+           
 
             chat.client.broadcastMessage = function(username,message){
                 var old=$("#chatbox").html();
                 $("#chatbox").html(old+"<p>"+username+": "+message+"</p>");
                 var objDiv = document.getElementById("chatbox");
                 objDiv.scrollTop = objDiv.scrollHeight;
-            }
+            };
 
             chat.client.broadcastReady = function(){
                 alert("ASdfasdfa");
                 document.getElementById("ready").value="Game has started!";
                 document.getElementById('ready').delay(1000).fadeOut="fast";
-            }
+            };
 
             chat.client.alertMessage = function (msg) {
                 community.message = msg;
-            }
+            };
 
             //chat.client.updateHUD = function(response){
             //    for(var i=0;i<hudArray.length;i++){
@@ -733,15 +727,7 @@
             //   console.log(JSON.stringify(model))
             //};
 
-            //$.connection.hub.start().done(initConnect).fail(function (reason) {
-            //    console.log("SignalR connection failed: " + reason);
-            //});
-            //function initConnect() {
-            //    alert("connection established");
-            //    chat.server.getRoomInfo(roomID);
-            //    $('#message-btn').prop("disabled", false).click(function () {
-            //        chat.server.send(roomID, $("#message").val());
-            //    });
+         
             //}
                 
         
@@ -776,12 +762,12 @@
                 if(communityCards[4]){
                     community.card5 = communityCards[4];
                 }
-            }
+            };
 
 
             chat.client.updatePot = function(pot){
                 community.potSize = pot;
-            }
+            };
 
 
             chat.client.updateCallAmount = function(amount){
@@ -794,8 +780,7 @@
                     $("#call").text("call " + amount);
                     $("#raiseInput").attr('value') = amount * 2;
                 }
-            }
-
+            };
 
         });
 

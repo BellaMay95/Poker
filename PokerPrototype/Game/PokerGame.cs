@@ -858,13 +858,13 @@ namespace PokerGame
                 //if entry already exists update. Entry created by other means, should always exist
                 if (rdr.Read())
                 {
-                rdr.Close();
-                var cmde = new MySql.Data.MySqlClient.MySqlCommand();
-                cmde.Connection = Conn; 
-                    cmde.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @roomID";
-                    cmde.Parameters.AddWithValue("@output", output);
-                    cmde.Parameters.AddWithValue("@roomID", room);
-                    cmde.ExecuteNonQuery();
+
+                    rdr.Close();
+                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @id";
+                    cmd.Parameters.AddWithValue("@output", output);
+                    cmd.Parameters.AddWithValue("@id", room);
+                    cmd.ExecuteNonQuery();
+
                 }
                 else
                 {
