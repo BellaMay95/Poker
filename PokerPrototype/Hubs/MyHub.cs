@@ -152,9 +152,9 @@ namespace PokerPrototype.Hubs
             }
             Conn.Close();
 
-  
 
-            }
+            broadcastRoomInfo(roomID);
+        }
         public override Task OnDisconnected(bool stopCalled)
         {
             GameManager manager = new GameManager();

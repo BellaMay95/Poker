@@ -930,10 +930,13 @@ namespace PokerGame
                 List<BasicPlayer> list = new List<BasicPlayer> { };
                 string json = (string)rdr["jsondata"];
                 //change to point to data class held by this
-                data = JsonConvert.DeserializeObject<GameData>(json);
-                //set deck to be of the values given
-                data.deck.setDeckCards(data.deckCards);
-                data.deck.setGameCards(data.gameCards);
+                if (!json.Equals(""))
+                {
+                    data = JsonConvert.DeserializeObject<GameData>(json);
+                    //set deck to be of the values given
+                    data.deck.setDeckCards(data.deckCards);
+                    data.deck.setGameCards(data.gameCards);
+                }
                 //for every player in active players, create a temp basic player and add it to list
                 for(int i=0; i< data.activePlayers.Count;i++)
                 {
