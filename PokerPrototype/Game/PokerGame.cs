@@ -1069,7 +1069,15 @@ namespace PokerGame
         }
         public Player getCurrentPlayer()
         {
-            return data.currentPlayer;
+            if(data.currentPlayer!=null)
+                return data.currentPlayer;
+            else
+            {
+                Player noPlayer = new Player();
+                noPlayer.ID = "";
+                noPlayer.name = "";
+                return noPlayer;
+            }
         }
         public int getCurrentIndex()
         {
