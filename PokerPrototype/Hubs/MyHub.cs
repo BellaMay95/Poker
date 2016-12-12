@@ -214,6 +214,10 @@ namespace PokerPrototype.Hubs
             //returns true if game is running, false if not
             //Clients.Group(roomID).updateStatus(check);
         }
+        public void updateChat(string roomID,string message)
+        {
+            Clients.Group(roomID).broadcastMessage(message);
+        }
         public void broadcastHand(string roomID, string connID)
         {
             
