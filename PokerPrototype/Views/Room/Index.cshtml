@@ -574,11 +574,9 @@
 
                alert("connection established");
 
-
-                
-
-                chat.server.getRoomInfo(roomID, username);
+               chat.server.getRoomInfo(roomID, username);
             }
+
             chat.client.updateHud = function(roomResponse){
                 console.log(roomResponse);
                 roomResponse.players.push(newUser);
@@ -663,22 +661,22 @@
                 }
             });
 
-            $("#LeaveGame").click(function() {
+            //$("#LeaveGame").click(function() {
 
 
-                chat.client.updateHUD = function(response){
-                    for(var i = 0; i < response.players.length; i++){
-                        if(hudArray[i].username == username){
-                            hudArray[i].username = '';
-                            hudArray[i].currency = 0;
-                            hudArray[i].card1Url = '';
-                            hudArray[i].card2Url = '';
-                        }
-                        response.players.splice(i, 1);
-                    }
-                }
+            //    chat.client.updateHUD = function(response){
+            //        for(var i = 0; i < response.players.length; i++){
+            //            if(hudArray[i].username == username){
+            //                hudArray[i].username = '';
+            //                hudArray[i].currency = 0;
+            //                hudArray[i].card1Url = '';
+            //                hudArray[i].card2Url = '';
+            //            }
+            //            response.players.splice(i, 1);
+            //        }
+            //    }
                 
-                chat.server.leave(roomID);
+            //    chat.server.leave(roomID);
 
                 //for(var i = 0; i < hudArray.length; i++){
                 //    if(hudArray[i].username == username){
@@ -690,7 +688,7 @@
                 //}
 
                 //chat.server.leave(roomID);
-            });
+            //});
 
 
             /*function initConnect() {
