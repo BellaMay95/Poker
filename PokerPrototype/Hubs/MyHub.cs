@@ -105,7 +105,8 @@ namespace PokerPrototype.Hubs
             //On join, getState of game
             GameManager manager = new GameManager();
             string result = manager.getState(Convert.ToInt32(roomID));
-            Clients.Caller.alertMessage("result is " + result);
+            //uncomment below line for error checking
+            //Clients.Caller.alertMessage("result is " + result);
             //game has not yet started, join in the "pre-game" stage
             if(manager.allReady()==false)
             {

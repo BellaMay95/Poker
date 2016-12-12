@@ -512,8 +512,6 @@
     <div id="metaActions">
         <button class="metaButton" id="BuyMore">Buy More</button>
         <br>
-        <button class="metaButton" id="HandHistory">Hand History</button>
-        <br>
         <button class="metaButton" id="LeaveGame">Leave game</button>
     </div>
     <div id="gameActions">
@@ -567,31 +565,29 @@
             };
 
             $.connection.hub.start().done(initConnect).fail(function (reason) {
+                alert("bop");
                 console.log("SignalR connection failed: " + reason);
+                alert("bip");
             });
 
             function initConnect() {
 
                alert("connection established");
+               chat.server.getRoomInfo(roomID, username);
+               chat.client.updateHud = function(roomResponse){
+                   console.log(roomResponse);
+                   roomResponse.players.push(newUser);
 
+                   for(var i = 0; i < roomResponse.players.length; i++){
+                       hudArray[i].username = roomResponse.players[i].username;
+                       hudArray[i].currency = roomResponse.players[i].currency;
+                       hudArray[i].avatarUrl = roomResponse.players[i].avatar;
+                       hudArray[i].timer = roomResponse.time;
+                   }
 
-                
+                   community.potSize = roomResponse.pot;
 
-                chat.server.getRoomInfo(roomID, username);
             }
-            chat.client.updateHud = function(roomResponse){
-                console.log(roomResponse);
-                roomResponse.players.push(newUser);
-
-                for(var i = 0; i < roomResponse.players.length; i++){
-                    hudArray[i].username = roomResponse.players[i].username;
-                    hudArray[i].currency = roomResponse.players[i].currency;
-                    hudArray[i].avatarUrl = roomResponse.players[i].avatar;
-                    hudArray[i].timer = roomResponse.time;
-                }
-
-                community.potSize = roomResponse.pot;
-
                 if(roomResponse.boardCards.length){
                     community.card1 = roomResponse.boardCards[0];
                     community.card2 = roomResponse.boardCards[1];
@@ -679,17 +675,7 @@
                 }
                 
                 chat.server.leave(roomID);
-
-                //for(var i = 0; i < hudArray.length; i++){
-                //    if(hudArray[i].username == username){
-                //        hudArray[i].username = '';
-                //        hudArray[i].currency = 0;
-                //        hudArray[i].avatarUrl = '';
-                //        break;
-                //    }
-                //}
-
-                //chat.server.leave(roomID);
+                window.location.href = '/';
             });
 
 

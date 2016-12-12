@@ -848,6 +848,7 @@ namespace PokerGame
                 string output = JsonConvert.SerializeObject(data);
                 MySqlConnection Conn = new MySqlConnection(Connection.Str);
                 var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Close();
                 Conn.Open();
                 cmd.Connection = Conn;
                 cmd.CommandText = "SELECT * FROM rooms WHERE id = @room";
@@ -857,23 +858,26 @@ namespace PokerGame
                 //if entry already exists update. Entry created by other means, should always exist
                 if (rdr.Read())
                 {
-                    rdr.Close();
-                    cmd.CommandText = "UPDATE rooms SET jsondata = @output WHERE roomID = @roomID";
-                    cmd.Parameters.AddWithValue("@output", output);
-                    cmd.Parameters.AddWithValue("@roomID", room);
-                    cmd.ExecuteNonQuery();
+                rdr.Close();
+                var cmde = new MySql.Data.MySqlClient.MySqlCommand();
+                cmde.Connection = Conn; 
+                    cmde.CommandText = "UPDATE rooms SET jsondata = @output WHERE id = @roomID";
+                    cmde.Parameters.AddWithValue("@output", output);
+                    cmde.Parameters.AddWithValue("@roomID", room);
+                    cmde.ExecuteNonQuery();
                 }
                 else
                 {
-                /*
-                    rdr.Close();
-                    cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
-                    cmd.Prepare();
-                    cmd.Parameters.AddWithValue("@roomID", room);
-                    cmd.Parameters.AddWithValue("@output", output);
-                    cmd.ExecuteNonQuery();
+                rdr.Close();
+                var cmde = new MySql.Data.MySqlClient.MySqlCommand();
+                cmde.Connection = Conn; 
+                cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
+                    cmde.Prepare();
+                    cmde.Parameters.AddWithValue("@roomID", room);
+                    cmde.Parameters.AddWithValue("@output", output);
+                    cmde.ExecuteNonQuery();
    
-                     * */
+                     
                 }
                 Conn.Close();
         }
@@ -963,7 +967,7 @@ namespace PokerGame
                 //on creation, GameManager creates a default Gamedata with a roomID of -1
                 //check for this, then update roomID and store in db
                 //return empty string, state doesn't exist as room hasn't been created
-                return "";
+                return "No json";
             }
 
         }
