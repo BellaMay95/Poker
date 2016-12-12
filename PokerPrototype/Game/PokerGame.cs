@@ -871,7 +871,7 @@ namespace PokerGame
                 rdr.Close();
                 var cmde = new MySql.Data.MySqlClient.MySqlCommand();
                 cmde.Connection = Conn; 
-                cmd.CommandText = "INSERT INTO games (roomID, jsondata) VALUES (@roomID,@output)";
+                cmd.CommandText = "INSERT INTO rooms (id, jsondata) VALUES (@roomID,@output)";
                     cmde.Prepare();
                     cmde.Parameters.AddWithValue("@roomID", room);
                     cmde.Parameters.AddWithValue("@output", output);
