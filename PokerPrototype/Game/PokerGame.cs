@@ -1,9 +1,4 @@
 ﻿/*
-
- * TODO:
- * -Need gameData to track phase of the game
- * -GameOver function should only check if game is over by player Folds
- * -award needs to update player database with new currency totals
  * */
 
 using System;
@@ -797,7 +792,7 @@ namespace PokerGame
 
                     }
                 }
-            }
+        }
         //call to mark player with string ID as ready
         public void readyPlayer(string ID)
             {

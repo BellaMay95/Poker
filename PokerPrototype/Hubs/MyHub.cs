@@ -3,13 +3,6 @@
 Use connectionIDs for playerIDs.
 This way can send targeted alerts to the player whose turn it is 
 
-TODO FOR GROUP TOMORROW TO HELP AS MUCH AS I CAN:
--Handle potential null decks (ensure room creation and game state creation happen in sync)
--Update users currency table values
--Ensure room AND game destroyed when last player leaves
--Write up documentation on how game flow works in hub.
-
-
 */
 using System;
 using System.Collections.Generic;
@@ -183,6 +176,7 @@ namespace PokerPrototype.Hubs
                 Groups.Remove(Context.ConnectionId, roomID);
                 manager.leave(Context.ConnectionId);
                 manager.updateState(Convert.ToInt32(roomID));
+                
             }
             else
             {
