@@ -225,11 +225,7 @@ namespace PokerPrototype.Hubs
             Clients.Client(connID).updateHand(card1.img, card2.img);
 
         }
-        //broadcast number of current players
-        public void broadcastPlayers(string roomID)
-        {
 
-        }
         //broadcasts to client a list of cards making up the board
         //you can pull img strings from there
         public void broadcastBoard(string roomID)
@@ -332,6 +328,8 @@ namespace PokerPrototype.Hubs
                 //need to take place after updating state, in order to grab up to date information
                 adjustBoard(roomID);
                 broadcastPot(roomID);
+                //last minute room info broadcast calling
+                broadcastRoomInfo(roomID);
                 alertPlayerTurn(manager.getCurrentPlayer().ID);
             }
             //broadcast to allclients
@@ -351,6 +349,8 @@ namespace PokerPrototype.Hubs
                     //need to take place after updating state, in order to grab up to date information
                     adjustBoard(roomID);
                     broadcastPot(roomID);
+                    //last minute room info broadcast calling
+                    broadcastRoomInfo(roomID);
                     return callAmt;
                 }
                 else
@@ -378,6 +378,8 @@ namespace PokerPrototype.Hubs
                 //need to take place after updating state, in order to grab up to date information
                 adjustBoard(roomID);
                 broadcastPot(roomID);
+                //last minute room info broadcast calling
+                broadcastRoomInfo(roomID);
                 alertPlayerTurn(manager.getCurrentPlayer().ID);
                 return 0;
             }
@@ -413,6 +415,8 @@ namespace PokerPrototype.Hubs
                     manager.updateState(Convert.ToInt32(roomID));
                     adjustBoard(roomID);
                     broadcastPot(roomID);
+                    //last minute room info broadcast calling
+                    broadcastRoomInfo(roomID);
                     return amount;
                 }
                 else
@@ -458,6 +462,8 @@ namespace PokerPrototype.Hubs
                     {
                         broadcastHand(roomID, players[i].ID);
                     }
+                    //last minute room info broadcast calling
+                    broadcastRoomInfo(roomID);
                     alertPlayerTurn(manager.getCurrentPlayer().ID);
                     //grab activePlayer[0].ID and notify them it is there turn
                     return true;
@@ -491,7 +497,7 @@ namespace PokerPrototype.Hubs
             manager.award(winners);
             manager.reset();
             manager.updateState(Convert.ToInt32(roomID));
-            //broadcast fact that game is now over
+            //broadcast fact that game is now over here
         }
         //adds cards to board at end of every betting cycle
         //may need adjustments if asyncs occur
@@ -527,6 +533,8 @@ namespace PokerPrototype.Hubs
                     //final round of betting complete, game is over
                     gameOver(roomID);
                 }
+                //last minute room info broadcast calling
+                broadcastRoomInfo(roomID);
             }
 
         }
