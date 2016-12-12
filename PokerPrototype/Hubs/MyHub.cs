@@ -210,14 +210,9 @@ namespace PokerPrototype.Hubs
 
         //if view needs to check whether buttons should be enabled or not (is game running?)
         //have a "updateStatus" javascript function.
-        public void broadcastStatus(bool check)
+        public void updateChat(string roomID,string username,string message)
         {
-            //returns true if game is running, false if not
-            //Clients.Group(roomID).updateStatus(check);
-        }
-        public void updateChat(string roomID,string message)
-        {
-            Clients.Group(roomID).broadcastMessage(message);
+            Clients.Group(roomID).broadcastMessage(username,message);
         }
         public void broadcastHand(string roomID, string connID)
         {
@@ -442,35 +437,36 @@ namespace PokerPrototype.Hubs
             //first off, check to see the game hasn't already started.
             //if allReady already returns true, this function shouldn't be able to be called
             //check anyways
+            Clients.Caller.alertMessage(1);
             if (manager.allReady() == false)
             {
                 manager.readyPlayer(Context.ConnectionId);
                 //start the game if all ready
                 if (manager.allReady())
                 {
+                    Clients.Group(roomID).alertMessage("Game has started!");
+
                     //assign all players their cards
                     manager.init();
 
                     //broadcast fact that game is now running
-                    broadcastStatus(true);
                     manager.updateState(Convert.ToInt32(roomID));
+                    Clients.Group(roomID).broadcastReady();
                     //broadcast hands to players
                     List<Player> players = manager.getActivePlayers();
                     for (int i = 0; i < players.Count; i++)
                     {
                         broadcastHand(roomID, players[i].ID);
                     }
-                    //grab activePlayer[0].ID and notify them it is there turn
-                    Clients.Group(roomID).alertMessage("Game has started!");
                     alertPlayerTurn(manager.getCurrentPlayer().ID);
-                    
+                    //grab activePlayer[0].ID and notify them it is there turn
                     return true;
                     //wooooooo start the game
                 }
                 else
                 {
+                    Clients.Caller.alertMessage("Waiting for others...");
                     manager.readyPlayer(Context.ConnectionId);
-                    Clients.Caller.alertMessage("Ready Confirmed");
                     manager.updateState(Convert.ToInt32(roomID));
                     return true;
                     //should we formally wait? shouldn't need to right?
@@ -488,11 +484,14 @@ namespace PokerPrototype.Hubs
             manager.getState(Convert.ToInt32(roomID));
 
             List<String> winners =manager.getWinner();
+            for(int i = 0; i < winners.Count; i++)
+            {
+                Clients.Client(winners[i]).alertMessage("You win!");
+            }
             manager.award(winners);
             manager.reset();
             manager.updateState(Convert.ToInt32(roomID));
             //broadcast fact that game is now over
-            broadcastStatus(false);
         }
         //adds cards to board at end of every betting cycle
         //may need adjustments if asyncs occur
