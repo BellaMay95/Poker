@@ -84,6 +84,17 @@
         if (profile.isFriend || profile.canAdmin || $("#admin").text() == "1"){
              $topright.append("<button type='button' class='btn btn-default' id='message' data-toggle='modal' data-target='#message-modal' data-dismiss='modal' style='margin-right: 5px'>Send Message</button>");
         }
+        //alert("Blocked: " + profile.isBlocked);
+        if (profile.isBlocked == false)
+            $topright.append("<button type='button' class='btn btn-default' id='block' style='margin-right: 5px'>Block User</button>");
+        else
+            $topright.append("<button type='button' class='btn btn-default' id='unblock' style='margin-right: 5px'>Unblock User</button>");
+        $("#block").click(function () {
+            blockUser(profile.username);
+        })
+        $("#unblock").click(function () {
+            unblockUser(profile.username);
+        })
         if ($("#admin").text() == "1") {
             if (profile.canAdmin == true) {
                 $topright.append("<button type='button' class='btn btn-default' id='demote-admin' style='margin-right: 5px'>Remove as Admin</button>");
@@ -198,6 +209,31 @@
         printTopRight();
     }
 
+    function blockUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/blockUser", {
+            user: profile.username
+        }, blockUserHandler);
+    }
+
+    function blockUserHandler(response) {
+        profile.isBlocked = true;
+        $(".spinner").remove();
+        printTopRight();
+    }
+
+    function unblockUser(user) {
+        $(".modal-footer").append("<div class='spinner' style='float: left'</div>")
+        $.post("/ajax/unblockUser", {
+            user: profile.username
+        }, unblockUserHandler);
+    }
+
+    function unblockUserHandler(response) {
+        profile.isBlocked = false;
+        $(".spinner").remove();
+        printTopRight();
+    }
 
     //**********MESSAGE MODAL
     var messageList = [];
@@ -214,6 +250,7 @@
             recipient = "";
         }
         $("#message-content").empty();
+        $("#message-footer-left").empty();
         $("#message-footer-left").addClass('spinner');
         if (str == "inbox") {
             $("#message-content").removeClass("well");
@@ -264,7 +301,7 @@
     }
     function composeHandler(recipient) {
         $("#message-footer-left").empty()
-        //$("#message-footer-left").removeClass('spinner');
+        $("#message-footer-left").removeClass('spinner');
         var $row = $("<div class='form-group row' id='to-group'></div>");
         var $col3 = $('<div class="col-sm-3"></div>');
         $col3.append('<label class="control-label" for="to-input">recipient</label>');
@@ -293,7 +330,7 @@
         });
     }
     function sendMessageHandler(response) {
-       // $("#message-footer-left").removeClass('spinner');
+        $("#message-footer-left").removeClass('spinner');
         $("#message-footer-left").empty()
         $('#send-btn').prop("disabled", false);
         var success = true;

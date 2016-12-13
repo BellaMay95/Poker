@@ -22,17 +22,35 @@ namespace PokerPrototype.Models
     }
     public class InboxList : List<MessageModel>
     {
+        List<int> blocked_users = new List<int>();
         public InboxList(int id)
         {
             MySqlConnection Conn = new MySqlConnection(Connection.Str);
             var cmd = new MySql.Data.MySqlClient.MySqlCommand();
             Conn.Open();
             cmd.Connection = Conn;
-            cmd.CommandText = "SELECT messages.id, username, date_sent, message FROM messages JOIN users ON users.id = sender_id WHERE receiver_id = " + id;
+            cmd.CommandText = "SELECT blocked_id FROM blocked WHERE user_id=" + id;
             MySqlDataReader rdr = cmd.ExecuteReader();
+            int i = 0;
+            while(rdr.Read())
+            {
+                int temp = Convert.ToInt32(rdr[0]);
+                blocked_users.Add(temp);
+                i++;
+            }
+            rdr.Close();
+            cmd.CommandText = "SELECT messages.id, username, date_sent, message, sender_id FROM messages JOIN users ON users.id = sender_id WHERE receiver_id = " + id;
+            rdr = cmd.ExecuteReader();
             while (rdr.Read())
             {
-                Add(new MessageModel(Convert.ToInt32(rdr[0]), rdr[1].ToString(), rdr[2].ToString(), rdr[3].ToString()));
+                int clear = 0;
+                for (i = 0; i < blocked_users.Count; i++)
+                {
+                    if (blocked_users[i] == Convert.ToInt32(rdr[4]))
+                        clear = 1; 
+                }
+                if (clear == 0)
+                    Add(new MessageModel(Convert.ToInt32(rdr[0]), rdr[1].ToString(), rdr[2].ToString(), rdr[3].ToString()));
             }
         }
     }

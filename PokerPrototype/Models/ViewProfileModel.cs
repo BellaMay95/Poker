@@ -18,13 +18,14 @@ namespace PokerPrototype.Models
         public bool isFriend;
         public bool disabled;
         public bool canAdmin;
+        public bool isBlocked;
         public List <string> friendAvatar;
         public List <string> friendUser;
 
         public ViewProfileModel(int sessionid, string username)
         {
             success = true;
-            canEdit = isFriend = canAdmin = disabled = false;
+            canEdit = isFriend = canAdmin = isBlocked = disabled = false;
             friendAvatar = new List<string>();
             friendUser = new List<string>();
             //User = new UserModel(sessionid);
@@ -36,7 +37,7 @@ namespace PokerPrototype.Models
                 cmd.Connection = Conn;
                 if (username.Length == 0)
                 {
-                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin,diabled FROM users WHERE id = " + sessionid;
+                    cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin,disabled FROM users WHERE id = " + sessionid;
                 }else
                 {
                     cmd.CommandText = "SELECT id, username,currency,avatar,isAdmin,disabled FROM users WHERE username = @user";
@@ -88,6 +89,23 @@ namespace PokerPrototype.Models
                             friendAvatar.Add(Avatar.Str);
                         }
                         friendUser.Add(rdr[1].ToString());
+                    }
+                    rdr.Close();
+                    int profile_user = 0;
+                    cmd.CommandText = "SELECT id FROM users WHERE username = @user1";
+                    cmd.Parameters.AddWithValue("@user1", username);
+                    rdr = cmd.ExecuteReader();
+                    if (rdr.Read())
+                    {
+                        profile_user = Convert.ToInt32(rdr[0]);
+                    }
+                    rdr.Close();
+                    cmd.CommandText = "SELECT blocked_id FROM blocked WHERE user_id = " + sessionid;
+                    rdr = cmd.ExecuteReader();
+                    while (rdr.Read())
+                    {
+                        if (profile_user == Convert.ToInt32(rdr[0]))
+                            this.isBlocked = true;
                     }
                 }
                 else
@@ -272,6 +290,89 @@ namespace PokerPrototype.Models
             catch (Exception e)
             {
 
+            }
+        }
+    }
+
+    public class blockUserModel
+    {
+        [System.Web.Script.Serialization.ScriptIgnore]
+        public bool success { get; set; }
+        public string username { get; set; }
+        public string connectError { get; set; }
+
+        public blockUserModel(int id, string user)
+        {
+            connectError = "";
+            username = user;
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "SELECT id FROM users WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                if (!rdr.Read())
+                {
+                    success = false;
+                    connectError = "failed to return id of blockee";
+                    return;
+                }
+                int block_id = Convert.ToInt32(rdr[0]);
+                rdr.Close();
+                cmd.CommandText = "INSERT into blocked(user_id, blocked_id) VALUES (" + id + ", " + block_id + ") ";
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+                Conn.Close();
+            }
+            catch (Exception ex)
+            {
+                connectError = ex.Message;
+            }
+        }
+    }
+
+    public class unblockUserModel
+    {
+        [System.Web.Script.Serialization.ScriptIgnore]
+        public bool success { get; set; }
+        public string username { get; set; }
+        public string connectError { get; set; }
+
+        public unblockUserModel(int id, string user)
+        {
+            connectError = "";
+            username = user;
+            try
+            {
+                MySqlConnection Conn = new MySqlConnection(Connection.Str);
+                var cmd = new MySql.Data.MySqlClient.MySqlCommand();
+                Conn.Open();
+                cmd.Connection = Conn;
+                cmd.CommandText = "SELECT id FROM users WHERE username = @user";
+                cmd.Prepare();
+                cmd.Parameters.AddWithValue("@user", user);
+                MySqlDataReader rdr = cmd.ExecuteReader();
+                if (!rdr.Read())
+                {
+                    success = false;
+                    connectError = "failed to return id of blockee";
+                    return;
+                }
+                int block_id = Convert.ToInt32(rdr[0]);
+                rdr.Close();
+                cmd.CommandText = "DELETE FROM blocked WHERE user_id=" + id + " AND blocked_id=" + block_id;
+                //cmd.CommandText = "DELETE FROM `sql9140372`.`blocked` WHERE `blocked`.`user_id` = " + id + "AND `blocked`.`blocked_id` =" + block_id;
+                cmd.Prepare();
+                cmd.ExecuteNonQuery();
+                Conn.Close();
+            }
+            catch (Exception ex)
+            {
+                connectError = ex.Message;
             }
         }
     }
