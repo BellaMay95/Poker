@@ -115,6 +115,16 @@ namespace PokerPrototype.Controllers
             demoteUser model = new demoteUser(user);
             return Json(model, JsonRequestBehavior.AllowGet);
         }
+        public ActionResult blockUser(string user)
+        {
+            blockUserModel model = new blockUserModel(Convert.ToInt32(Session["id"]), user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+        public ActionResult unblockUser(string user)
+        {
+            unblockUserModel model = new unblockUserModel(Convert.ToInt32(Session["id"]), user);
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
         public ActionResult inbox()
         {
             InboxList list = new InboxList(Convert.ToInt32(Session["id"]));

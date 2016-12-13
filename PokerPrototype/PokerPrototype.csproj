@@ -225,6 +225,7 @@
     <Compile Include="Models\EditProfileModel.cs" />
     <Compile Include="Models\LoginModel.cs" />
     <Compile Include="Models\RegisterModel.cs" />
+    <Compile Include="Models\Report.cs" />
     <Compile Include="Models\RoomList.cs" />
     <Compile Include="Models\RoomModel.cs" />
     <Compile Include="Models\UserModel.cs" />
@@ -287,6 +288,7 @@
     <Content Include="Views\Shared\_AddFund.cshtml" />
     <Content Include="Views\Shared\_AddFundScript.cshtml" />
     <Content Include="Views\Home\ViewProfile.cshtml" />
+    <Content Include="Views\Home\Reports.cshtml" />
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
